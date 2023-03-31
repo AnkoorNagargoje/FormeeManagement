@@ -19,7 +19,7 @@ class CustomerForm(forms.ModelForm):
     fssai = forms.CharField(required=False)
     phone = forms.IntegerField()
     no_of_order = forms.IntegerField(required=False)
-    order_type = forms.ChoiceField(choices=SALE_CHOICE)
+    order_type = forms.ChoiceField(choices=SALE_CHOICE, required=False)
 
     class Meta:
         model = Customer
