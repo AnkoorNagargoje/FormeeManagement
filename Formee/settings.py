@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-cqnrsr(ii-n6+(t0$9plx(g5^#7x%fk1*d6^sc=ez^6&9pn0-p
 DEBUG = True
 
 ALLOWED_HOSTS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app', 'stocksoftware.formeefoods.com']
-CSRF_TRUSTED_ORIGINS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app']
 
 # Application definition
 

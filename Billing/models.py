@@ -17,7 +17,7 @@ class Customer(models.Model):
     email = models.EmailField()
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
-    phone = models.PositiveIntegerField()
+    phone = models.PositiveBigIntegerField()
     order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='studio')
     no_of_order = models.PositiveIntegerField(default=0)
 
