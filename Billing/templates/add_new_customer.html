@@ -40,6 +40,7 @@
             <p class="text-xl my-2">Email</p>
             {% render_field form.email class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="764GAF63848" %}
         </div>
+        {{ form.errors }}
         <br>
         <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add Customer</button>
     </form>
