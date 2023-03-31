@@ -1,1 +1,1 @@
-web: gunicorn 'Formee.wsgi'
+web: gunicorn 'Formee.wsgi' --log-file -
