@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+<div class="flex w-11/12 m-auto">
+    <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
+        <p class="mb-4 text-md font-bold uppercase">Edit Product</p>
+        <hr>
+        <form method="post" class="flex flex-wrap">
+            {% csrf_token %}
+            <div class="mt-4">
+                <p class="text-sm">Name of the Product:</p>
+                <p class="text-xl font-semibold">{{ product.name }}</p>
+                <p class="text-md font-semibold">{{ product.size }}</p>
+            </div>
+            <div class="flex my-4 mb-6">
+                <div>
+                    <p class="text-l">Stock In</p>
+                    {% render_field form.in_quantity class="w-11/12 h-10 indent-2 rounded bg-transparent border-2" placeholder="15" %}
+                </div>
+                <div>
+                    <p class="text-l">Stock Out</p>
+                    {% render_field form.out_quantity class="w-11/12 h-10 indent-2 rounded bg-transparent border-2" placeholder="15" %}
+                </div>
+            </div>
+            {{ form.errors }}
+            <br>
+            <button type="submit"
+                    class="w-full bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
+                Update
+            </button>
+        </form>
+    </div>
+
+    <div class="relative overflow-x-auto sm:rounded-lg w-5/6 m-auto mt-6 ml-6">
+
+        <div class="w-full rounded">
+            <form action="">
+                <div class="flex flex-row justify-between items-center mb-4">
+                    <div class="grow mr-2">
+                        <input type="text" class="w-full h-10 border indent-4 rounded" name="stock_search"
+                           placeholder="Date">
+                    </div>
+                    <div class="ml-2">
+                        <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Product Code
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Product name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Size
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    In Quantity
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Out Quantity
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for s in stock %}
+            <tr class="bg-white border-b">
+
+                <td class="px-6 py-4">
+                    {{ s.product_code }}
+                </td>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    {{ product.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ product.size }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ s.in_quantity }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ s.out_quantity }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ s.date }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+
+<div class="flex w-11/12 m-auto">
+    <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
+        <p class="mb-4 text-md font-bold uppercase">Add Item</p>
+        <hr>
+        <br>
+
+        <form method="post" class="flex flex-wrap">
+            {% csrf_token %}
+            <p class="text-lg mb-2">Product</p>
+            {% render_field form.product label="Product" class='w-full h-10 indent-2 border-2 rounded' %}
+
+            <p class="text-lg mb-2">Quantity</p>
+            {% render_field form.quantity class='w-full h-10 indent-2 border-2 rounded' %}
+
+            {{ form.errors }}
+            <button type="submit"
+                    class="w-full mt-4 bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
+                Add Item
+            </button>
+        </form>
+    </div>
+
+    <div class="relative overflow-x-auto sm:rounded-lg w-5/6 m-auto mt-6 ml-6">
+
+        <div class="w-full rounded">
+            <form action="">
+                <div class="flex flex-row justify-between items-center mb-4">
+                    <div class="grow mr-2">
+                        <input type="text" class="w-full h-10 border indent-4 rounded" name="order_date_search"
+                               placeholder="Date">
+                    </div>
+                    <div class="ml-2">
+                        <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Product Code
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Product
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Stock Ordered
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in order_items %}
+            <tr class="bg-white border-b">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    {{ item.product }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ item.product.name }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ item.quantity }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

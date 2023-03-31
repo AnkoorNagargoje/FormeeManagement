@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block body %}
+
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6 ">
+    <p class="text-center text-3xl font-bold">Login</p>
+    <br>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        <div class="my-6">
+            <p class="text-xl my-2">Username</p>
+            {% render_field form.username class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: formeeuser" %}
+        </div>
+        <div class="my-6">
+            <p class="text-xl my-2">Password</p>
+            {% render_field form.password class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Password" %}
+        </div>
+        <br>
+        <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Login</button>
+    </form>
+</div>
+
+{% endblock %}

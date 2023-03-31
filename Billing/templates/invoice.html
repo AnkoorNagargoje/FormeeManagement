@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background-color:#f6f6f6;">
+<div class="w-11/12 m-auto">
+    <div class="flex justify-around items-center">
+        <div class="flex-1"><p class="text-lg">Date: {{ order.created_at }}</p></div>
+        <div class="grow border"><img src="{{ STATIC_ROOT }}{% static 'images/formeelogo.png' %}" alt="adgad" class="w-64 m-auto"></div>
+        <div class="flex-1"><p class="text-lg text-center">Invoice #{{ order.pk }}</p></div>
+    </div>
+</div>
+
+<div class="mt-12 m-auto w-11/12">
+    <p class="text-xl">Customer: {{ customer.name }}</p>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in order_items %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.product.price }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p>Total amount to be paid: {{ order.order_total }}</p>
+</body>
+</html>

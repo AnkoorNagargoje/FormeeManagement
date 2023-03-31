@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
+    <div><a href="add_product/"><button type="button" class="m-2 px-4 py-2 bg-green-400 rounded">Add Product</button></a></div>
+    <div class="grow ml-8">
+        <form action="">
+            <input type="text" class="w-[100%] h-10 border indent-4 rounded" name="product_search" placeholder="Search Product">
+    </div>
+    <div>
+        <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
+        </form>
+    </div>
+
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4">
+    <table class="w-full text-sm text-left border">
+        <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Product Code
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Product name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Size
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Price
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Quantity
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr class="bg-white border-b">
+                <td class="px-6 py-4">
+                    {{ product.code }}
+                </td>
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    {{ product.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ product.size }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ product.price }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ product.stock }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{{ product.code }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
