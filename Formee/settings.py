@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-cqnrsr(ii-n6+(t0$9plx(g5^#7x%fk1*d6^sc=ez^6&9pn0-p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://formeemanagement-production.up.railway.app/', 'stocksoftware.formeefoods.com']
 
 
 # Application definition
@@ -129,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, '/static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'Formee/static')]
 STATIC_ROOT =os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
