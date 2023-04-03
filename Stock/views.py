@@ -25,7 +25,11 @@ def add_product_view(request):
     if request.method == 'POST':
         form = ProductForm(request.POST or None)
         if form.is_valid():
-            form.save()
+            unsaved_form = form.save(commit=False)
+            without_gst_price = unsaved_form.price * 100 / 112
+            unsaved_form.franchise_price = without_gst_price - without_gst_price * 25 / 100
+            unsaved_form.store_price = without_gst_price - without_gst_price * 20 / 100
+            unsaved_form.save()
             return redirect('/stock/')
         else:
             messages.error(request, 'something is not correct')

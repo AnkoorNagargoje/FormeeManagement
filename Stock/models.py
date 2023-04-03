@@ -6,6 +6,8 @@ class Product(models.Model):
     code = models.CharField(max_length=4, unique=True)
     size = models.CharField(max_length=20, default='200gm')
     price = models.FloatField()
+    franchise_price = models.FloatField(default=0)
+    store_price = models.FloatField(default=0)
     stock = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

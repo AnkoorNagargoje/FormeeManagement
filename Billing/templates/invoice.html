@@ -1,41 +1,222 @@
 <!DOCTYPE html>
 <html>
-{% load static %}
 <head>
     <meta charset="utf-8">
     <title>Invoice</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; background-color:#f6f6f6;">
-<div class="w-11/12 m-auto">
-    <div class="flex justify-around items-center">
-        <div class="flex-1"><p class="text-lg">Date: {{ order.created_at }}</p></div>
-        <div class="grow border"><img src="{{ STATIC_ROOT }}{% static 'images/formeelogo.png' %}" alt="adgad" class="w-64 m-auto"></div>
-        <div class="flex-1"><p class="text-lg text-center">Invoice #{{ order.pk }}</p></div>
-    </div>
-</div>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            font-size: 14px;
+        }
 
-<div class="mt-12 m-auto w-11/12">
-    <p class="text-xl">Customer: {{ customer.name }}</p>
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom:10px;
+        }
+
+        .customer-details {
+            width:100%;
+        }
+
+        .customer-details h2 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .customer-details p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .product-details {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .product-details th, .product-details td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: left;
+        }
+
+        .product-details th {
+            background-color: #f2f2f2;
+        }
+
+        .total-amount {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .total-amount span {
+            margin-right: 10px;
+        }
+        .center {
+			text-align: center;
+			font-size:20px;
+			font-weight:bold;
+		}
+		.right {
+			float: right;
+		}
+		p{
+		    margin:0;
+		}
+
+    </style>
+</head>
+<body>
+
+<div class="center">
+    <p>Tax Invoice</p>
 </div>
-<table>
+<hr>
+
+<table class="customer-details">
+    <tbody>
+    <tr>
+        <td width="70%">
+            <p class="logo">Shree Panchakrishna Foods Pvt. Ltd.</p>
+            <p>208, Bodke Plaza, Puna Road, Dwarka,<br>
+                Nashik - 422011. Maharashtra. India.<br>
+                Phone: +91 8530555300<br>
+                Email: sales@formeefoods.com<br>
+                GST Reg. Number: 27ABJCS1376C1ZC
+            </p>
+        </td>
+        <td>Invoice #{{ order.created_at|date:"Y-24/" }}{{ order.id }}<br>
+            Date: {{ order.created_at|date:"d F, Y" }}
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<hr>
+<h2 style="margin:0">Customer Details</h2>
+<table class="customer-details">
+    <tbody>
+    <tr>
+        <td width="70%">
+            {{ customer.name }}<br>
+            {{ customer.address }}, {{ customer.district }}<br>
+            Email: {{ customer.email }}<br>
+            Phone: {{ customer.phone }}<br>
+            GSTIN: {{ customer.gstin }}<br>
+            FSSAI: {{ customer.fssai }}
+        </td>
+    </tr>
+    </tbody>
+</table>
+<hr>
+
+<table class="product-details">
     <thead>
     <tr>
-        <th>Name</th>
+        <th>Product Name</th>
+        <th>Size</th>
         <th>Quantity</th>
         <th>Price</th>
+        {% if customer.order_type == 'franchise' %}
+        <th style="text-transform:capitalize;">Franchise Price</th>
+        {% elif customer.order_type == 'super market' %}
+        <th>Store Price</th>
+        {% endif %}
+        <th>Subtotal</th>
     </tr>
     </thead>
     <tbody>
     {% for item in order_items %}
     <tr>
-        <td>{{ item.product.name }}</td>
+        <td>{{ item.product.name|slice:-5 }}</td>
+        <td>{{ item.product.size }}</td>
         <td>{{ item.quantity }}</td>
         <td>{{ item.product.price }}</td>
+
+        {% if customer.order_type == 'franchise' %}
+        <td>{{ item.product.franchise_price|floatformat:2 }}</td>
+        {% elif customer.order_type == 'super market' %}
+        <td>{{ item.product.store_price|floatformat:2 }}</td>
+        {% endif %}
+
+        {% if customer.order_type == 'franchise' %}
+        <td>{{ item.franchise_item_total|floatformat:2 }}</td>
+        {% elif customer.order_type == 'super market' %}
+        <td>{{ item.store_item_total|floatformat:2 }}</td>
+        {% else %}
+        <td>{{ item.customer_item_total|floatformat:2 }}</td>
+        {% endif %}
     </tr>
     {% endfor %}
     </tbody>
 </table>
-<p>Total amount to be paid: {{ order.order_total }}</p>
+
+<table class="product-details">
+    <thead>
+    <tr>
+        <th style="width:50%;">Bank Details</th>
+        <th>Billing</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            Bank: Bank of Maharashtra<br>
+            Account No: 9475HJQUHSKH<br>
+            IFSC Code: JHDAJH8WOIE8438
+        </td>
+        <td style="padding:0;">
+            {% if customer.order_type != 'normal customer' and customer.order_type != 'studio' %}
+            <table>
+                <tr>
+                    <td>Sub Total</td>
+                    <td>
+                        {% if customer.order_type == 'franchise' %}
+                        {{ order.franchise_order_total|floatformat:2 }}
+                        {% elif customer.order_type == 'super market' %}
+                        {{ order.store_order_total|floatformat:2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>CGST</td>
+                    <td>
+                        {% if customer.order_type == 'franchise' %}
+                        {{ order.franchise_cgst|floatformat:2 }}
+                        {% elif customer.order_type == 'super market' %}
+                        {{ order.store_cgst|floatformat:2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Invoice Total<span style="font-size:8px;">(incl. of taxes)</span></td>
+                    <td>
+                        {% if customer.order_type == 'franchise' %}
+                        {{ order.franchise_cgst_total|floatformat:2 }}
+                        {% elif customer.order_type == 'super market' %}
+                        {{ order.store_cgst_total|floatformat:2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            {% else %}
+            <p style="padding-left:5px;">{{ order.order_total }}</p>
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+
+</table>
 </body>
 </html>

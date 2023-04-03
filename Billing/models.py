@@ -35,6 +35,26 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.customer} - {self.id}"
 
+    def franchise_order_total(self):
+        without_gst = self.order_total * 100 / 112
+        return without_gst - without_gst * 25 / 100
+
+    def store_order_total(self):
+        without_gst = self.order_total * 100 / 112
+        return without_gst - without_gst * 20 / 100
+
+    def franchise_cgst(self):
+        return self.franchise_order_total() * 12 / 100
+
+    def store_cgst(self):
+        return self.store_order_total() * 12 / 100
+
+    def franchise_cgst_total(self):
+        return self.franchise_order_total() + self.franchise_cgst()
+
+    def store_cgst_total(self):
+        return self.store_order_total() + self.store_cgst()
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -43,3 +63,12 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"
+
+    def franchise_item_total(self):
+        return self.product.franchise_price * self.quantity
+
+    def store_item_total(self):
+        return self.product.store_price * self.quantity
+
+    def customer_item_total(self):
+        return self.product.price * self.quantity

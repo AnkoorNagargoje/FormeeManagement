@@ -51,9 +51,6 @@
                     Order No
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Customer
-                </th>
-                <th scope="col" class="px-6 py-3">
                     Total Amount
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -80,11 +77,14 @@
                 <td class="px-6 py-4">
                     {{ forloop.counter }}
                 </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {{ order.customer }}
-                </th>
                 <td class="px-6 py-4">
+                    {% if customer.order_type == 'franchise' %}
+                    {{ order.franchise_cgst_total }}
+                    {% elif customer.order_type == 'super market' %}
+                    {{ order.store_cgst_total }}
+                    {% else %}
                     {{ order.order_total }}
+                    {% endif %}
                 </td>
                 <td class="px-6 py-4">
                     <p>{{ order.payment_status }}</p>

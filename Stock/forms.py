@@ -7,11 +7,13 @@ class ProductForm(forms.ModelForm):
     code = forms.CharField(max_length=4)
     size = forms.CharField(max_length=20)
     price = forms.FloatField()
+    franchise_price = forms.FloatField(required=False)
+    store_price = forms.FloatField(required=False)
     stock = forms.IntegerField()
 
     class Meta:
         model = Product
-        fields = ['name', 'code','size', 'price', 'stock']
+        fields = ['name', 'code', 'size', 'price', 'franchise_price', 'store_price', 'stock']
 
 
 class QuantityForm(forms.ModelForm):

@@ -26,11 +26,13 @@ SECRET_KEY = 'django-insecure-cqnrsr(ii-n6+(t0$9plx(g5^#7x%fk1*d6^sc=ez^6&9pn0-p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app', 'stocksoftware.formeefoods.com']
-CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app']
+ALLOWED_HOSTS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app',
+                 'stocksoftware.formeefoods.com',
+                 #"*",
+                 ]
+CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app', 'https://stocksoftware.formeefoods.com']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,7 +45,7 @@ INSTALLED_APPS = [
     'Stock',
     'Users',
     'Billing',
-    'widget_tweaks'
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +81,15 @@ WSGI_APPLICATION = 'Formee.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+"""
+#"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -90,6 +100,7 @@ DATABASES = {
         'PORT': '7599',
     }
 }
+#"""
 
 
 # Password validation
@@ -128,8 +139,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'Formee/static')]
+STATIC_URL = 'staticfiles/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, '/static')]
 STATIC_ROOT =os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type

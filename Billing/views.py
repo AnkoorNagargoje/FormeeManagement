@@ -3,10 +3,8 @@ from .models import Customer, Order, Product, OrderItem
 from .forms import OrderForm, OrderItemForm, CustomerForm
 from django.contrib.auth.decorators import login_required
 from Stock.models import Quantity
-from django.template.loader import render_to_string
 from django.http import HttpResponse
 from xhtml2pdf import pisa
-from io import BytesIO
 
 
 @login_required
@@ -27,7 +25,7 @@ def add_new_customer(request):
 @login_required
 def order_list(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    orders = customer.order_set.all()
+    orders = customer.order_set.all().order_by('-created_at')
     form = OrderForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         order = form.save(commit=False)
@@ -86,52 +84,6 @@ def generate_invoice(request, order_id):
 
     return response
 
-from django.template.loader import get_template
-from django.http import HttpResponse
-from xhtml2pdf import pisa
-from django.conf import settings
-import os
-
-def generate_invoice_pdf(request, order_id):
-    # Get the template
-    template = get_template('invoice.html')
-    order = Order.objects.get(id=order_id)
-    customer = order.customer
-    order_items = OrderItem.objects.filter(order=order)
-    total_amount = order.order_total
-
-    # Define the context for the template
-    context = {
-        'order': order,
-        'STATIC_ROOT': settings.STATIC_ROOT
-    }
-
-    # Render the template with the context
-    html = template.render(context)
-
-    # Define the filename for the PDF file
-    filename = f"{order.customer.name}_Invoice.pdf"
-
-    # Create the HttpResponse object with PDF headers
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    # Create the PDF file
-    pisa_status = pisa.CreatePDF(html, dest=response, link_callback=fetch_resources)
-
-    # Return the PDF file
-    if pisa_status.err:
-        return HttpResponse('There was an error creating the PDF file')
-    else:
-        return response
-
-def fetch_resources(uri, rel):
-    """
-    Callback function used by xhtml2pdf to fetch external resources (e.g. images)
-    """
-    path = os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ""))
-    return path
-
 
 def invoice(request, order_id):
     order = Order.objects.get(id=order_id)
@@ -141,8 +93,3 @@ def invoice(request, order_id):
 
     # Render the HTML template
     return render(request, 'invoice.html', {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount})
-
-
-
-
-
