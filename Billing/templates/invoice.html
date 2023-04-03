@@ -113,8 +113,8 @@
             {{ customer.address }}, {{ customer.district }}<br>
             Email: {{ customer.email }}<br>
             Phone: {{ customer.phone }}<br>
-            GSTIN: {{ customer.gstin }}<br>
-            FSSAI: {{ customer.fssai }}
+            GST Reg. Number: {{ customer.gstin }}<br>
+            FSSAI Reg. Number: {{ customer.fssai }}
         </td>
     </tr>
     </tbody>
@@ -133,7 +133,7 @@
         {% elif customer.order_type == 'super market' %}
         <th>Store Price</th>
         {% endif %}
-        <th>Subtotal</th>
+        <th>Total</th>
     </tr>
     </thead>
     <tbody>

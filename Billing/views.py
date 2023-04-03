@@ -79,7 +79,7 @@ def generate_invoice(request, order_id):
 
     # Create a PDF file using xhtml2pdf
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=invoice_{order_id}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=Invoice-{customer.name}-{order_id}.pdf'
     pisa.CreatePDF(html, dest=response, encoding='utf-8')
 
     return response
