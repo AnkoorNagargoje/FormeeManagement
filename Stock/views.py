@@ -11,7 +11,7 @@ def home_view(request):
 
 @login_required
 def stock_view(request):
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('code')
 
     product_search = request.GET.get('product_search')
     if product_search != '' and product_search is not None:
