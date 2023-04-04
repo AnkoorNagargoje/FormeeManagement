@@ -3,18 +3,17 @@ from .models import Customer, Order, OrderItem
 from Stock.models import Product
 
 SALE_CHOICE = (
+    ('normal', 'Normal Customer'),
     ('super market', 'Super Market'),
     ('franchise', 'Franchise'),
-    ('studio', 'Studio'),
-    ('normal', 'Normal Customer'),
 )
 
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField()
-    address = forms.CharField(widget=forms.Textarea)
-    district = forms.CharField()
-    email = forms.EmailField()
+    address = forms.CharField(widget=forms.Textarea, required=False)
+    district = forms.CharField(required=False)
+    email = forms.EmailField(required=False)
     gstin = forms.CharField(required=False)
     fssai = forms.CharField(required=False)
     phone = forms.IntegerField()

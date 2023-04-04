@@ -79,11 +79,11 @@
                 </td>
                 <td class="px-6 py-4">
                     {% if customer.order_type == 'franchise' %}
-                    {{ order.franchise_cgst_total }}
+                    {{ order.franchise_cgst_total|floatformat:2 }}
                     {% elif customer.order_type == 'super market' %}
-                    {{ order.store_cgst_total }}
+                    {{ order.store_cgst_total|floatformat:2 }}
                     {% else %}
-                    {{ order.order_total }}
+                    {{ order.order_total|floatformat:2 }}
                     {% endif %}
                 </td>
                 <td class="px-6 py-4">

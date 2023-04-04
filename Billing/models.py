@@ -5,7 +5,6 @@ from Stock.models import Product
 SALE_CHOICE = (
     ('super market', 'Super Market'),
     ('franchise', 'Franchise'),
-    ('studio', 'Studio'),
     ('normal', 'Normal Customer'),
 )
 
@@ -18,7 +17,7 @@ class Customer(models.Model):
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
     phone = models.PositiveBigIntegerField()
-    order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='studio')
+    order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='normal')
     no_of_order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -44,16 +43,22 @@ class Order(models.Model):
         return without_gst - without_gst * 20 / 100
 
     def franchise_cgst(self):
-        return self.franchise_order_total() * 12 / 100
+        return self.franchise_order_total() * 6 / 100
 
     def store_cgst(self):
-        return self.store_order_total() * 12 / 100
+        return self.store_order_total() * 6 / 100
+
+    def franchise_sgst(self):
+        return self.franchise_order_total() * 6 / 100
+
+    def store_sgst(self):
+        return self.store_order_total() * 6 / 100
 
     def franchise_cgst_total(self):
-        return self.franchise_order_total() + self.franchise_cgst()
+        return self.franchise_order_total() + self.franchise_cgst() + self.franchise_sgst()
 
     def store_cgst_total(self):
-        return self.store_order_total() + self.store_cgst()
+        return self.store_order_total() + self.store_cgst() + self.store_sgst()
 
 
 class OrderItem(models.Model):

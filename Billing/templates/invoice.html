@@ -173,11 +173,12 @@
     <tr>
         <td>
             Bank: Bank of Maharashtra<br>
-            Account No: 9475HJQUHSKH<br>
-            IFSC Code: JHDAJH8WOIE8438
+            Branch: Dwarka Nashik<br>
+            Account No: 60422884277<br>
+            IFSC Code: MAHB0000590
         </td>
         <td style="padding:0;">
-            {% if customer.order_type != 'normal customer' and customer.order_type != 'studio' %}
+            {% if customer.order_type != 'normal'%}
             <table>
                 <tr>
                     <td>Sub Total</td>
@@ -200,6 +201,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>SGST</td>
+                    <td>
+                        {% if customer.order_type == 'franchise' %}
+                        {{ order.franchise_sgst|floatformat:2 }}
+                        {% elif customer.order_type == 'super market' %}
+                        {{ order.store_sgst|floatformat:2 }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Invoice Total<span style="font-size:8px;">(incl. of taxes)</span></td>
                     <td>
                         {% if customer.order_type == 'franchise' %}
@@ -218,5 +229,14 @@
     </tbody>
 
 </table>
+
+<div>
+    <p><u>Declaration</u><br>
+        We declare that this Invoice shows the actual price of the goods described and that all particulars are true and correct.
+        <br>
+        SUBJECT TO NASHIK JURISDICTION<br>
+        This is a computer generated invoice.
+    </p>
+</div>
 </body>
 </html>
