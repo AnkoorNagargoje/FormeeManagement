@@ -46,7 +46,7 @@
                     {{ product.code }}
                 </td>
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {{ product.name }}
+                    {{ product.name|slice:-5 }}
                 </th>
                 <td class="px-6 py-4">
                     {{ product.size }}
