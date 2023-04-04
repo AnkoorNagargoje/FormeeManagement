@@ -9,6 +9,10 @@
     <form method="post">
         {% csrf_token %}
         <div class="my-6">
+            <p class="text-xl my-2">Customer Type</p>
+            {% render_field form.order_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
+        </div>
+        <div class="my-6">
             <p class="text-xl my-2">Customer Name</p>
             {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Formee Foods" %}
         </div>
@@ -19,10 +23,6 @@
         <div class="my-6">
             <p class="text-xl my-2">District</p>
             {% render_field form.district class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
-        </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Customer Type</p>
-            {% render_field form.order_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
         </div>
         <div class="my-6">
             <p class="text-xl my-2">FSSAI Number</p>
