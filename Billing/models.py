@@ -1,5 +1,5 @@
-from django.db import models
 from Stock.models import Product
+from django.db import models
 
 
 SALE_CHOICE = (
@@ -17,6 +17,7 @@ class Customer(models.Model):
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
     phone = models.PositiveBigIntegerField()
+    birth_date = models.DateField(blank=True, null=True)
     order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='normal')
     no_of_order = models.PositiveIntegerField(default=0)
 

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Customer, Order, OrderItem
+from .models import *
 from Stock.models import Product
 
 SALE_CHOICE = (
@@ -17,12 +17,13 @@ class CustomerForm(forms.ModelForm):
     gstin = forms.CharField(required=False)
     fssai = forms.CharField(required=False)
     phone = forms.IntegerField()
+    birth_date = forms.DateField(input_formats=['%d/%m'])
     no_of_order = forms.IntegerField(required=False)
     order_type = forms.ChoiceField(choices=SALE_CHOICE, required=False)
 
     class Meta:
         model = Customer
-        fields = ['name', 'address', 'district', 'email', 'gstin', 'fssai', 'phone', 'no_of_order', 'order_type']
+        fields = ['name', 'address', 'district', 'email', 'gstin', 'fssai', 'phone', 'birth_date', 'no_of_order', 'order_type']
 
 
 class OrderForm(forms.ModelForm):
