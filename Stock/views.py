@@ -41,7 +41,7 @@ def add_product_view(request):
 @login_required
 def edit_product_view(request, code):
     product = Product.objects.get(code=code)
-    stock = Quantity.objects.filter(product_code=code).order_by('-date')
+    stock = Quantity.objects.filter(product_code=product)
 
     stock_search = request.GET.get('stock_search')
     if stock_search != '' and stock_search is not None:

@@ -7,12 +7,28 @@
         <hr>
         <div class="my-4">
             <p class="text-xl my-2 font-semibold"><span class="text-sm">Name:</span> {{ customer.name }}</p>
+            {% if customer.address != '' %}
             <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.address }}</p>
-            <p class="text-md my-2 font-semibold"><span class="text-sm">District:</span> {{ customer.district }}</p>
-            <p class="text-md my-2 font-semibold"><span class="text-sm">Email:</span> {{ customer.email }}</p>
+            {% endif %}
+
+            {% if customer.district != '' %}
+            <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.district }}</p>
+            {% endif %}
+
+            {% if customer.email != '' %}
+            <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.email }}</p>
+            {% endif %}
+
             <p class="text-md my-2 font-semibold"><span class="text-sm">Phone:</span> {{ customer.phone }}</p>
-            <p class="text-md my-2 font-semibold"><span class="text-sm">FSSAI:</span> {{ customer.fssai }}</p>
-            <p class="text-md my-2 font-semibold"><span class="text-sm">GSTIN:</span> {{ customer.gstin }}</p>
+
+            {% if customer.fssai != '' %}
+            <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.fssai }}</p>
+            {% endif %}
+
+            {% if customer.gstin != '' %}
+            <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.gstin }}</p>
+            {% endif %}
+
         </div>
         <br>
         <p class="mb-4 text-md font-bold uppercase">Create New Order</p>

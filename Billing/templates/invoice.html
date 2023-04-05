@@ -93,6 +93,7 @@
                 Nashik - 422011. Maharashtra. India.<br>
                 Phone: +91 8530555300<br>
                 Email: sales@formeefoods.com<br>
+                www.formeefoods.com<br>
                 GST Reg. Number: 27ABJCS1376C1ZC
             </p>
         </td>
@@ -110,11 +111,23 @@
     <tr>
         <td width="70%">
             {{ customer.name }}<br>
+
+            {% if customer.address != '' %}
             {{ customer.address }}, {{ customer.district }}<br>
+            {% endif %}
+
+            {% if customer.email != '' %}
             Email: {{ customer.email }}<br>
+            {% endif %}
             Phone: {{ customer.phone }}<br>
+
+            {% if customer.gstin != '' %}
             GST Reg. Number: {{ customer.gstin }}<br>
+            {% endif %}
+
+            {% if customer.fssai != '' %}
             FSSAI Reg. Number: {{ customer.fssai }}
+            {% endif %}
         </td>
     </tr>
     </tbody>
