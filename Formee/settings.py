@@ -24,11 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-cqnrsr(ii-n6+(t0$9plx(g5^#7x%fk1*d6^sc=ez^6&9pn0-p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app',
                  'stocksoftware.formeefoods.com',
-                 #"*",
+                 "*",
                  ]
 CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app', 'https://stocksoftware.formeefoods.com']
 
