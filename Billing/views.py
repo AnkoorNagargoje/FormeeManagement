@@ -10,6 +10,11 @@ from xhtml2pdf import pisa
 @login_required
 def customer_list(request):
     customers = Customer.objects.all()
+
+    customer_search = request.GET.get('customer_search')
+    if customer_search != '' and customer_search is not None:
+        customers = Customer.objects.filter(name__contains=customer_search)
+
     return render(request, 'billing.html', {'customers': customers})
 
 

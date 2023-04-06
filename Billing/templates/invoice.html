@@ -80,7 +80,11 @@
 <body>
 
 <div class="center">
+    {% if customer.order_type == 'normal' %}
+    <p>Cash Memo</p>
+    {% else %}
     <p>Tax Invoice</p>
+    {% endif %}
 </div>
 <hr>
 
@@ -137,7 +141,10 @@
 <table class="product-details">
     <thead>
     <tr>
-        <th>Product Name</th>
+        <th width="30%">Product Name</th>
+        {% if customer.order_type != '' %}
+        <th>HSN Code</th>
+        {% endif %}
         <th>Size</th>
         <th>Quantity</th>
         <th>Price</th>
@@ -153,6 +160,9 @@
     {% for item in order_items %}
     <tr>
         <td>{{ item.product.name|slice:-5 }}</td>
+        {% if customer.order_type != 'normal' %}
+        <td>{{ item.product.hsn_code }}</td>
+        {% endif %}
         <td>{{ item.product.size }}</td>
         <td>{{ item.quantity }}</td>
         <td>{{ item.product.price }}</td>
