@@ -17,7 +17,7 @@ class CustomerForm(forms.ModelForm):
     gstin = forms.CharField(required=False)
     fssai = forms.CharField(required=False)
     phone = forms.IntegerField()
-    birth_date = forms.DateField(input_formats=['%d/%m'])
+    birth_date = forms.DateField(input_formats=['%d/%m'], required=False)
     no_of_order = forms.IntegerField(required=False)
     order_type = forms.ChoiceField(choices=SALE_CHOICE, required=False)
 
@@ -35,7 +35,7 @@ class OrderForm(forms.ModelForm):
 
 
 class OrderItemForm(forms.ModelForm):
-    product = forms.ModelChoiceField(queryset=Product.objects.all(), label='Product', to_field_name='id')
+    product = forms.ModelChoiceField(queryset=Product.objects.all().order_by('code'), label='Product', to_field_name='id')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
