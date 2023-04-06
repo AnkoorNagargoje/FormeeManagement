@@ -50,8 +50,8 @@
             <form action="">
                 <div class="flex flex-row justify-between items-center mb-4">
                     <div class="grow mr-2">
-                        <input type="text" class="w-full h-10 border indent-4 rounded" name="order_date_search"
-                               placeholder="Date">
+                        <input type="text" class="w-full h-10 border indent-4 rounded" name="order_invoice_search"
+                               placeholder="Invoice Number">
                     </div>
                     <div class="ml-2">
                         <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
@@ -64,7 +64,7 @@
             <thead class="text-xs uppercase">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    Order No
+                    Invoice Number
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Total Amount
@@ -91,7 +91,7 @@
             <tr class="bg-white border-b">
 
                 <td class="px-6 py-4">
-                    {{ forloop.counter }}
+                    2023-24/{{ order.pk }}
                 </td>
                 <td class="px-6 py-4">
                     {% if customer.order_type == 'franchise' %}

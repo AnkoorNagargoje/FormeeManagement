@@ -13,7 +13,7 @@ def customer_list(request):
 
     customer_search = request.GET.get('customer_search')
     if customer_search != '' and customer_search is not None:
-        customers = Customer.objects.filter(name__contains=customer_search)
+        customers = Customer.objects.filter(name__icontains=customer_search)
 
     return render(request, 'billing.html', {'customers': customers})
 
@@ -31,6 +31,11 @@ def add_new_customer(request):
 def order_list(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     orders = customer.order_set.all().order_by('-created_at')
+
+    order_invoice_search = request.GET.get('order_invoice_search')
+    if order_invoice_search != '' and order_invoice_search is not None:
+        orders = Order.objects.filter(customer=customer, pk__contains=order_invoice_search)
+
     form = OrderForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         order = form.save(commit=False)

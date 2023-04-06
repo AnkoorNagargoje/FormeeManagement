@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'Stock',
     'Users',
     'Billing',
+    'Accounting',
     'widget_tweaks',
 ]
 

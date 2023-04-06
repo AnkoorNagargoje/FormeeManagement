@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+    <p class="text-center text-3xl font-bold">Add New Debit</p>
+    <br>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        <div class="my-6">
+            <p class="text-xl my-2">Name</p>
+            {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Tea" %}
+        </div>
+        <div class="my-6">
+            <p class="text-xl my-2">Amount</p>
+            {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 20" %}
+        </div>
+        <div class="my-6">
+            <p class="text-xl my-2">Invoice Number</p>
+            {% render_field form.reason class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Anything" %}
+        </div>
+        {{ form.errors }}
+        <br>
+        <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add Debit</button>
+    </form>
+</div>
+
+{% endblock %}

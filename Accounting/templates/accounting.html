@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="flex w-11/12 m-auto gap-8 mt-4">
+    <div class="text-2xl font-bold w-1/2 pb-2 border-b-2">
+        Credits
+    </div>
+    <div class="text-2xl font-bold w-1/2 pb-2 border-b-2">
+        Debits
+    </div>
+</div>
+
+<div class="flex justify-around w-11/12 m-auto gap-8 mt-2 flex-nowrap">
+    <div class="flex w-3/6 items-center flex-wrap gap-4">
+        <div><a href="add_credit/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Credit</button></a>
+        </div>
+        <div>
+            <form action="" class="w-full">
+                <input type="text" class="max-w-full h-10 border indent-4 rounded" name="credit_search"
+                       placeholder="Search Credit">
+                <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="flex w-3/6 items-center gap-4">
+        <div><a href="add_debit/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Debit</button></a>
+        </div>
+        <form action="" class="w-full">
+            <input type="text" class="max-w-full h-10 border indent-4 rounded" name="debit_search"
+                   placeholder="Search Debit">
+            <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="w-11/12 m-auto flex justify-between gap-8">
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-3/6 mt-4">
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Amount
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Invoice Number
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for credit in credits %}
+            <tr class="bg-white border-b">
+                <td class="px-6 py-4">
+                    {{ credit.id }}
+                </td>
+                <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
+                    {{ credit.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ credit.amount }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ credit.invoice_number }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="#" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-3/6 mt-4">
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Amount
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Reason
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for debit in debits %}
+            <tr class="bg-white border-b">
+                <td class="px-6 py-4">
+                    {{ debit.id }}
+                </td>
+                <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
+                    {{ debit.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ debit.amount }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.reason }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="#" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
