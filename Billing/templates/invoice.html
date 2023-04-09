@@ -142,14 +142,14 @@
     <thead>
     <tr>
         <th width="30%">Product Name</th>
-        {% if customer.order_type != '' %}
+        {% if customer.order_type != 'normal' %}
         <th>HSN Code</th>
         {% endif %}
         <th>Size</th>
         <th>Quantity</th>
         <th>Price</th>
         {% if customer.order_type == 'franchise' %}
-        <th style="text-transform:capitalize;">Franchise Price</th>
+        <th>Franchise Price</th>
         {% elif customer.order_type == 'super market' %}
         <th>Store Price</th>
         {% endif %}
@@ -252,7 +252,20 @@
     </tbody>
 
 </table>
+<div style="text-transform: uppercase;">
+   Amount Chargeable(in words):<br>
+    <p style="font-weight:700;">
+    {% if customer.order_type == 'franchise' %}
+        INR {{ total_amount_in_words_franchise|title }} Only
+    {% elif customer.order_type == 'super market' %}
+        INR {{ total_amount_in_words_store|title }} Only
+    {% elif customer.order_type == 'normal' %}
+        INR {{ total_amount_in_words_normal|title }} Only
+    {% endif %}
 
+    </p>
+</div>
+<br>
 <div>
     <p><u>Declaration</u><br>
         We declare that this Invoice shows the actual price of the goods described and that all particulars are true and correct.

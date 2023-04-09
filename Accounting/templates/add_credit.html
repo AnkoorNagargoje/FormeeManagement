@@ -12,17 +12,34 @@
             <p class="text-xl my-2">Name</p>
             {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Customer Name and Invoice Number" %}
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Amount</p>
-            {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 993.3" %}
+
+        <div class="flex gap-8 justify-between">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Amount</p>
+                {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 993.3" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Invoice Number</p>
+                {% render_field form.invoice_number class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="3" %}
+            </div>
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Invoice Number</p>
-            {% render_field form.invoice_number class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="3" %}
+
+        <div class="flex gap-8 justify-between">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Transaction Number</p>
+                {% render_field form.transaction_number class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 12049029409124" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Date</p>
+                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="" %}
+            </div>
         </div>
         {{ form.errors }}
         <br>
-        <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add Credit</button>
+        <button type="submit"
+                class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add
+            Credit
+        </button>
     </form>
 </div>
 

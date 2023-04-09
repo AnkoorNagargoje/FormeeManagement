@@ -6,18 +6,19 @@ SALE_CHOICE = (
     ('super market', 'Super Market'),
     ('franchise', 'Franchise'),
     ('normal', 'Normal Customer'),
+    ('exhibition', 'Exhibition'),
 )
 
 
 class Customer(models.Model):
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
-    district = models.CharField(max_length=100)
+    district = models.CharField(max_length=100, default='-')
     email = models.EmailField()
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
     phone = models.PositiveBigIntegerField()
-    birth_date = models.DateField(blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True,)
     order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='normal')
     no_of_order = models.PositiveIntegerField(default=0)
 
@@ -56,10 +57,19 @@ class Order(models.Model):
         return self.store_order_total() * 6 / 100
 
     def franchise_cgst_total(self):
-        return self.franchise_order_total() + self.franchise_cgst() + self.franchise_sgst()
+        total = self.franchise_order_total() + self.franchise_cgst() + self.franchise_sgst()
+        rounded_total = total.__round__(2)
+        return rounded_total
 
     def store_cgst_total(self):
-        return self.store_order_total() + self.store_cgst() + self.store_sgst()
+        total = self.store_order_total() + self.store_cgst() + self.store_sgst()
+        rounded_total = total.__round__(2)
+        return rounded_total
+
+    def normal_order_total(self):
+        total = self.order_total
+        rounded_total = total.__round__(2)
+        return rounded_total
 
 
 class OrderItem(models.Model):

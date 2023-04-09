@@ -6,6 +6,7 @@ SALE_CHOICE = (
     ('normal', 'Normal Customer'),
     ('super market', 'Super Market'),
     ('franchise', 'Franchise'),
+    ('exhibition', 'Exhibition'),
 )
 
 

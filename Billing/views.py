@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from Stock.models import Quantity
 from django.http import HttpResponse
 from xhtml2pdf import pisa
+from num2words import num2words
 
 
 @login_required
@@ -81,10 +82,19 @@ def generate_invoice(request, order_id):
     customer = order.customer
     order_items = OrderItem.objects.filter(order=order)
     total_amount = order.order_total
+    total_amount_in_words_franchise = num2words(order.franchise_cgst_total())
+    total_amount_in_words_normal = num2words(order.normal_order_total())
+    total_amount_in_words_store = num2words(order.store_cgst_total())
+    total_amount_in_words_exhibition = num2words(order.normal_order_total())
 
     # Render the HTML template
     template = get_template('invoice.html')
-    context = {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount}
+    context = {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount,
+               'total_amount_in_words_franchise': total_amount_in_words_franchise,
+               'total_amount_in_words_normal': total_amount_in_words_normal,
+               'total_amount_in_words_store': total_amount_in_words_store,
+               'total_amount_in_words_exhibition': total_amount_in_words_exhibition,
+               }
     html = template.render(context)
 
     # Create a PDF file using xhtml2pdf
