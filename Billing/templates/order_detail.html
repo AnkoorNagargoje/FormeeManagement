@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block body %}
-
 <div class="flex w-11/12 m-auto">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
         <p class="mb-4 text-md font-bold uppercase">Add Item</p>
@@ -55,6 +54,9 @@
                 <th scope="col" class="px-6 py-3">
                     Action
                 </th>
+                <th scope="col" class="px-6 py-3">
+                    Danger
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -70,7 +72,10 @@
                     {{ item.quantity }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="#" class="font-medium text-blue-600 hover:underline">Edit</a>
+                    <a href="{{ item.id }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{{ item.id }}/delete/" class="font-medium text-red-600 hover:underline">Delete</a>
                 </td>
             </tr>
             {% endfor %}

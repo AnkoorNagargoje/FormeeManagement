@@ -7,6 +7,11 @@
         <hr>
         <div class="my-4">
             <p class="text-xl my-2 font-semibold"><span class="text-sm">Name:</span> {{ customer.name }}</p>
+            {% if customer.order_type %}
+            <p class="text-md my-2 font-semibold"><span class="text-sm">Customer Type:</span>
+            {{ customer.get_order_type_display }}
+            </p>
+            {% endif %}
             {% if customer.address != '' %}
             <p class="text-md my-2 font-semibold"><span class="text-sm">Address:</span> {{ customer.address }}</p>
             {% endif %}
@@ -73,16 +78,13 @@
                     Payment Status
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Order Type
-                </th>
-                <th scope="col" class="px-6 py-3">
                     Date
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Download
+                    Invoice
                 </th>
             </tr>
             </thead>
@@ -106,18 +108,13 @@
                     <p>{{ order.payment_status }}</p>
                 </td>
                 <td class="px-6 py-4">
-                    {% if customer.order_type %}
-                    <p>{{ customer.get_order_type_display }}</p>
-                    {% endif %}
-                </td>
-                <td class="px-6 py-4">
                     {{ order.created_at }}
                 </td>
                 <td class="px-6 py-4">
                     <a href="{{ order.pk }}" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
                 <td class="px-6 py-4">
-                    <a href="/billing/{{ order.id }}/invoice/" target="_blank" class="font-medium text-blue-600 hover:underline">Invoice</a>
+                    <a href="/invoice/{{ order.id }}/" target="_blank" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
             </tr>
             {% endfor %}
