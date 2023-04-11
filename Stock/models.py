@@ -21,6 +21,7 @@ class Quantity(models.Model):
     product_code = models.ForeignKey(Product, on_delete=models.CASCADE)
     in_quantity = models.IntegerField(blank=True, null=True)
     out_quantity = models.IntegerField(blank=True, null=True)
+    invoice_number = models.PositiveIntegerField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

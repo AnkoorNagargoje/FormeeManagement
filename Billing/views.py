@@ -67,7 +67,8 @@ def order_detail(request, customer_id, order_id):
         product.stock -= order_item.quantity
         product.save()
         quantity_object = Quantity.objects.create(product_code=order_item.product,
-                                                  out_quantity=order_item.quantity)
+                                                  out_quantity=order_item.quantity,
+                                                  invoice_number=order_id)
         quantity_object.save()
         order.order_total += order_item.quantity * product.price
         order.save()
