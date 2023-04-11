@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def accounting(request):
-    credits = Credit.objects.all()
-    debits = Debit.objects.all()
+    credits = Credit.objects.all().order_by('-id')
+    debits = Debit.objects.all().order_by('-id')
 
     credit_search = request.GET.get('credit_search')
     if credit_search != '' and credit_search is not None:

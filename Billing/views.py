@@ -8,6 +8,7 @@ from xhtml2pdf import pisa
 from num2words import num2words
 from django.template.loader import get_template
 from django.contrib import messages
+from Accounting.models import Credit
 
 
 @login_required
@@ -73,6 +74,19 @@ def order_detail(request, customer_id, order_id):
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_detail.html', {'form': form, 'customer': customer, 'order': order, 'order_items': order_items})
+
+
+def order_paid(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+    order.payment_status = 'Paid'
+    order.save()
+
+    add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                       invoice_number=order_id,
+                                       amount=order.order_total)
+    add_credit.save()
+    return redirect('order_list', customer_id=customer.id)
 
 
 def order_item_edit(request, customer_id, order_id, order_item_id):

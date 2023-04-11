@@ -38,7 +38,7 @@
 </div>
 
 
-<div class="w-11/12 m-auto flex justify-between gap-8">
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-3/6 mt-4">
         <table class="w-full text-sm text-left border">
@@ -65,7 +65,7 @@
             {% for credit in credits %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
-                    {{ credit.id }}
+                    {{ forloop.counter }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
                     {{ credit.name }}
@@ -110,7 +110,7 @@
             {% for debit in debits %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
-                    {{ debit.id }}
+                    {{ forloop.counter }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
                     {{ debit.name }}

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block body %}
-<div class="flex w-11/12 m-auto">
+<div class="flex w-11/12 m-auto pb-8">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
         <p class="mb-4 text-md font-bold uppercase">Add Item</p>
         <hr>
@@ -81,12 +81,24 @@
             {% endfor %}
             </tbody>
         </table>
-        <a href="/billing/{{ customer.pk }}/orders/">
-            <button type="submit"
-                    class="w-3/12 float-right mt-4 bg-green-400 rounded-xl h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
-            Continue to Billing
-            </button>
-        </a>
+
+        <div class="float-right">
+            <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">
+                <button type="submit"
+                        class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                    Continue to Billing
+                </button>
+            </a>
+
+            <form action="{% url 'order_paid' customer.id order.id %}" method="post" class="inline ml-2">
+                {% csrf_token %}
+                <button type="submit"
+                        class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                    Cash Recieved
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
 
