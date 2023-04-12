@@ -75,6 +75,7 @@
 		    margin:0;
 		}
 
+
     </style>
 </head>
 <body style="width:50%;margin:auto; margin-top:20px;">
@@ -95,18 +96,23 @@
 <table class="customer-details">
     <tbody>
     <tr>
-        <td width="70%">
-            <p class="logo">Shree Panchakrishna Foods Pvt. Ltd.</p>
+        <td width="65%">
+            <p class="logo" style="text-decoration:underline;">Shree Panchakrishna Foods Pvt. Ltd.</p>
             <p>208, Bodke Plaza, Puna Road, Dwarka,<br>
                 Nashik - 422011. Maharashtra. India.<br>
                 Phone: +91 8530555300<br>
                 Email: sales@formeefoods.com<br>
                 www.formeefoods.com<br>
-                GST Reg. Number: 27ABJCS1376C1ZC
             </p>
         </td>
-        <td>Invoice #{{ order.created_at|date:"Y-24/" }}{{ order.id }}<br>
-            Date: {{ order.created_at|date:"d F, Y" }}
+        <td>
+            <p class='logo' style="margin-top:-18px;text-decoration:underline;">Formee Foods</p>
+            <p>
+                Invoice #{{ order.created_at|date:"Y-24/" }}{{ order.id }}<br>
+                Date: {{ order.created_at|date:"d F, Y" }}<br>
+                FSSAI Number: 21522027000644<br>
+                GST Reg. Number: 27ABJCS1376C1ZC
+            </p>
         </td>
     </tr>
     </tbody>
@@ -117,7 +123,7 @@
 <table class="customer-details">
     <tbody>
     <tr>
-        <td width="70%">
+        <td width="65%">
             {{ customer.name }}<br>
 
             {% if customer.address != '' %}
@@ -128,13 +134,14 @@
             Email: {{ customer.email }}<br>
             {% endif %}
             Phone: {{ customer.phone }}<br>
-
-            {% if customer.gstin != '' %}
-            GST Reg. Number: {{ customer.gstin }}<br>
-            {% endif %}
-
+        </td>
+        <td>
             {% if customer.fssai != '' %}
             FSSAI Reg. Number: {{ customer.fssai }}
+            {% endif %}<br>
+
+            {% if customer.gstin != '' %}
+            GST Reg. Number: {{ customer.gstin }}
             {% endif %}
         </td>
     </tr>
@@ -257,22 +264,23 @@
 
 </table>
 <div style="text-transform: uppercase;">
-   Amount Chargeable(in words):<br>
+    Amount Chargeable(in words):<br>
     <p style="font-weight:700;">
-    {% if customer.order_type == 'franchise' %}
+        {% if customer.order_type == 'franchise' %}
         INR {{ total_amount_in_words_franchise|title }} Only
-    {% elif customer.order_type == 'super market' %}
+        {% elif customer.order_type == 'super market' %}
         INR {{ total_amount_in_words_store|title }} Only
-    {% elif customer.order_type == 'normal' %}
+        {% elif customer.order_type == 'normal' %}
         INR {{ total_amount_in_words_normal|title }} Only
-    {% endif %}
+        {% endif %}
 
     </p>
 </div>
 <br>
 <div>
     <p><u>Declaration</u><br>
-        We declare that this Invoice shows the actual price of the goods described and that all particulars are true and correct.
+        We declare that this Invoice shows the actual price of the goods described and that all particulars are true and
+        correct.
         <br>
         SUBJECT TO NASHIK JURISDICTION<br>
         This is a computer generated invoice.

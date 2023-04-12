@@ -83,9 +83,22 @@ def order_paid(request, customer_id, order_id):
     order.payment_status = 'Paid'
     order.save()
 
-    add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
-                                       invoice_number=order_id,
-                                       amount=order.order_total)
+    if customer.order_type == 'normal':
+        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                           invoice_number=order_id,
+                                           amount=order.order_total)
+    elif customer.order_type == 'franchise':
+        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                           invoice_number=order_id,
+                                           amount=order.franchise_cgst_total())
+    elif customer.order_type == 'super market':
+        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                           invoice_number=order_id,
+                                           amount=order.store_cgst_total())
+    else:
+        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                           invoice_number=order_id,
+                                           amount=order.order_total)
     add_credit.save()
     return redirect('order_list', customer_id=customer.id)
 
