@@ -8,7 +8,7 @@ class Credit(models.Model):
     amount = models.FloatField()
     invoice_number = models.PositiveIntegerField(blank=True, null=True)
     payment_type = models.CharField(max_length=20, default='Cash')
-    transaction_number = models.PositiveBigIntegerField(default=0)
+    transaction_number = models.PositiveBigIntegerField(default=0, null=True, blank=True)
     date = models.DateField(default=datetime.date.today)
 
     def save(self, *args, **kwargs):
