@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block body %}
+
+{% for message in messages %}
+<div class="w-full text-center py-2 mb-6 bg-red-500 ">
+    {{ message }}
+</div>
+{% endfor %}
+
 <div class="flex w-11/12 m-auto">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
         <p class="mb-4 text-md font-bold uppercase">Customer Details</p>
@@ -9,7 +16,7 @@
             <p class="text-xl my-2 font-semibold"><span class="text-sm">Name:</span> {{ customer.name }}</p>
             {% if customer.order_type %}
             <p class="text-md my-2 font-semibold"><span class="text-sm">Customer Type:</span>
-            {{ customer.get_order_type_display }}
+                {{ customer.get_order_type_display }}
             </p>
             {% endif %}
             {% if customer.address != '' %}
@@ -114,7 +121,8 @@
                     <a href="{{ order.pk }}" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
                 <td class="px-6 py-4">
-                    <a href="/invoice/{{ order.id }}/" target="_blank" class="font-medium text-blue-600 hover:underline">View</a>
+                    <a href="/invoice/{{ order.id }}/" target="_blank"
+                       class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
             </tr>
             {% endfor %}

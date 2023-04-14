@@ -80,7 +80,7 @@
                     {{ credit.invoice_number }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="#" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                    <a href="credit/{{ credit.id }}/edit/" class="font-medium text-blue-600 hover:underline">View/Edit</a>
                 </td>
             </tr>
             {% endfor %}
@@ -125,7 +125,7 @@
                     {{ debit.reason }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="#" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                    <a href="debit/{{ debit.id }}/edit/" class="font-medium text-blue-600 hover:underline">View/Edit</a>
                 </td>
             </tr>
             {% endfor %}

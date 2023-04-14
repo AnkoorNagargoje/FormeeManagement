@@ -9,6 +9,7 @@ from num2words import num2words
 from django.template.loader import get_template
 from django.contrib import messages
 from Accounting.models import Credit
+from Accounting.views import edit_credit
 
 
 @login_required
@@ -77,30 +78,89 @@ def order_detail(request, customer_id, order_id):
     return render(request, 'order_detail.html', {'form': form, 'customer': customer, 'order': order, 'order_items': order_items})
 
 
-def order_paid(request, customer_id, order_id):
+def order_paid_cash(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
-    order.payment_status = 'Paid'
-    order.save()
+    if order.payment_status != 'Paid':
+        order.payment_status = 'Paid'
+        order.save()
 
-    if customer.order_type == 'normal':
-        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
-                                           invoice_number=order_id,
-                                           amount=order.order_total)
-    elif customer.order_type == 'franchise':
-        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
-                                           invoice_number=order_id,
-                                           amount=order.franchise_cgst_total())
-    elif customer.order_type == 'super market':
-        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
-                                           invoice_number=order_id,
-                                           amount=order.store_cgst_total())
+        if customer.order_type == 'franchise':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               amount=order.franchise_cgst_total())
+        elif customer.order_type == 'super market':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               amount=order.store_cgst_total())
+        else:
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               amount=order.order_total)
+        add_credit.save()
     else:
-        add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
-                                           invoice_number=order_id,
-                                           amount=order.order_total)
-    add_credit.save()
+        messages.error(request, 'The Order is Already Paid')
     return redirect('order_list', customer_id=customer.id)
+
+
+def order_paid_upi(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+
+    if order.payment_status != 'Paid':
+        order.payment_status = 'Paid'
+        order.save()
+
+        if customer.order_type == 'franchise':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='UPI',
+                                               amount=order.franchise_cgst_total())
+        elif customer.order_type == 'super market':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='UPI',
+                                               amount=order.store_cgst_total())
+        else:
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='UPI',
+                                               amount=order.order_total)
+        add_credit.save()
+        return redirect(edit_credit, credit_id=add_credit.id)
+    else:
+        messages.error(request, 'The Order is Already Paid')
+        return redirect(order_list, customer_id=customer_id)
+
+
+def order_paid_net(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+
+    if order.payment_status != 'Paid':
+        order.payment_status = 'Paid'
+        order.save()
+
+        if customer.order_type == 'franchise':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='Net Banking',
+                                               amount=order.franchise_cgst_total())
+        elif customer.order_type == 'super market':
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='Net Banking',
+                                               amount=order.store_cgst_total())
+        else:
+            add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
+                                               invoice_number=order_id,
+                                               payment_type='Net Banking',
+                                               amount=order.order_total)
+        add_credit.save()
+        return redirect(edit_credit, credit_id=add_credit.id)
+    else:
+        messages.error(request, 'The Order is Already Paid')
+        return redirect(order_list, customer_id=customer_id)
 
 
 def order_item_edit(request, customer_id, order_id, order_item_id):

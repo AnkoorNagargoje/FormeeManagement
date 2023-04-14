@@ -44,3 +44,29 @@ def add_debit(request):
         form.save()
         return redirect(accounting)
     return render(request, 'add_debit.html', {'form': form})
+
+
+@login_required
+def edit_credit(request, credit_id):
+    credit = Credit.objects.get(id=credit_id)
+    form = CreditForm(request.POST or None, instance=credit)
+    if form.is_valid():
+        form.save()
+        return redirect(accounting)
+    else:
+        form = CreditForm(instance=credit)
+
+    return render(request, 'edit_credit.html', {'form': form, 'credit': credit})
+
+
+@login_required
+def edit_debit(request, debit_id):
+    debit = Debit.objects.get(id=debit_id)
+    form = DebitForm(request.POST or None, instance=debit)
+    if form.is_valid():
+        form.save()
+        redirect(accounting)
+    else:
+        form = DebitForm(instance=debit)
+
+    return render(request, 'edit_debit.html', {'form': form, 'debit': debit})

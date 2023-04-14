@@ -60,5 +60,5 @@ def edit_product_view(request, code):
             ipc.stock = ipc.stock - sub_qty
         ipc.save()
         instance.save()
-        return redirect(edit_product_view, code=code)
+        return redirect(stock_view)
     return render(request, 'edit_product.html', {'form': form, 'product': product, 'stock': stock})

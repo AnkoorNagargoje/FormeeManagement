@@ -12,13 +12,25 @@
             <p class="text-xl my-2">Name</p>
             {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Tea" %}
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Amount</p>
-            {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 20" %}
+        <div class="flex gap-8 justify-between">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Amount</p>
+                {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 99" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Reason</p>
+                {% render_field form.reason class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="" %}
+            </div>
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Reason</p>
-            {% render_field form.reason class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Anything" %}
+        <div class="flex gap-8 justify-between">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Transaction done by</p>
+                {% render_field form.person class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Ankoor" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Type of Transaction</p>
+                {% render_field form.how class="w-full h-10 indent-2 rounded bg-transparent border-2"%}
+            </div>
         </div>
         {{ form.errors }}
         <br>
