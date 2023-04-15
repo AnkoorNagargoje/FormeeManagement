@@ -2,11 +2,28 @@
 {% load widget_tweaks %}
 {% block body %}
 
-{% for message in messages %}
-<div class="w-full text-center py-2 mb-6 bg-red-500 ">
-    {{ message }}
-</div>
-{% endfor %}
+<style>
+    .success{
+        background-color: #4ade80;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+    .error{
+        background-color: #f87171;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+</style>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
 <div class="flex w-11/12 m-auto">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
@@ -110,9 +127,17 @@
                     {% else %}
                     {{ order.order_total|floatformat:2 }}
                     {% endif %}
+
+                    {% if order.discount %}
+                    <span class="text-xs">({{ order.discount }}% disc.)</span>
+                    {% endif %}
                 </td>
                 <td class="px-6 py-4">
-                    <p>{{ order.payment_status }}</p>
+                    <p>{{ order.payment_status }}
+                        {% if order.payment_type != '' %}
+                        <span class="text-xs">({{ order.payment_type }})</span>
+                        {% endif %}
+                    </p>
                 </td>
                 <td class="px-6 py-4">
                     {{ order.created_at }}

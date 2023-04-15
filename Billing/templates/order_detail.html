@@ -2,6 +2,29 @@
 {% load widget_tweaks %}
 {% block body %}
 
+<style>
+    .success{
+        background-color: #4ade80;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+    .error{
+        background-color: #f87171;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+</style>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <div class="flex w-11/12 m-auto pb-8">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
         <p class="mb-4 text-md font-bold uppercase">Add Item</p>
@@ -64,10 +87,10 @@
             {% for item in order_items %}
             <tr class="bg-white border-b">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {{ item.product }}
+                    FM{{ item.product}}
                 </th>
                 <td class="px-6 py-4">
-                    {{ item.product.name }}
+                    {{ item.product.name|slice:-5  }} - <span class="text-xs">{{ item.product.size }}</span>
                 </td>
                 <td class="px-6 py-4">
                     {{ item.quantity }}
@@ -82,8 +105,28 @@
             {% endfor %}
             </tbody>
         </table>
-
+        {% if customer.order_type == 'normal' %}
+        <div class="float-left inline mt-4 w-3/12">
+            <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
+                <div>Discount:</div>
+                <div>
+                    <form action="{% url 'order_dis_five' customer.id order.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-slate-200 rounded px-2 py-1">5%</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="{% url 'order_dis_ten' customer.id order.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-slate-200 rounded p-1">10%</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         <div class="float-right mb-60">
+
+
             <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">
                 <button type="submit"
                         class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">

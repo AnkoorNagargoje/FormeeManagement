@@ -82,7 +82,7 @@ def order_paid_cash(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
     if order.payment_status != 'Paid':
-        order.payment_status = 'Paid'
+        order.payment_type = 'Paid'
         order.save()
 
         if customer.order_type == 'franchise':
@@ -98,6 +98,7 @@ def order_paid_cash(request, customer_id, order_id):
                                                invoice_number=order_id,
                                                amount=order.order_total)
         add_credit.save()
+        messages.success(request, 'The Order is has been Paid')
     else:
         messages.error(request, 'The Order is Already Paid')
     return redirect('order_list', customer_id=customer.id)
@@ -109,6 +110,7 @@ def order_paid_upi(request, customer_id, order_id):
 
     if order.payment_status != 'Paid':
         order.payment_status = 'Paid'
+        order.payment_type = 'UPI'
         order.save()
 
         if customer.order_type == 'franchise':
@@ -127,6 +129,7 @@ def order_paid_upi(request, customer_id, order_id):
                                                payment_type='UPI',
                                                amount=order.order_total)
         add_credit.save()
+        messages.success(request, 'The Order is has been Paid')
         return redirect(edit_credit, credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
@@ -139,28 +142,58 @@ def order_paid_net(request, customer_id, order_id):
 
     if order.payment_status != 'Paid':
         order.payment_status = 'Paid'
+        order.payment_type = 'Bank Transfer'
         order.save()
 
         if customer.order_type == 'franchise':
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
-                                               payment_type='Net Banking',
+                                               payment_type='Bank Transfer',
                                                amount=order.franchise_cgst_total())
         elif customer.order_type == 'super market':
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
-                                               payment_type='Net Banking',
+                                               payment_type='Bank Transfer',
                                                amount=order.store_cgst_total())
         else:
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
-                                               payment_type='Net Banking',
+                                               payment_type='Bank Transfer',
                                                amount=order.order_total)
         add_credit.save()
+        messages.success(request, 'The Order is has been Paid')
         return redirect(edit_credit, credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
         return redirect(order_list, customer_id=customer_id)
+
+
+def order_dis_five(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+    if order.payment_status != 'Paid':
+        order.order_total = round(order.order_total - order.order_total * 5 / 100)
+        order.discount = 5
+        order.save()
+        messages.success(request, '5% Discount has been Applied')
+    else:
+        messages.error(request, 'You cannot apply discount on a paid order')
+
+    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
+
+
+def order_dis_ten(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+    if order.payment_status != 'Paid':
+        order.order_total = round(order.order_total - order.order_total * 10 / 100)
+        order.discount = 10
+        order.save()
+        messages.success(request, '10% Discount has been Applied')
+    else:
+        messages.error(request, 'You cannot apply discount on a paid order')
+
+    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
 
 
 def order_item_edit(request, customer_id, order_id, order_item_id):

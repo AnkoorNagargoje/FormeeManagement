@@ -32,6 +32,8 @@ class Order(models.Model):
     products = models.ManyToManyField(Product, through='OrderItem')
     order_total = models.FloatField(default=0)
     payment_status = models.CharField(max_length=30, default='Pending')
+    payment_type = models.CharField(max_length=20, default='')
+    discount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.customer} - {self.id}"
