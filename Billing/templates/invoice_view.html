@@ -96,8 +96,16 @@
 <table class="customer-details">
     <tbody>
     <tr>
+        <td width="65%"><p class="logo">Shree Panchkrishna Foods PVT. LTD.</p></td>
+        <td><p class="logo">Formee Foods</p></td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="customer-details" style="margin-top:0px;">
+    <tbody>
+    <tr>
         <td width="65%">
-            <p class="logo" style="text-decoration:underline;">Shree Panchakrishna Foods Pvt. Ltd.</p>
             <p>208, Bodke Plaza, Puna Road, Dwarka,<br>
                 Nashik - 422011. Maharashtra. India.<br>
                 Phone: +91 8530555300<br>
@@ -106,7 +114,6 @@
             </p>
         </td>
         <td>
-            <p class='logo' style="margin-top:-18px;text-decoration:underline;">Formee Foods</p>
             <p>
                 Invoice #{{ order.created_at|date:"Y-24/" }}{{ order.id }}<br>
                 Date: {{ order.created_at|date:"d F, Y" }}<br>

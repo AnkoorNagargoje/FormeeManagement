@@ -21,6 +21,10 @@ def login_request(request):
     return render(request, 'login.html', {'form': form})
 
 
+def index_request(request):
+    return render(request, 'index.html')
+
+
 def logout_request(request):
     logout(request)
     return redirect('/')

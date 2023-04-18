@@ -125,7 +125,7 @@
                     {% elif customer.order_type == 'super market' %}
                     {{ order.store_cgst_total|floatformat:2 }}
                     {% else %}
-                    {{ order.order_total|floatformat:2 }}
+                    {{ order.order_total|floatformat:0 }}
                     {% endif %}
 
                     {% if order.discount %}

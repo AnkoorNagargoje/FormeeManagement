@@ -12,11 +12,6 @@ SALE_CHOICE = (
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField()
-    address = forms.CharField(widget=forms.Textarea, required=False)
-    district = forms.CharField(required=False)
-    email = forms.EmailField(required=False)
-    gstin = forms.CharField(required=False)
-    fssai = forms.CharField(required=False)
     phone = forms.IntegerField()
     birth_date = forms.DateField(input_formats=['%d/%m'], required=False)
     no_of_order = forms.IntegerField(required=False)
@@ -24,7 +19,19 @@ class CustomerForm(forms.ModelForm):
 
     class Meta:
         model = Customer
-        fields = ['name', 'address', 'district', 'email', 'gstin', 'fssai', 'phone', 'birth_date', 'no_of_order', 'order_type']
+        fields = ['name', 'phone', 'birth_date', 'no_of_order', 'order_type']
+
+
+class CustomerProfileForm(forms.ModelForm):
+    address = forms.CharField(widget=forms.Textarea)
+    district = forms.CharField()
+    email = forms.EmailField()
+    gstin = forms.CharField()
+    fssai = forms.CharField()
+
+    class Meta:
+        model = Customer
+        fields = ['address', 'district', 'email', 'gstin', 'fssai']
 
 
 class OrderForm(forms.ModelForm):

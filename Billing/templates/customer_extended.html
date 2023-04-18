@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-4/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+    <p class="text-center text-3xl font-bold">Add New Customer</p>
+    <br>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            <p class="text-xl my-2">Address</p>
+            {% render_field form.address class="w-full h-20 indent-2 rounded bg-transparent border-2" placeholder="XYZ Shop, XYZ Area" %}
+        </div>
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Email</p>
+                {% render_field form.email class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="abc@gmail.com" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">District</p>
+                {% render_field form.district class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
+            </div>
+        </div>
+
+        <div class="flex gap-16 my-6">
+
+            <div class="w-1/2">
+                <p class="text-xl my-2">FSSAI Number</p>
+                {% render_field form.fssai class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="JG9332NKJAD9" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">GSTIN Number</p>
+                {% render_field form.gstin class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="764GAF63848" %}
+            </div>
+        </div>
+
+        {{ form.errors }}
+        <br>
+        <button type="submit"
+                class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add
+            Customer
+        </button>
+    </form>
+</div>
+
+{% endblock %}

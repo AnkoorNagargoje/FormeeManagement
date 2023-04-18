@@ -13,7 +13,7 @@ SALE_CHOICE = (
 class Customer(models.Model):
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
-    district = models.CharField(max_length=100, default='-')
+    district = models.CharField(max_length=100, default='')
     email = models.EmailField()
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
@@ -58,6 +58,12 @@ class Order(models.Model):
     def store_sgst(self):
         return self.store_order_total() * 6 / 100
 
+    def franchise_gst(self):
+        return self.franchise_cgst() + self.franchise_sgst()
+
+    def store_gst(self):
+        return self.store_cgst() + self.store_sgst()
+
     def franchise_cgst_total(self):
         total = self.franchise_order_total() + self.franchise_cgst() + self.franchise_sgst()
         rounded_total = total.__round__(2)
@@ -72,6 +78,11 @@ class Order(models.Model):
         total = self.order_total
         rounded_total = total.__round__(2)
         return rounded_total
+
+    def real_order_total(self):
+        real = round((self.order_total * 100) / (100 - self.discount))
+        return real
+
 
 
 class OrderItem(models.Model):

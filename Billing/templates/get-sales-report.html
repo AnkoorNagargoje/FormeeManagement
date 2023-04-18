@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% include math %}
+
+{% block body %}
+
+<div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
+    <form method="GET" action="{% url 'export_report_to_csv' %}">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+
+        <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Export to CSV</button>
+    </form>
+
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4">
+    <table class="w-full text-sm text-left border">
+        <thead class="text-xs uppercase">
+        <tr>
+            <th scope="col" class="px-6 py-3">
+                Invoice Number
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Invoice Date
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Customer
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Customer GSTIN
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Total MRP
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Total S.P.
+            </th>
+            <th scope="col" class="px-6 py-3">
+                CSGT
+            </th>
+            <th scope="col" class="px-6 py-3">
+                SSGT
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Total SGT
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Total Amount
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr class="bg-white border-b">
+            <td class="px-6 py-4">
+                2022-23/{{ order.id }}
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900">
+                {{ order.created_at }}
+            </th>
+            <td class="px-6 py-4">
+                {{ order.customer.name }}<span class="text-xs">({{ order.customer.get_order_type_display }})</span>
+            </td>
+
+            <td class="px-6 py-4">
+                {% if order.customer.gstin %}
+                {{ order.customer.gstin }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+
+            <td class="px-6 py-4">
+                {{ order.real_order_total }}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.order_type == 'super market' %}
+                {{ order.store_order_total|floatformat:2 }}
+                {% elif order.customer.order_type == 'franchise' %}
+                {{ order.franchise_order_total|floatformat:2 }}
+                {% else %}
+                {{ order.order_total|floatformat:2 }}
+                {% endif %}
+                {% if order.discount %}
+                (<span class="text-xs">{{ order.discount }}% disc.)</span>
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.order_type == 'super market' %}
+                {{ order.store_sgst|floatformat:2 }}
+                {% elif order.customer.order_type == 'franchise' %}
+                {{ order.franchise_sgst|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.order_type == 'super market' %}
+                {{ order.store_sgst|floatformat:2 }}
+                {% elif order.customer.order_type == 'franchise' %}
+                {{ order.franchise_sgst|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.order_type == 'super market' %}
+                {{ order.store_gst|floatformat:2 }}
+                {% elif order.customer.order_type == 'franchise' %}
+                {{ order.franchise_gst|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.order_type == 'super market' %}
+                {{ order.store_cgst_total|floatformat:2 }}
+                {% elif order.customer.order_type == 'franchise' %}
+                {{ order.franchise_cgst_total|floatformat:2 }}
+                {% else %}
+                {{ order.normal_order_total|floatformat:2 }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
