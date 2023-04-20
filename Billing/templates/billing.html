@@ -3,11 +3,16 @@
 {% block body %}
 
 <div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
-    <div><a href="add_customer/"><button type="button" class="mr-1 m-2 px-4 py-2 bg-green-400 rounded">Add New Customer</button></a></div>
-    <div><a href="get-sales-report/"><button type="button" class="ml-1 m-2 px-4 py-2 bg-green-400 rounded">Get Sales Report</button></a></div>
+    <div><a href="add_customer/">
+        <button type="button" class="mr-1 m-2 px-4 py-2 bg-green-400 rounded">Add New Customer</button>
+    </a></div>
+    <div><a href="get-sales-report/">
+        <button type="button" class="ml-1 m-2 px-4 py-2 bg-green-400 rounded">Get Sales Report</button>
+    </a></div>
     <div class="grow ml-8">
         <form action="">
-            <input type="text" class="w-[100%] h-10 border indent-4 rounded" name="customer_search" placeholder="Search Customer">
+            <input type="text" class="w-[100%] h-10 border indent-4 rounded" name="customer_search"
+                   placeholder="Search Customer">
     </div>
     <div>
         <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
@@ -19,58 +24,76 @@
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4">
     <table class="w-full text-sm text-left border">
         <thead class="text-xs uppercase">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    Id
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Customer name
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Type
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    District
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Phone
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    No. of Orders
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Action
-                </th>
-            </tr>
+        <tr>
+            <th scope="col" class="px-6 py-3">
+                Id
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Customer name
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Type
+            </th>
+            <th scope="col" class="px-6 py-3">
+                District
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Phone
+            </th>
+            <th scope="col" class="px-6 py-3">
+                No. of Orders
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Action
+            </th>
+        </tr>
         </thead>
         <tbody>
         {% for customer in customers %}
-            <tr class="bg-white border-b">
-                <td class="px-6 py-4">
-                    {{ customer.id }}
-                </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {{ customer.name }}
-                </th>
-                <td class="px-6 py-4">
-                    {{ customer.order_type|title }}
-                </td>
-                <td class="px-6 py-4">
-                    {{ customer.district }}
-                </td>
-                <td class="px-6 py-4">
-                    {{ customer.phone }}
-                </td>
-                <td class="px-6 py-4">
-                    {{ customer.no_of_order }}
-                </td>
-                <td class="px-6 py-4">
-                    <a href="{{ customer.id }}/orders/" class="font-medium text-blue-600 hover:underline">View</a>
-                </td>
-            </tr>
+        <tr class="bg-white border-b">
+            <td class="px-6 py-4">
+                {{ customer.id }}
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                {{ customer.name }}
+            </th>
+            <td class="px-6 py-4">
+                {{ customer.order_type|title }}
+            </td>
+            <td class="px-6 py-4">
+                {{ customer.district }}
+            </td>
+            <td class="px-6 py-4">
+                {{ customer.phone }}
+            </td>
+            <td class="px-6 py-4">
+                {{ customer.no_of_order }}
+            </td>
+            <td class="px-6 py-4">
+                <a href="{{ customer.id }}/orders/" class="font-medium text-blue-600 hover:underline">View</a>
+            </td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
+
+<div class="w-11/12 m-auto my-10">
+    <p class="mx-2">Page: {{ customers.number }} of {{ customers.paginator.num_pages}}</p>
+    <br>
+    {% if customers.has_previous %}
+    <a href="?page={{ customers.previous_page_number }}">Previous</a>
+    {% endif %}
+    {% for pages in customers.paginator %}
+    <a href="?page={{ forloop.counter }}"><button class="w-[35px] h-10 rounded mx-2 bg-green-400">{{ forloop.counter }}</button></a>
+    {% endfor %}
+    {% if customers.has_next %}
+    <a href="?page={{ customers.next_page_number }}">Next</a>
+    {% endif %}
+
+    <br><br>
+
+</div>
+
 
 {% endblock %}

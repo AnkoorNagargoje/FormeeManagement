@@ -3,6 +3,12 @@
 
 {% block body %}
 
+{% for message in messages %}
+<div class="w-full p-2 text-center bg-red-400">
+    {{ message }}
+</div>
+{% endfor %}
+
 <div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6 ">
     <p class="text-center text-3xl font-bold">Login</p>
     <br>

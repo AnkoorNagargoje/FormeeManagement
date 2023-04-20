@@ -12,7 +12,7 @@ from Accounting.views import edit_credit
 import csv
 from django.http import HttpResponse
 from datetime import datetime
-from django.utils import timezone
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -22,6 +22,10 @@ def customer_list(request):
     customer_search = request.GET.get('customer_search')
     if customer_search != '' and customer_search is not None:
         customers = Customer.objects.filter(name__icontains=customer_search)
+
+    paginator = Paginator(customers, 10)
+    page = request.GET.get('page')
+    customers = paginator.get_page(page)
 
     return render(request, 'billing.html', {'customers': customers})
 

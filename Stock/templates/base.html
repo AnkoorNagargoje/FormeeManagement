@@ -18,10 +18,15 @@
 
         <div class="flex-auto w-32 flex gap-1 justify-end items-center">
             {% if user.is_authenticated %}
+            <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><p class="text-lg p-2">Hi, {{ user.username }}</p></div>
+            {% if user.username != 'geetaformee' %}
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/admin/"><p class="text-lg p-2">Admin</p></a></div>
+            {% endif %}
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/stock/"><p class="text-lg p-2 ease-in-out duration-300">Stock</p></a></div>
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/billing/"><p class="text-lg p-2 ease-in-out duration-300">Billing</p></a></div>
+            {% if user.username != 'geetaformee' %}
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/accounting/"><p class="text-lg p-2 ease-in-out duration-300">Accounting</p></a></div>
+            {% endif %}
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/logout/"><p class="text-lg p-2 ease-in-out duration-300">Logout</p></a></div>
             {% else %}
             <div class=" ease-in-out duration-300 rounded-xl hover:bg-gray-200"><a href="/login/"><p class="text-lg p-2 ease-in-out duration-300">Login</p></a></div>
