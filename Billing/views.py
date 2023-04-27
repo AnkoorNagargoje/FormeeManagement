@@ -54,7 +54,7 @@ def export_report_to_csv(request):
     if start_date_str and end_date_str:
         start_datetime = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_datetime = datetime.strptime(end_date_str, '%Y-%m-%d')
-        orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
+        orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime)).order_by('pk')
     else:
         orders = Order.objects.all()
 
