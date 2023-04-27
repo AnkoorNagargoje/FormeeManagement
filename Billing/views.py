@@ -56,7 +56,7 @@ def export_report_to_csv(request):
         end_datetime = datetime.strptime(end_date_str, '%Y-%m-%d')
         orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime)).order_by('pk')
     else:
-        orders = Order.objects.all()
+        orders = Order.objects.all().order_by('pk')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="orders-{start_date_str}-{end_date_str}.csv"'
