@@ -41,9 +41,9 @@ def get_sales_report(request):
 
             orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
         else:
-            orders = Order.objects.all()
+            orders = Order.objects.all().order_by('pk')
     else:
-        orders = Order.objects.all()
+        orders = Order.objects.all().order_by('pk')
 
     return render(request, 'get-sales-report.html', {'orders': orders})
 
