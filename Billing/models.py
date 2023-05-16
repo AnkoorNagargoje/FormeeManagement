@@ -27,7 +27,7 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, editable=True)
+    created_at = models.DateTimeField(auto_now_add=False, editable=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='OrderItem')
     order_total = models.FloatField(default=0)
@@ -82,7 +82,6 @@ class Order(models.Model):
     def real_order_total(self):
         real = round((self.order_total * 100) / (100 - self.discount))
         return real
-
 
 
 class OrderItem(models.Model):

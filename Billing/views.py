@@ -23,7 +23,7 @@ def customer_list(request):
     if customer_search != '' and customer_search is not None:
         customers = Customer.objects.filter(name__icontains=customer_search)
 
-    paginator = Paginator(customers, 10)
+    paginator = Paginator(customers, 20)
     page = request.GET.get('page')
     customers = paginator.get_page(page)
 

@@ -66,6 +66,7 @@
         <form method="post" class="flex flex-wrap">
             {% csrf_token %}
             {{ form.errors }}
+            {% render_field form.created_at class="w-full h-10 indent-2 rounded bg-transparent border-2 mb-3" %}
             <button type="submit"
                     class="w-full bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
                 Create New Order
@@ -140,7 +141,7 @@
                     </p>
                 </td>
                 <td class="px-6 py-4">
-                    {{ order.created_at }}
+                    {{ order.created_at|date:"F d, Y" }}
                 </td>
                 <td class="px-6 py-4">
                     <a href="{{ order.pk }}" class="font-medium text-blue-600 hover:underline">View</a>

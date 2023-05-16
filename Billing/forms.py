@@ -35,11 +35,18 @@ class CustomerProfileForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
+    created_at = forms.DateField(label='Created at', widget=forms.DateInput(attrs={'type': 'date'}),
+                                 input_formats=['%Y-%m-%d'])
     payment_status = forms.CharField(required=False)
 
     class Meta:
         model = Order
-        fields = ('payment_status',)
+        fields = ('created_at' ,'payment_status',)
+
+    def clean_created_at(self):
+        created_at = self.cleaned_data['created_at']
+        # Add any additional validation or processing for the created_at field here
+        return created_at
 
 
 class OrderItemForm(forms.ModelForm):
