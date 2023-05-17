@@ -13,7 +13,7 @@ SALE_CHOICE = (
 class CustomerForm(forms.ModelForm):
     name = forms.CharField()
     phone = forms.IntegerField()
-    birth_date = forms.DateField(input_formats=['%d/%m'], required=False)
+    birth_date = forms.CharField(required=False)
     no_of_order = forms.IntegerField(required=False)
     order_type = forms.ChoiceField(choices=SALE_CHOICE, required=False)
 
