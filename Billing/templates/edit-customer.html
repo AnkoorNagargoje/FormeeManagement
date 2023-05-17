@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-4/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+    <p class="text-center text-3xl font-bold">Edit Customer</p>
+    <br>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/3">
+                <p class="text-xl my-2">Customer Type</p>
+                {% render_field form1.order_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Customer Name</p>
+                {% render_field form1.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Formee Foods" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Phone</p>
+                {% render_field form1.phone class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="9840239390" %}
+            </div>
+        </div>
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/3">
+                <p class="text-xl my-2">Date of Birth</p>
+                {% render_field form1.birth_date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="13/11" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Franchise Code</p>
+                {% render_field form2.franchise_id class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="F0001" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Email</p>
+                {% render_field form2.email class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="abc@gmail.com" %}
+            </div>
+        </div>
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/3">
+                <p class="text-xl my-2">District</p>
+                {% render_field form2.district class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Nashik" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">GSTIN Number</p>
+                {% render_field form2.gstin class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="764GAF63848" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">FSSAI Number</p>
+                {% render_field form2.fssai class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="JG9332NKJAD9" %}
+            </div>
+        </div>
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/3">
+                <p class="text-xl my-2">Address</p>
+                {% render_field form2.address class="w-full h-20 indent-2 rounded bg-transparent border-2" placeholder="XYZ Shop, XYZ Area" %}
+            </div>
+        </div>
+
+        {{ form.errors }}
+        <br>
+        <button type="submit"
+                class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">
+            Save Changes
+        </button>
+    </form>
+</div>
+
+{% endblock %}

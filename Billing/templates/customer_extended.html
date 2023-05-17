@@ -9,9 +9,20 @@
     <form method="post">
         {% csrf_token %}
 
-        <div>
-            <p class="text-xl my-2">Address</p>
-            {% render_field form.address class="w-full h-20 indent-2 rounded bg-transparent border-2" placeholder="XYZ Shop, XYZ Area" %}
+
+        <div class="flex gap-16 my-6">
+
+        </div>
+
+        <div class="flex gap-16 my-6">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Franchise Code</p>
+                {% render_field form.franchise_id class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="F0001" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Address</p>
+                {% render_field form.address class="w-full h-20 indent-2 rounded bg-transparent border-2" placeholder="XYZ Shop, XYZ Area" %}
+            </div>
         </div>
 
         <div class="flex gap-16 my-6">

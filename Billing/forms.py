@@ -28,10 +28,11 @@ class CustomerProfileForm(forms.ModelForm):
     email = forms.EmailField()
     gstin = forms.CharField()
     fssai = forms.CharField()
+    franchise_id = forms.CharField()
 
     class Meta:
         model = Customer
-        fields = ['address', 'district', 'email', 'gstin', 'fssai']
+        fields = ['address', 'district', 'email', 'gstin', 'fssai', 'franchise_id']
 
 
 class OrderForm(forms.ModelForm):

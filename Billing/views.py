@@ -124,6 +124,22 @@ def customer_extended_form(request, customer_id):
 
 
 @login_required
+def edit_customer(request, customer_id):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    form1 = CustomerForm(request.POST or None, instance=customer)
+    form2 = CustomerProfileForm(request.POST or None, instance=customer)
+    if request.method == 'POST' and form1.is_valid() and form2.is_valid():
+        form1.save()
+        form2.save()
+        return redirect('order_list', customer_id=customer.pk)
+    else:
+        form1 = CustomerForm(request.POST or None, instance=customer)
+        form2 = CustomerProfileForm(request.POST or None, instance=customer)
+
+    return render(request, 'edit-customer.html', {'customer': customer, 'form1': form1, 'form2': form2})
+
+
+@login_required
 def order_list(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     orders = customer.order_set.all().order_by('-created_at')

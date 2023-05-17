@@ -21,6 +21,7 @@ class Customer(models.Model):
     birth_date = models.DateField(blank=True, null=True,)
     order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='normal')
     no_of_order = models.PositiveIntegerField(default=0)
+    franchise_id = models.CharField(default="", max_length=5)
 
     def __str__(self):
         return self.name
