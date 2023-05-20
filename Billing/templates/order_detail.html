@@ -106,7 +106,7 @@
             </tbody>
         </table>
         {% if customer.order_type == 'normal' %}
-        <div class="float-left inline mt-4 w-3/12">
+        <div class="float-left inline mt-4 w-4/12">
             <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
                 <div>Discount:</div>
                 <div>
@@ -119,6 +119,12 @@
                     <form action="{% url 'order_dis_ten' customer.id order.id %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="bg-slate-200 rounded p-1">10%</button>
+                    </form>
+                </div>
+                <div>
+                    <form action="{% url 'order_dis_twenty' customer.id order.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-slate-200 rounded p-1">20%</button>
                     </form>
                 </div>
             </div>
@@ -177,6 +183,16 @@
                                 <button type="submit"
                                         class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
                                     Net Banking
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{% url 'order_paid_cheque' customer.id order.id %}" method="post"
+                                  class="inline mx-2">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                                    Cheque
                                 </button>
                             </form>
                         </li>

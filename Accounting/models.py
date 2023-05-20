@@ -10,6 +10,8 @@ class Credit(models.Model):
     payment_type = models.CharField(max_length=20, default='Cash')
     transaction_number = models.PositiveBigIntegerField(default=0, null=True, blank=True)
     date = models.DateField(default=datetime.date.today)
+    account_no = models.CharField(max_length=100, default="")
+    bank_name = models.CharField(max_length=100, default="")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
