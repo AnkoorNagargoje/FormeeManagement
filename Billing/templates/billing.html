@@ -59,6 +59,9 @@
             </th>
             <td class="px-6 py-4">
                 {{ customer.order_type|title }}
+                {% if customer.franchise_id and customer.franchise_id != '0' %}
+                <span class="text-xs">({{ customer.franchise_id }})</span>
+                {% endif %}
             </td>
             <td class="px-6 py-4">
                 {{ customer.district }}

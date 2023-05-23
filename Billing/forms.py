@@ -28,7 +28,7 @@ class CustomerProfileForm(forms.ModelForm):
     email = forms.EmailField()
     gstin = forms.CharField()
     fssai = forms.CharField()
-    franchise_id = forms.CharField()
+    franchise_id = forms.CharField(required=False)
 
     class Meta:
         model = Customer
