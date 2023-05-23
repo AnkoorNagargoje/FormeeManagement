@@ -117,6 +117,11 @@
                 <th scope="col" class="px-6 py-3">
                     Invoice
                 </th>
+                {% if user.username == 'sharadbodke' %}
+                <th scope="col" class="px-6 py-3">
+                    Danger
+                </th>
+                {% endif %}
             </tr>
             </thead>
             <tbody>
@@ -156,6 +161,12 @@
                     <a href="/invoice/{{ order.id }}/" target="_blank"
                        class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
+                {% if user.username == 'sharadbodke' %}
+                <td class="px-6 py-4">
+                    <a href="{{ order.id }}/delete/"
+                       class="font-medium text-red-600 hover:underline">Delete</a>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
             </tbody>

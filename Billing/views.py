@@ -176,6 +176,19 @@ def order_list(request, customer_id):
     return render(request, 'order_list.html', {'customer': customer, 'orders': orders, 'form': form})
 
 
+def order_delete(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+
+    # Delete the order
+    customer_orders = customer.no_of_order - 1
+    customer.no_of_order = customer_orders
+    customer.save()
+    order.delete()
+
+    return redirect('order_list', customer_id=customer.id)
+
+
 @login_required
 def order_detail(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)

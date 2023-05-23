@@ -10,6 +10,7 @@ urlpatterns = [
     path('billing/get-sales-report/export_csv/', views.export_report_to_csv, name='export_report_to_csv'),
     path('billing/add_customer/<int:customer_id>/extended/', views.customer_extended_form, name='customer_extended_form'),
     path('billing/<int:customer_id>/orders/', views.order_list, name='order_list'),
+    path('billing/<int:customer_id>/orders/<int:order_id>/delete/', views.order_delete, name='order_delete'),
     path('billing/<int:customer_id>/orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('billing/<int:customer_id>/order/<int:order_id>/cash/', views.order_paid_cash, name='order_paid_cash'),
     path('billing/<int:customer_id>/order/<int:order_id>/upi/', views.order_paid_upi, name='order_paid_upi'),
