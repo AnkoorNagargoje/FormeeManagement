@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="w-11/12 m-auto mt-8 text-2xl">Expenses</div>
+
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
+
+    <div class="overflow-x-auto shadow-md sm:rounded-lg mt-4">
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Amount
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Reason
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for debit in debits %}
+            <tr class="bg-white border-b">
+                <td class="px-6 py-4">
+                    {{ forloop.counter }}
+                </td>
+                <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
+                    {{ debit.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ debit.amount }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.reason }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.date }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="debit/{{ debit.id }}/edit/" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

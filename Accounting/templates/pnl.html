@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="w-5/12 m-auto flex justify-between gap-8 mb-16 mt-8">
+    <div class="w-full">
+        <table class="w-full text-md text-left border">
+            <tr>
+                <td><a href="/billing/" class="text-blue-600">Closing Balance</a></td>
+                <td>{{ closing_balance|floatformat:2 }} -</td>
+            </tr>
+            <tr>
+                <td><a href="debits/" class="text-blue-600">Purchase Accounts</a></td>
+                <td>{{ total_purchase|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td><a href="debits/" class="text-blue-600">Fixed Expenses</a></td>
+                <td>{{ total_exp|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td><a href="debits/" class="text-blue-600">Indirect Expenses</a></td>
+                <td>{{ total_exp|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td>Net Total</td>
+                <td>{{ pnl|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="w-full">
+        <table class="w-full text-md text-left border">
+            <tr>
+                <td><a href="sales/" class="text-blue-600">Sales Accounts</a></td>
+                <td>{{ total_sales|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td><a href="debits/" class="text-blue-600">Expenses Accounts</a></td>
+                <td>{{ total_exp|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td>Net {{ x }}</td>
+                <td>{{ pnl|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<table>
+
+</table>
+
+{% endblock %}

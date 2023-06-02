@@ -5,6 +5,7 @@ from .models import Product, Quantity
 class ProductForm(forms.ModelForm):
     name = forms.CharField(max_length=300)
     code = forms.CharField(max_length=4)
+    barcode = forms.IntegerField()
     size = forms.CharField(max_length=20)
     price = forms.FloatField()
     franchise_price = forms.FloatField(required=False)
@@ -13,7 +14,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['name', 'code', 'size', 'price', 'franchise_price', 'store_price', 'stock']
+        fields = ['name', 'code','barcode', 'size', 'price', 'franchise_price', 'store_price', 'stock']
 
 
 class QuantityForm(forms.ModelForm):

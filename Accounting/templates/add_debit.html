@@ -32,6 +32,12 @@
                 {% render_field form.how class="w-full h-10 indent-2 rounded bg-transparent border-2"%}
             </div>
         </div>
+        <div class="flex gap-8 justify-between">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Date</p>
+                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Ankoor" %}
+            </div>
+        </div>
         {{ form.errors }}
         <br>
         <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add Debit</button>

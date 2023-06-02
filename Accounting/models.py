@@ -28,6 +28,12 @@ HOW_CHOICES = (
     ('bank', 'Bank'),
     ('shop', 'Shop Cash'),
 )
+TYPE = (
+    ('purchase', 'Purchase'),
+    ('indirect', 'Indirect'),
+    ('fixed', 'Fixed'),
+    ('miscellaneous', 'Miscellaneous'),
+)
 
 
 class Debit(models.Model):
@@ -36,3 +42,21 @@ class Debit(models.Model):
     reason = models.CharField(max_length=200)
     person = models.CharField(max_length=200, default='')
     how = models.CharField(max_length=20, choices=HOW_CHOICES, default='self')
+    date = models.DateTimeField(auto_now_add=False, editable=True, null=True, blank=True)
+    type = models.CharField(max_length=20, choices=TYPE, default='miscellaneous')
+
+
+class DebitOrder(models.Model):
+    debit = models.ForeignKey(Debit, on_delete=models.CASCADE, related_name='debit_orders')
+    type = models.CharField(max_length=100)
+    amount = models.FloatField()
+
+
+class DebitItem(models.Model):
+    debit_order = models.ForeignKey(DebitOrder, on_delete=models.CASCADE, related_name='debit_items')
+    amount = models.FloatField()
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=100, default='')

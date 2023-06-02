@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% include math %}
+
+{% block body %}
+
+<div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
+    <form method="GET">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+
+        <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Search</button>
+    </form>
+
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4 mb-8">
+    <table class="w-full text-sm text-left border">
+        <thead class="text-xs uppercase">
+        <tr>
+            <th scope="col" class="px-6 py-3">
+                Invoice Number
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Invoice Date
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Customer
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Customer GSTIN
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Total Amount(exl. gst)
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr class="bg-white border-b">
+            <td class="px-6 py-4">
+                2022-23/{{ order.id }}
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900">
+                {{ order.created_at }}
+            </th>
+            <td class="px-6 py-4 font-bold">
+                {{ order.customer.name }}<span class="text-xs">({{ order.customer.get_order_type_display }})</span>
+            </td>
+
+            <td class="px-6 py-4">
+                {% if order.customer.gstin %}
+                {{ order.customer.gstin }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+
+            <td class="px-6 py-4">
+                {{ order.order_total|floatformat:2 }}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td class="px-6 py-4"></td>
+            <td scope="row" class="px-6 py-4 font-medium text-gray-900"></td>
+            <td class="px-6 py-4"></td>
+            <td class="px-6 py-4">Total Amount of Sales</td>
+            <td class="px-6 py-4">{{ total_sales|floatformat:2 }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

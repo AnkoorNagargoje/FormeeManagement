@@ -23,7 +23,8 @@ class DebitForm(forms.ModelForm):
     reason = forms.CharField(widget=forms.Textarea, required=False)
     person = forms.CharField()
     how = forms.ChoiceField(choices=HOW_CHOICES)
+    date = forms.DateField(label='Date', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
 
     class Meta:
         model = Debit
-        fields = ['name', 'amount', 'reason', 'person', 'how']
+        fields = ['name', 'amount', 'reason', 'person', 'how', 'date']

@@ -4,6 +4,7 @@ from django.db import models
 class Product(models.Model):
     name = models.CharField(max_length=300)
     code = models.CharField(max_length=4, unique=True)
+    barcode = models.IntegerField(default=0)
     size = models.CharField(max_length=20, default='200gm')
     hsn_code = models.CharField(max_length=10, default=210690)
     price = models.FloatField()
