@@ -55,7 +55,7 @@ class OrderItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['product'].label_from_instance = lambda obj: obj.barcode
+        self.fields['product'].label_from_instance = lambda obj: f"{obj.barcode} - {obj.size}"
 
     class Meta:
         model = OrderItem
