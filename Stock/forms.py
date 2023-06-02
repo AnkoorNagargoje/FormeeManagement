@@ -14,7 +14,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['name', 'code','barcode', 'size', 'price', 'franchise_price', 'store_price', 'stock']
+        fields = ['name', 'code', 'barcode', 'size', 'price', 'franchise_price', 'store_price', 'stock']
 
 
 class QuantityForm(forms.ModelForm):
