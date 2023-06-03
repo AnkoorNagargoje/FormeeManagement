@@ -13,6 +13,7 @@ import csv
 from django.http import HttpResponse
 from datetime import datetime
 from django.core.paginator import Paginator
+from django.db.models import Sum
 
 
 @login_required
@@ -159,10 +160,36 @@ def edit_customer(request, customer_id):
 def order_list(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     orders = customer.order_set.all().order_by('-created_at')
+    total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+    gst_total = round(total_sales + total_sales * 12 / 100, 0)
 
-    order_invoice_search = request.GET.get('order_invoice_search')
-    if order_invoice_search != '' and order_invoice_search is not None:
-        orders = Order.objects.filter(customer=customer, pk__contains=order_invoice_search)
+    invoice_search = request.GET.get('invoice_search')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    message = ""
+
+    if invoice_search and invoice_search.strip():
+        orders = Order.objects.filter(pk__icontains=invoice_search)
+
+        if start_date and end_date:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+
+            orders = orders.filter(created_at__range=(start_datetime, end_datetime))
+            message = f"Showing results of '{invoice_search}' from {start_date} to {end_date}"
+        else:
+            message = f"Showing results of '{invoice_search}'"
+        total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+        gst_total = round(total_sales + total_sales * 12 / 100, 0)
+    else:
+        if start_date and end_date:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+
+            orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
+            message = f"Showing results from {start_date} to {end_date}"
+            total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+            gst_total = round(total_sales + total_sales * 12 / 100, 0)
 
     form = OrderForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -173,7 +200,16 @@ def order_list(request, customer_id):
         order_update.save()
         order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
-    return render(request, 'order_list.html', {'customer': customer, 'orders': orders, 'form': form})
+
+    context = {
+        'customer': customer,
+        'orders': orders,
+        'form': form,
+        'total_sales': total_sales,
+        'message': message,
+        'gst_total': gst_total,
+    }
+    return render(request, 'order_list.html', context=context)
 
 
 def order_delete(request, customer_id, order_id):
@@ -207,8 +243,15 @@ def order_detail(request, customer_id, order_id):
                                                   out_quantity=order_item.quantity,
                                                   invoice_number=order_id)
         quantity_object.save()
-        order.order_total += order_item.quantity * product.price
-        order.save()
+        if customer.order_type == 'franchise':
+            order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 0)
+            order.save()
+        elif customer.order_type == 'super market':
+            order.order_total = round(order.order_total + order_item.quantity * product.store_price, 0)
+            order.save()
+        else:
+            order.order_total = round(order.order_total + order_item.quantity * product.price, 0)
+            order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_detail.html',
@@ -391,11 +434,21 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
         if new_order_item.quantity > old_quantity:
             diff = new_order_item.quantity - old_quantity
             product.stock -= diff
-            order.order_total += order_item.product.price * diff
+            if customer.order_type == 'franchise':
+                order.order_total = round(order.order_total + order_item.product.franchise_price * diff)
+            elif customer.order_type == 'super market':
+                order.order_total = round(order.order_total + order_item.product.store_price * diff)
+            else:
+                order.order_total = round(order.order_total + order_item.product.price * diff)
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
-            order.order_total -= order_item.product.price * diff
+            if customer.order_type == 'franchise':
+                order.order_total = round(order.order_total + order_item.product.franchise_price * diff)
+            elif customer.order_type == 'super market':
+                order.order_total = round(order.order_total + order_item.product.store_price * diff)
+            else:
+                order.order_total = round(order.order_total + order_item.product.price * diff)
         product.save()
         new_order_item.save()
         order.save()

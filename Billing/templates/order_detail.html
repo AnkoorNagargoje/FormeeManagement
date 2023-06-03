@@ -15,14 +15,16 @@
         padding: 0.5rem;
         text-align:center;
     }
+
 </style>
 
 {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
+<ul class="messages">
+    {% for message in messages %}
+    <li
+    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
 {% endif %}
 
 <div class="flex w-11/12 m-auto pb-8">
@@ -48,20 +50,6 @@
     </div>
 
     <div class="relative overflow-x-auto sm:rounded-lg w-5/6 m-auto mt-6 ml-6">
-
-        <div class="w-full rounded">
-            <form action="">
-                <div class="flex flex-row justify-between items-center mb-4">
-                    <div class="grow mr-2">
-                        <input type="text" class="w-full h-10 border indent-4 rounded" name="order_date_search"
-                               placeholder="Date">
-                    </div>
-                    <div class="ml-2">
-                        <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
 
         <table class="w-full text-sm text-left border">
             <thead class="text-xs uppercase">
@@ -90,7 +78,7 @@
                     FM{{ item.product}}
                 </th>
                 <td class="px-6 py-4">
-                    {{ item.product.name|slice:-5  }} - <span class="text-xs">{{ item.product.size }}</span>
+                    {{ item.product.name|slice:-5 }} - <span class="text-xs">{{ item.product.size }}</span>
                 </td>
                 <td class="px-6 py-4">
                     {{ item.quantity }}
