@@ -268,14 +268,17 @@ def order_paid_cash(request, customer_id, order_id):
         if customer.order_type == 'franchise':
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
+                                               date=datetime.now().date(),
                                                amount=order.franchise_cgst_total())
         elif customer.order_type == 'super market':
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
+                                               date=datetime.now().date(),
                                                amount=order.store_cgst_total())
         else:
             add_credit = Credit.objects.create(name=customer.name + f"""#{order_id}""",
                                                invoice_number=order_id,
+                                               date=datetime.now().date(),
                                                amount=order.order_total)
         add_credit.save()
         messages.success(request, 'The Order is has been Paid')
@@ -309,7 +312,6 @@ def order_paid_upi(request, customer_id, order_id):
                                                payment_type='UPI',
                                                amount=order.order_total)
         add_credit.save()
-        messages.success(request, 'The Order is has been Paid')
         return redirect(edit_credit, credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
@@ -341,7 +343,6 @@ def order_paid_net(request, customer_id, order_id):
                                                payment_type='Bank Transfer',
                                                amount=order.order_total)
         add_credit.save()
-        messages.success(request, 'The Order is has been Paid')
         return redirect(edit_credit, credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
@@ -373,7 +374,6 @@ def order_paid_cheque(request, customer_id, order_id):
                                                payment_type='Cheque',
                                                amount=order.order_total)
         add_credit.save()
-        messages.success(request, 'The Order is has been Paid')
         return redirect(edit_credit, credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')

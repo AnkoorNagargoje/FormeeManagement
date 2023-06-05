@@ -149,7 +149,8 @@ def add_credit(request):
     form = CreditForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         form.save()
-        return redirect(accounting)
+        messages.success(request, 'Credit has been Successfully Added!')
+        return redirect(credits_view)
     return render(request, 'add_credit.html', {'form': form})
 
 
@@ -158,7 +159,8 @@ def add_debit(request):
     form = DebitForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         form.save()
-        return redirect(accounting)
+        messages.success(request, 'Debit has been Successfully Added!')
+        return redirect(debits_view)
     return render(request, 'add_debit.html', {'form': form})
 
 
@@ -168,6 +170,7 @@ def edit_credit(request, credit_id):
     form = CreditForm(request.POST or None, instance=credit)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Credit has been Successfully Added!')
         return redirect(credits_view)
     else:
         form = CreditForm(instance=credit)
@@ -181,9 +184,10 @@ def edit_debit(request, debit_id):
     form = DebitForm(request.POST or None, instance=debit)
     if form.is_valid():
         form.save()
+        messages.success(request, 'Debit has been Successfully Added!')
         return redirect(debits_view)
     else:
         form = DebitForm(instance=debit)
-        messages.error(request, 'There is an error!')
+        messages.error(request, f'Error while editing Debit! {form.errors}')
 
     return render(request, 'edit_debit.html', {'form': form, 'debit': debit})

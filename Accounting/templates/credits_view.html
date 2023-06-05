@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 
 {% block body %}
-{% if message != '' %}
-<div class="w-full py-2 m-auto text-center bg-green-400">
-    {{ message }}
-</div>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li
+    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
 {% endif %}
 
 <div class="flex w-11/12 m-auto gap-8 mt-4">
@@ -49,10 +52,13 @@
                     Name
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Invoice Number
+                </th>
+                <th scope="col" class="px-6 py-3">
                     Amount
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Invoice Number
+                    Payment Method
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Date
@@ -72,10 +78,13 @@
                     {{ credit.name }}
                 </th>
                 <td class="px-6 py-4">
+                    {{ credit.invoice_number }}
+                </td>
+                <td class="px-6 py-4">
                     {{ credit.amount|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
-                    {{ credit.invoice_number }}
+                    {{ credit.payment_type }}
                 </td>
                 <td class="px-6 py-4">
                     {{ credit.date|date:"F d, Y" }}

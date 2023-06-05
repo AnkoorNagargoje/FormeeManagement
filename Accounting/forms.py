@@ -8,13 +8,14 @@ class CreditForm(forms.ModelForm):
     invoice_number = forms.IntegerField(required=False)
     transaction_number = forms.IntegerField(required=False)
     payment_type = forms.CharField(required=False)
-    date = forms.DateField(required=False, widget=forms.widgets.DateInput(format=['%d-%m-%Y'], attrs={'type': 'date'}))
-    account_no = forms.CharField(required=False)
+    date = forms.DateField(label='Created at', widget=forms.DateInput(attrs={'type': 'date'}),
+                                 input_formats=['%Y-%m-%d'])
+    cheque_no = forms.CharField(required=False)
     bank_name = forms.CharField(required=False)
 
     class Meta:
         model = Credit
-        fields = ['name', 'amount', 'invoice_number', 'payment_type', 'transaction_number', 'date', 'account_no', 'bank_name']
+        fields = ['name', 'amount', 'invoice_number', 'payment_type', 'transaction_number', 'date', 'cheque_no', 'bank_name']
 
 
 class DebitForm(forms.ModelForm):
