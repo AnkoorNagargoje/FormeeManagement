@@ -228,7 +228,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>CGST</td>
+                    <td>CGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
                         {% if customer.order_type == 'franchise' %}
                         {{ order.franchise_cgst|floatformat:2 }}
@@ -238,7 +238,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>SGST</td>
+                    <td>SGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
                         {% if customer.order_type == 'franchise' %}
                         {{ order.franchise_sgst|floatformat:2 }}

@@ -161,7 +161,10 @@ def order_list(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     orders = customer.order_set.all().order_by('-created_at')
     total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
-    gst_total = round(total_sales + total_sales * 12 / 100, 0)
+    gst_total = 0
+
+    if total_sales is not None:
+        gst_total = round(total_sales + total_sales * 12 / 100, 0)
 
     invoice_search = request.GET.get('invoice_search')
     start_date = request.GET.get('start_date')
