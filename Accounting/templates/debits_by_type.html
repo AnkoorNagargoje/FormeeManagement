@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load template_filters %}
 
 {% block body %}
 {% if messages %}
@@ -10,22 +11,31 @@
 </ul>
 {% endif %}
 
-<div class="flex w-11/12 m-auto border-b-2 gap-8 mt-4 mb-4">
+<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
     <div class="text-2xl font-bold pb-2">
         <a href="/accounting/" class="text-blue-600 hover:underline">Accounting</a> >
-        <a href="/accounting/de" class="text-purple-600 hover:underline">Debits</a>
+        <a href="/accounting/de/" class="text-blue-600 hover:underline">Debits</a> >
+        <a href="/accounting/de/{{ debit_type.type }}/" class="text-blue-600 hover:underline">{{ debit_type.type|title }}</a> >
+        <a href="/accounting/de/{{ debit_type.type }}/{{ debit_type.pk }}/debit/" class="text-purple-600 hover:underline">{{ debit_type }}</a>
     </div>
 </div>
 
-<div class="flex justify-end mx-auto w-11/12">
-    <div class="">
+<div class="flex justify-between mx-auto w-11/12">
+    <div>
+        <a href="add_debit/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Debit</button>
+        </a>
+    </div>
+    <div class="flex-grow ml-8 flex-0">
         <form action="" class="flex">
-            <div class="mr-2">
-                <input type="date" id="start_date" name="subdebit_start_date" class="h-10 border indent-1 rounded">
+            <input type="text" class="w-full h-10 border rounded px-4" name="credit_search"
+                   placeholder="Search Credit">
+            <div class="w-1/6 ml-2">
+                <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
             </div>
 
-            <div class="mx-2">
-                <input type="date" id="end_date" name="subdebit_end_date" class="h-10 border indent-1 rounded">
+            <div class="w-1/6 mx-2">
+                <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
             </div>
 
             <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
@@ -54,35 +64,35 @@
             </tr>
             </thead>
             <tbody>
-            {% for debit_type, subdebit_sum in subdebit_sums.items %}
+            {% for debit in debits %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
                     {{ forloop.counter }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
-                    {{ debit_type|title }}
+                    {{ debit.name }}
                 </th>
                 <td class="px-6 py-4">
-                    {{ subdebit_sum }}
+                    {{ debit.sub_debit_sum|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="{{ debit_type }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    <a href="{{ debit.pk }}/" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
             </tr>
             {% endfor %}
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="4"></td>
             </tr>
 
             <tr>
                 <td class="px-6 py-4" colspan="1"></td>
-                <td class="px-6 py-4">Total Sales</td>
-                <td class="px-6 py-4">{{ total_subdebit_sum|floatformat:2 }}
+                <td class="px-6 py-4">Total Expenditure</td>
+                <td class="px-6 py-4">{{ grand_total_sum|floatformat:2 }}
                 </td>
-                <td class="px-6 py-4" colspan="4"></td>
+                <td class="px-6 py-4" colspan="1"></td>
             </tr>
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="4"></td>
             </tr>
 
             </tbody>

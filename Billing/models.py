@@ -28,13 +28,14 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-    created_at = models.DateTimeField(auto_now_add=False, editable=True)
+    created_at = models.DateTimeField(auto_now_add=False, editable=True, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='OrderItem')
     order_total = models.FloatField(default=0)
     payment_status = models.CharField(max_length=30, default='Pending')
     payment_type = models.CharField(max_length=20, default='')
     discount = models.PositiveIntegerField(default=0)
+    delivery = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.customer} - {self.id}"
@@ -71,6 +72,10 @@ class Order(models.Model):
         total = self.order_total
         rounded_total = total.__round__(0)
         return rounded_total
+
+    def order_total_with_delivery(self):
+        total = round(self.order_total + self.delivery, 0)
+        return total
 
     def real_order_total(self):
         real = round((self.order_total * 100) / (100 - self.discount))

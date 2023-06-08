@@ -259,7 +259,26 @@
                 </tr>
             </table>
             {% else %}
-            <p style="padding-left:5px;">{{ order.order_total }}</p>
+            <table>
+                <tr>
+                    <td>Sub Total</td>
+                    <td>
+                        {{ order.order_total|floatformat:2 }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Delivery Charges</td>
+                    <td>
+                        {{ order.delivery|floatformat:2 }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>
+                        {{ order.order_total_with_delivery|floatformat:2 }}
+                    </td>
+                </tr>
+            </table>
             {% endif %}
         </td>
     </tr>

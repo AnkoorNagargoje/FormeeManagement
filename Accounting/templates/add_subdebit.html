@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block body %}
+
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+    <p class="text-center text-3xl font-bold">Add New Debit</p>
+    <br>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        <div class="my-4">
+            <label class="text-lg my-2">Name <i class="optional">*</i></label>
+            {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Tea" %}
+        </div>
+
+        <div class="flex gap-8 justify-between my-4">
+            <div class="w-1/3">
+                <label for="id_price" class="text-lg my-2">Price Per Unit</label>
+                {% render_field form.price id="id_price" class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
+            </div>
+            <div class="w-1/3">
+                <label for="id_quantity" class="text-lg my-2">Quantity</label>
+                {% render_field form.quantity id="id_quantity" class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
+            </div>
+            <div class="w-1/3">
+                <label class="text-lg my-2">Quantity Type</label>
+                {% render_field form.quantity_type class="w-full h-10 indent-1 rounded bg-transparent border-2" %}
+            </div>
+        </div>
+
+        <div class="flex gap-8 justify-between my-4">
+            <div class="w-1/2">
+                <label for="id_amount" class="text-lg my-2">Amount <i class="optional">*</i></label>
+                {% render_field form.amount id="id_amount" class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
+            </div>
+            <div class="w-1/2">
+                <label class="text-lg my-2">Date <i class="optional">*</i></label>
+                {% render_field form.date class="w-full h-10 indent-1 rounded bg-transparent border-2" placeholder="Eg: Ankoor" %}
+            </div>
+        </div>
+
+        <div class="flex gap-8 justify-between">
+            <div class="w-full">
+                <label class="text-lg my-2">Note</label>
+                {% render_field form.reason class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
+            </div>
+        </div>
+        {{ form.errors }}
+        <br>
+        <button type="submit"
+                class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add
+            Debit
+        </button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("id_quantity").addEventListener("input", calculateAmount);
+    document.getElementById("id_price").addEventListener("input", calculateAmount);
+
+    function calculateAmount() {
+        const quantity = document.getElementById("id_quantity").value;
+        const price = document.getElementById("id_price").value;
+        const amount = quantity * price;
+
+        document.getElementById("id_amount").value = amount.toFixed(2);
+    }
+
+
+</script>
+
+{% endblock %}

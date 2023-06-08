@@ -50,6 +50,14 @@ class OrderForm(forms.ModelForm):
         return created_at
 
 
+class DeliveryForm(forms.ModelForm):
+    delivery = forms.FloatField()
+
+    class Meta:
+        model = Order
+        fields = ['delivery']
+
+
 class OrderItemForm(forms.ModelForm):
     product = forms.ModelChoiceField(queryset=Product.objects.all().order_by('code'), label='Product', to_field_name='id')
 
@@ -59,4 +67,4 @@ class OrderItemForm(forms.ModelForm):
 
     class Meta:
         model = OrderItem
-        fields = ('product', 'quantity',)
+        fields = ('product', 'quantity')

@@ -10,20 +10,27 @@
 </ul>
 {% endif %}
 
-<div class="flex w-11/12 m-auto border-b-2 gap-8 mt-4 mb-4">
-    <div class=" text-2xl font-bold pb-2">
-        Credits
+<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
+    <div class="text-2xl font-bold pb-2">
+        Sales Credits
     </div>
 </div>
 
-<div class="flex justify-start mx-auto w-11/12">
-    <div class="flex-grow flex-0">
+<div class="flex justify-between mx-auto w-11/12">
+    <div>
+        <a href="add_credit/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Credit</button>
+        </a>
+    </div>
+    <div class="flex-grow ml-8 flex-0">
         <form action="" class="flex">
-            <div class="mr-2">
+            <input type="text" class="w-full h-10 border rounded px-4" name="credit_search"
+                   placeholder="Search Credit">
+            <div class="w-1/6 ml-2">
                 <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
             </div>
 
-            <div class="mx-2">
+            <div class="w-1/6 mx-2">
                 <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
             </div>
 
@@ -45,7 +52,19 @@
                     Name
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Invoice Number
+                </th>
+                <th scope="col" class="px-6 py-3">
                     Amount
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Payment Method
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Credit Type
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -53,35 +72,47 @@
             </tr>
             </thead>
             <tbody>
-            {% for credit_type, total_credit in credit_sums %}
+            {% for credit in credits %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
-                    {{ forloop.counter }}
+                    {{ credit.pk }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
-                    {{ credit_type|title }}
+                    {{ credit.name }}
                 </th>
                 <td class="px-6 py-4">
-                    {{ total_credit|floatformat:2 }}
+                    {{ credit.invoice_number }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="{{ credit_type }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    {{ credit.amount|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ credit.payment_type }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ credit.credit_type|title }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ credit.date|date:"F d, Y" }}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="credit/{{ credit.id }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
                 </td>
             </tr>
             {% endfor %}
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="8"></td>
             </tr>
 
             <tr>
-                <td class="px-6 py-4" colspan="1"></td>
+                <td class="px-6 py-4" colspan="2"></td>
                 <td class="px-6 py-4">Total Sales</td>
-                <td class="px-6 py-4">{{ total_credit_sum|floatformat:2 }}
+                <td class="px-6 py-4">{{ total_credits|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4" colspan="4"></td>
             </tr>
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="8"></td>
             </tr>
 
             </tbody>

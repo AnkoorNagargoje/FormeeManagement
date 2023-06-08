@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li
+    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
+    <div class="text-2xl font-bold pb-2">
+        <a href="/accounting/" class="text-blue-600 hover:underline">Accounting</a> >
+        <a href="/accounting/de/" class="text-blue-600 hover:underline">Debits</a> >
+        <a href="/accounting/de/{{ debit_type.type }}/" class="text-blue-600 hover:underline">{{ debit_type.type|title }}</a> >
+        <a href="/accounting/de/{{ debit_type.type }}/{{ debit_type.pk }}/debit/" class="text-blue-600 hover:underline">{{ debit_type }}</a> >
+        <a href="/accounting/de/{{ debit_type.type }}/{{ debit_type.pk }}/debit/{{ debit.pk }}" class="text-blue-600 hover:underline">{{ debit }}</a> >
+        {% for x in subdebit %}
+        <a href="/accounting/de/{{ debit_type.type }}/{{ debit_type.pk }}/debit/{{ debit.pk }}/{{ x.pk }}/" class="text-purple-600 hover:underline">{{ x.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
+        <table class="w-full text-sm text-left border">
+            <thead class="text-xs uppercase">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Price
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Quantity
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Quantity Type
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Amount
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Reason
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for debit in subdebit %}
+            <tr class="bg-white border-b">
+                <td class="px-6 py-4">
+                    {{ forloop.counter }}
+                </td>
+                <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
+                    {{ debit.name }}
+                </th>
+                <td class="px-6 py-4">
+                    {{ debit.price|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.quantity }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.quantity_type|title }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.amount|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.date }}
+                </td>
+                <td class="px-6 py-4">
+                    {% if debit.reason %}{{ debit.reason|floatformat:2 }}{% else %}-{% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

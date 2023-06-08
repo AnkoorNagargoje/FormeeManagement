@@ -16,13 +16,16 @@
         text-align:center;
     }
 
+
+
 </style>
 
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
     <li
-    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
     {% endfor %}
 </ul>
 {% endif %}
@@ -93,100 +96,114 @@
             {% endfor %}
             </tbody>
         </table>
+
+
         {% if customer.order_type == 'normal' %}
-        <div class="float-left inline mt-4 w-4/12">
-            <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
-                <div>Discount:</div>
-                <div>
-                    <form action="{% url 'order_dis_five' customer.id order.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-slate-200 rounded px-2 py-1">5%</button>
-                    </form>
-                </div>
-                <div>
-                    <form action="{% url 'order_dis_ten' customer.id order.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-slate-200 rounded p-1">10%</button>
-                    </form>
-                </div>
-                <div>
-                    <form action="{% url 'order_dis_twenty' customer.id order.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-slate-200 rounded p-1">20%</button>
-                    </form>
+        <div class="flex justify-between nowrap">
+            <div class="mt-4 w-[30%]">
+                <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
+                    <div>Discount:</div>
+                    <div>
+                        <form action="{% url 'order_dis_five' customer.id order.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-slate-200 rounded px-2 py-1">5%</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form action="{% url 'order_dis_ten' customer.id order.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-slate-200 rounded p-1">10%</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form action="{% url 'order_dis_twenty' customer.id order.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-slate-200 rounded p-1">20%</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        {% endif %}
-        <div class="float-right mb-60">
+            <div>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {% render_field delivery_form.delivery class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Delivery Charges' %}
+                    <button type="submit"
+                            class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                        Add
+                    </button>
+                </form>
+            </div>
+            {% endif %}
 
+            <div class="mb-60">
+                <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">
+                    <button type="submit"
+                            class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                        Continue to Billing
+                    </button>
+                </a>
 
-            <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">
-                <button type="submit"
-                        class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                    Continue to Billing
-                </button>
-            </a>
+                <!-- component -->
+                <!-- This is an example component -->
+                <div class="max-w-lg mx-auto inline">
 
-            <!-- component -->
-            <!-- This is an example component -->
-            <div class="max-w-lg mx-auto inline">
+                    <button class="text-center inline-flex items-center px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out"
+                            type="button" data-dropdown-toggle="dropdown">Payment Mode
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
 
-                <button class="text-center inline-flex items-center px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out"
-                        type="button" data-dropdown-toggle="dropdown">Payment Mode
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
+                    <!-- Dropdown menu -->
+                    <div class="hidden bg-slate-200 text-base z-50 list-none divide-y divide-gray-100 rounded-xl"
+                         id="dropdown">
+                        <ul class="py-1" aria-labelledby="dropdown">
+                            <li>
+                                <form action="{% url 'order_paid_cash' customer.id order.id %}" method="post"
+                                      class="inline mx-2">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                                        Cash
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{% url 'order_paid_upi' customer.id order.id %}" method="post"
+                                      class="inline mx-2">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                                        UPI
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{% url 'order_paid_net' customer.id order.id %}" method="post"
+                                      class="inline mx-2">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                                        Net Banking
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{% url 'order_paid_cheque' customer.id order.id %}" method="post"
+                                      class="inline mx-2">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
+                                        Cheque
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
 
-                <!-- Dropdown menu -->
-                <div class="hidden bg-slate-200 text-base z-50 list-none divide-y divide-gray-100 rounded-xl"
-                     id="dropdown">
-                    <ul class="py-1" aria-labelledby="dropdown">
-                        <li>
-                            <form action="{% url 'order_paid_cash' customer.id order.id %}" method="post"
-                                  class="inline mx-2">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                                    Cash
-                                </button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'order_paid_upi' customer.id order.id %}" method="post"
-                                  class="inline mx-2">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                                    UPI
-                                </button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'order_paid_net' customer.id order.id %}" method="post"
-                                  class="inline mx-2">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                                    Net Banking
-                                </button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'order_paid_cheque' customer.id order.id %}" method="post"
-                                  class="inline mx-2">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="px-4 my-1 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                                    Cheque
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
                 </div>
-
             </div>
 
             <script src="https://unpkg.com/@themesberg/flowbite@latest/dist/flowbite.bundle.js"></script>

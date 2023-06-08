@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Customer, Order, Product, OrderItem
-from .forms import OrderForm, OrderItemForm, CustomerForm, CustomerProfileForm
+from .forms import OrderForm, OrderItemForm, CustomerForm, CustomerProfileForm, DeliveryForm
 from django.contrib.auth.decorators import login_required
 from Stock.models import Quantity
 from xhtml2pdf import pisa
@@ -166,6 +166,10 @@ def order_list(request, customer_id):
     if total_sales is not None:
         gst_total = round(total_sales + total_sales * 12 / 100, 0)
 
+    for order in orders:
+        if order.delivery != 0:
+            total_sales += order.delivery
+
     invoice_search = request.GET.get('invoice_search')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -257,8 +261,15 @@ def order_detail(request, customer_id, order_id):
             order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
+    delivery_form = DeliveryForm(request.POST or None)
+    if delivery_form.is_valid():
+        order.delivery = delivery_form.cleaned_data['delivery']
+        order.save()
+        messages.success(request, f'Rs.{order.delivery} of Delivery Charges have been successfully added!')
+        return redirect('order_detail', customer_id=customer.id, order_id=order.id)
+
     return render(request, 'order_detail.html',
-                  {'form': form, 'customer': customer, 'order': order, 'order_items': order_items})
+                  {'form': form, 'customer': customer, 'order': order, 'order_items': order_items, 'delivery_form': delivery_form})
 
 
 def order_paid_cash(request, customer_id, order_id):

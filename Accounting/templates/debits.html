@@ -1,12 +1,50 @@
 {% extends 'base.html' %}
+{% load template_filters %}
 
 {% block body %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li
+    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
-<div class="w-11/12 m-auto mt-8 text-2xl">Expenses</div>
+<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
+    <div class="text-2xl font-bold pb-2">
+        <a href="/accounting/" class="text-blue-600 hover:underline">Accounting</a> >
+        <a href="/accounting/pnl/" class="text-blue-600 hover:underline">PNL</a> >
+        <a href="/accounting/pnl/debits/" class="text-purple-600 hover:underline">Debits</a>
+    </div>
+</div>
+
+<div class="flex justify-between mx-auto w-11/12">
+    <div>
+        <a href="add_debit/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Debit</button>
+        </a>
+    </div>
+    <div class="flex-grow ml-8 flex-0">
+        <form action="" class="flex">
+            <input type="text" class="w-full h-10 border rounded px-4" name="credit_search"
+                   placeholder="Search Credit">
+            <div class="w-1/6 ml-2">
+                <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+            </div>
+
+            <div class="w-1/6 mx-2">
+                <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+            </div>
+
+            <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
+        </form>
+    </div>
+</div>
 
 <div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
 
-    <div class="overflow-x-auto shadow-md sm:rounded-lg mt-4">
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
         <table class="w-full text-sm text-left border">
             <thead class="text-xs uppercase">
             <tr>
@@ -18,12 +56,6 @@
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Amount
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Reason
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Date
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -40,19 +72,28 @@
                     {{ debit.name }}
                 </th>
                 <td class="px-6 py-4">
-                    {{ debit.amount }}
+                    {{ debit.total_subdebits|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
-                    {{ debit.reason }}
-                </td>
-                <td class="px-6 py-4">
-                    {{ debit.date }}
-                </td>
-                <td class="px-6 py-4">
-                    <a href="debit/{{ debit.id }}/edit/" class="font-medium text-blue-600 hover:underline">View/Edit</a>
+                    <a href="/accounting/de/{{ debit.debit_type.type }}/{{ debit.debit_type.pk }}/debit/{{ debit.pk }}/" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
             </tr>
             {% endfor %}
+            <tr class="bg-blue-600">
+                <td colspan="4"></td>
+            </tr>
+
+            <tr>
+                <td class="px-6 py-4" colspan="1"></td>
+                <td class="px-6 py-4">Total Expenditure</td>
+                <td class="px-6 py-4">{{ total_sum_subdebits|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4" colspan="1"></td>
+            </tr>
+            <tr class="bg-blue-600">
+                <td colspan="4"></td>
+            </tr>
+
             </tbody>
         </table>
     </div>

@@ -8,14 +8,19 @@
     <hr>
     <form method="post">
         {% csrf_token %}
-        <div class="my-6">
-            <p class="text-xl my-2">Name</p>
+        <div class="mt-6 mb-2">
+            <p class="text-xl my-2">Name <i class="optional">*</i></p>
             {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Customer Name and Invoice Number" %}
         </div>
-
-        <div class="flex gap-8 justify-between">
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-full">
+                <p class="text-xl my-2">Credit Type</p>
+                {% render_field form.credit_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 12049029409124" %}
+            </div>
+        </div>
+        <div class="flex gap-8 justify-between my-2">
             <div class="w-1/2">
-                <p class="text-xl my-2">Amount</p>
+                <p class="text-xl my-2">Amount <i class="optional">*</i></p>
                 {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 993.3" %}
             </div>
             <div class="w-1/2">
@@ -24,16 +29,43 @@
             </div>
         </div>
 
-        <div class="flex gap-8 justify-between">
-            <div class="w-1/2">
-                <p class="text-xl my-2">Transaction Number</p>
-                {% render_field form.transaction_number class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 12049029409124" %}
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-full">
+                <p class="text-xl my-2">Transaction Type</p>
+                {% render_field form.payment_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: UPI" %}
             </div>
-            <div class="w-1/2">
-                <p class="text-xl my-2">Date</p>
-                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="" %}
+            {% if credit.payment_type != 'Cheque' %}
+            <div class="w-full">
+                <p class="text-xl my-2">Transaction Number</p>
+                {% render_field form.transaction_number class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 9021" %}
+            </div>
+            </div><!-- This div is to keep the html of the page intact because of the django if tags -->
+            {% endif %}
+            {% if credit.payment_type == 'Cheque' %}
+            <div class="w-full">
+                <p class="text-xl my-2">Cheque Number</p>
+                {% render_field form.cheque_no class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 190021" %}
             </div>
         </div>
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-full">
+                <p class="text-xl my-2">Bank Name</p>
+                {% render_field form.bank_name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Bank of Maharashtra" %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Date <i class="optional">*</i></p>
+                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Special Note</p>
+                {% render_field form.note class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Tip" %}
+            </div>
+        </div>
+
         {{ form.errors }}
         <br>
         <button type="submit"

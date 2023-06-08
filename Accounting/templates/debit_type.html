@@ -5,33 +5,41 @@
 <ul class="messages">
     {% for message in messages %}
     <li
-    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
     {% endfor %}
 </ul>
 {% endif %}
 
-<div class="flex w-11/12 m-auto border-b-2 gap-8 mt-4 mb-4">
+<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
     <div class="text-2xl font-bold pb-2">
         <a href="/accounting/" class="text-blue-600 hover:underline">Accounting</a> >
-        <a href="/accounting/de" class="text-purple-600 hover:underline">Debits</a>
+        <a href="/accounting/de/" class="text-blue-600 hover:underline">Debits</a> >
+        <a href="/accounting/de/{{ debit_type }}/" class="text-purple-600 hover:underline">{{ debit_type|title }}</a>
     </div>
 </div>
 
-<div class="flex justify-end mx-auto w-11/12">
-    <div class="">
-        <form action="" class="flex">
-            <div class="mr-2">
-                <input type="date" id="start_date" name="subdebit_start_date" class="h-10 border indent-1 rounded">
+<div class="flex justify-between mx-auto w-11/12">
+    <div>
+        <a href="add_debit_type/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Debit Type</button>
+        </a>
+    </div>
+    <div class="w-full">
+        <form action="" class="flex float-right">
+            <div class=" ml-2">
+                <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
             </div>
 
             <div class="mx-2">
-                <input type="date" id="end_date" name="subdebit_end_date" class="h-10 border indent-1 rounded">
+                <input type="date" id="end_date" name="end_date" class="h-10 indent-1 border rounded">
             </div>
 
             <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
         </form>
     </div>
 </div>
+
 
 <div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
 
@@ -54,35 +62,35 @@
             </tr>
             </thead>
             <tbody>
-            {% for debit_type, subdebit_sum in subdebit_sums.items %}
+            {% for debit_type, total_amount in debits_with_total_amount %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
                     {{ forloop.counter }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
-                    {{ debit_type|title }}
+                    {{ debit_type.name }}
                 </th>
                 <td class="px-6 py-4">
-                    {{ subdebit_sum }}
+                    {% if total_amount %} {{ total_amount|floatformat:2 }} {% else %}-{% endif %}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="{{ debit_type }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    <a href="{{ debit_type.pk }}/debit/" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
             </tr>
             {% endfor %}
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="4"></td>
             </tr>
 
             <tr>
                 <td class="px-6 py-4" colspan="1"></td>
-                <td class="px-6 py-4">Total Sales</td>
-                <td class="px-6 py-4">{{ total_subdebit_sum|floatformat:2 }}
+                <td class="px-6 py-4">Total Expenditure</td>
+                <td class="px-6 py-4">{{ total_amount_sum|floatformat:2 }}
                 </td>
-                <td class="px-6 py-4" colspan="4"></td>
+                <td class="px-6 py-4" colspan="1"></td>
             </tr>
             <tr class="bg-blue-600">
-                <td colspan="5"></td>
+                <td colspan="4"></td>
             </tr>
 
             </tbody>

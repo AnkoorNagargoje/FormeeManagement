@@ -2,18 +2,25 @@
 {% load widget_tweaks %}
 {% block body %}
 
-<div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-3/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
     <p class="text-center text-3xl font-bold">Edit Credit</p>
     <br>
     <hr>
     <form method="post">
         {% csrf_token %}
-        <div class="mt-6 mb-2">
-            <p class="text-xl my-2">Name</p>
-            {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Customer Name and Invoice Number" %}
+
+        <div class="flex gap-8 justify-between mt-6">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Name</p>
+                {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Customer Name and Invoice Number" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Credit Type</p>
+                {% render_field form.credit_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 993.3" %}
+            </div>
         </div>
 
-        <div class="flex gap-8 justify-between">
+        <div class="flex gap-8 justify-between my-2">
             <div class="w-1/2">
                 <p class="text-xl my-2">Amount</p>
                 {% render_field form.amount class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 993.3" %}
@@ -24,7 +31,7 @@
             </div>
         </div>
 
-        <div class="flex gap-8 justify-between">
+        <div class="flex gap-8 justify-between my-2">
             <div class="w-full">
                 <p class="text-xl my-2">Transaction Type</p>
                 {% render_field form.payment_type class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: UPI" %}
@@ -42,22 +49,26 @@
                 {% render_field form.cheque_no class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: 12049029409124" %}
             </div>
         </div>
-        <div class="flex gap-8 justify-between">
+        <div class="flex gap-8 justify-between my-2">
             <div class="w-full">
                 <p class="text-xl my-2">Bank Name</p>
                 {% render_field form.bank_name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Bank of Maharashtra" %}
             </div>
         </div>
         {% endif %}
-        {{ form.errors }}
 
-        <div class="flex gap-8 justify-between">
+        <div class="flex gap-8 justify-between my-2">
             <div class="w-full">
                 <p class="text-xl my-2">Date</p>
-                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Bank of Maharashtra" %}
+                {% render_field form.date class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
+            </div>
+            <div class="w-full">
+                <p class="text-xl my-2">Special Note</p>
+                {% render_field form.note class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Special Note" %}
             </div>
         </div>
         <br>
+        {{ form.errors }}
         <button type="submit"
                 class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Update
             Credit

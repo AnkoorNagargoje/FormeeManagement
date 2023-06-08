@@ -1,6 +1,14 @@
 from django.db import models
 from Billing.models import Order
 import datetime
+from django.db.models import Sum
+
+
+CREDIT_TYPE = (
+    ('sales', 'Sales'),
+    ('indirect', 'Indirect'),
+    ('miscellaneous', 'Miscellaneous'),
+)
 
 
 class Credit(models.Model):
@@ -12,6 +20,8 @@ class Credit(models.Model):
     date = models.DateTimeField(auto_now_add=False, editable=True, null=True)
     cheque_no = models.CharField(max_length=100, default="")
     bank_name = models.CharField(max_length=100, default="")
+    note = models.CharField(max_length=100, default='')
+    credit_type = models.CharField(max_length=20, choices=CREDIT_TYPE, default='sales')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -29,34 +39,72 @@ HOW_CHOICES = (
     ('shop', 'Shop Cash'),
 )
 TYPE = (
-    ('purchase', 'Purchase'),
-    ('indirect', 'Indirect'),
-    ('fixed', 'Fixed'),
-    ('miscellaneous', 'Miscellaneous'),
+    ('material purchase', 'Material Purchase'),
+    ('fuel', 'Fuel Consumption'),
+    ('wastage', 'Process Wastage'),
+    ('labour', 'Labour Expenses'),
+    ('freight', 'Freight and Carriage'),
+    ('production overhead', 'Production Overhead'),
+    ('utilities', 'Utilities'),
+    ('maintenance', 'Maintenance and Repair'),
+    ('insurance', 'Insurance'),
+    ('property expenses', 'Property Expenses'),
+    ('professional fees', 'Labour Expenses'),
+    ('financial', 'Financial Expenses'),
+    ('general', 'General Expenses'),
+    ('selling distribution', 'Administrative Expenses'),
+    ('administrative', 'Administrative Expenses'),
 )
 
 
+class DebitType(models.Model):
+    DIRECT = 'direct'
+    INDIRECT = 'indirect'
+    MISCELLANEOUS = 'miscellaneous'
+
+    TYPE_CHOICES = (
+        (DIRECT, 'Direct'),
+        (INDIRECT, 'Indirect'),
+        (MISCELLANEOUS, 'Miscellaneous'),
+    )
+
+    name = models.CharField(max_length=100)
+    type = models.CharField(max_length=15, choices=TYPE_CHOICES)
+    parent_type = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
 class Debit(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    amount = models.FloatField(default=0)
+    reason = models.TextField(blank=True, null=True)
+    debit_type = models.ForeignKey(DebitType, on_delete=models.CASCADE, null=True)
+
+    def get_total_amount(self):
+        subdebit_amounts = self.subdebit.aggregate(total_sum=Sum('amount'))['total_sum']
+        return subdebit_amounts or self.amount
+
+    def __str__(self):
+        return self.name
+
+
+Quantity_Choice = (
+    ('kgs', 'KGS'),
+    ('pieces', 'Pieces'),
+)
+
+
+class SubDebit(models.Model):
+    name = models.CharField(max_length=100)
+    quantity = models.IntegerField(default=0, null=True)
+    quantity_type = models.CharField(max_length=20, choices=Quantity_Choice, default='kgs')
+    price = models.FloatField(default=0.0, null=True)
     amount = models.FloatField()
-    reason = models.CharField(max_length=200)
-    person = models.CharField(max_length=200, default='')
-    how = models.CharField(max_length=20, choices=HOW_CHOICES, default='self')
-    date = models.DateTimeField(auto_now_add=False, editable=True, null=True, blank=True)
-    type = models.CharField(max_length=20, choices=TYPE, default='miscellaneous')
+    date = models.DateField()
+    reason = models.TextField()
+    debit = models.ForeignKey(Debit, on_delete=models.CASCADE)
 
-
-class DebitOrder(models.Model):
-    debit = models.ForeignKey(Debit, on_delete=models.CASCADE, related_name='debit_orders')
-    type = models.CharField(max_length=100)
-    amount = models.FloatField()
-
-
-class DebitItem(models.Model):
-    debit_order = models.ForeignKey(DebitOrder, on_delete=models.CASCADE, related_name='debit_items')
-    amount = models.FloatField()
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
-
-
-class Item(models.Model):
-    name = models.CharField(max_length=100, default='')
+    def __str__(self):
+        return self.name
