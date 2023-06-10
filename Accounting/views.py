@@ -6,6 +6,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.db.models import Sum, DecimalField, ExpressionWrapper, F, Q, Case, When
 from decimal import Decimal
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -100,13 +101,12 @@ def credits_view(request):
 
 @login_required
 def credits_sales_view(request):
-    credits = Credit.objects.filter(credit_type='sales').order_by('-id')[:10]
-    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-
     credit_search = request.GET.get('credit_search')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     message = ""
+
+    credits = Credit.objects.filter(credit_type='sales')
 
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
@@ -117,9 +117,6 @@ def credits_sales_view(request):
 
             credits = credits.filter(date__range=(start_datetime, end_datetime))
             message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
-        else:
-            message = f"Showing results of '{credit_search}'"
-        total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
     else:
         if start_date and end_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
@@ -127,9 +124,15 @@ def credits_sales_view(request):
 
             credits = credits.filter(date__range=(start_datetime, end_datetime))
             message = f"Showing results from {start_date} to {end_date}"
-            total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
 
-    total = Credit.objects.filter(credit_type='sales').aggregate(TOTAL=Sum('amount'))['TOTAL']
+    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
+
+    total = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
+
+    # Configure pagination
+    paginator = Paginator(credits, 20)  # Show 20 credits per page
+    page = request.GET.get('page')
+    credits = paginator.get_page(page)
 
     context = {
         'credits': credits,
@@ -139,6 +142,9 @@ def credits_sales_view(request):
     }
 
     return render(request, 'sales_view.html', context=context)
+
+
+
 
 
 @login_required

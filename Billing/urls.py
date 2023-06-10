@@ -9,7 +9,9 @@ urlpatterns = [
     path('billing/get-sales-report/', views.get_sales_report, name='get-sales-report'),
     path('billing/get-sales-report/export_csv/', views.export_report_to_csv, name='export_report_to_csv'),
     path('billing/add_customer/<int:customer_id>/extended/', views.customer_extended_form, name='customer_extended_form'),
+
     path('billing/<int:customer_id>/orders/', views.order_list, name='order_list'),
+    path('billing/<int:customer_id>/orders/ledger/', views.ledger_view, name='ledger_view'),
     path('billing/<int:customer_id>/orders/<int:order_id>/delete/', views.order_delete, name='order_delete'),
     path('billing/<int:customer_id>/orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('billing/<int:customer_id>/order/<int:order_id>/cash/', views.order_paid_cash, name='order_paid_cash'),
@@ -19,6 +21,7 @@ urlpatterns = [
     path('billing/<int:customer_id>/order/<int:order_id>/5-dis/', views.order_dis_five, name='order_dis_five'),
     path('billing/<int:customer_id>/order/<int:order_id>/10-dis/', views.order_dis_ten, name='order_dis_ten'),
     path('billing/<int:customer_id>/order/<int:order_id>/20-dis/', views.order_dis_twenty, name='order_dis_twenty'),
+    path('billing/<int:customer_id>/order/<int:order_id>/25-dis/', views.order_dis_twenty_five, name='order_dis_twenty_five'),
     path('billing/<int:customer_id>/orders/<int:order_id>/<int:order_item_id>/edit/', views.order_item_edit, name='order_item_edit'),
     path('billing/<int:customer_id>/orders/<int:order_id>/<int:order_item_id>/delete/', views.order_item_delete, name='order_item_delete'),
     path('billing/<int:order_id>/invoice/', views.generate_invoice),

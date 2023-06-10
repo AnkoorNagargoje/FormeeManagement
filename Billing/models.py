@@ -40,33 +40,17 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.customer} - {self.id}"
 
-    def franchise_cgst(self):
+    def cgst(self):
         return self.order_total * 6 / 100
 
-    def store_cgst(self):
+    def sgst(self):
         return self.order_total * 6 / 100
 
-    def franchise_sgst(self):
-        return self.order_total * 6 / 100
+    def total_gst(self):
+        return self.sgst() + self.cgst()
 
-    def store_sgst(self):
-        return self.order_total * 6 / 100
-
-    def franchise_gst(self):
-        return self.franchise_cgst() + self.franchise_sgst()
-
-    def store_gst(self):
-        return self.store_cgst() + self.store_sgst()
-
-    def franchise_cgst_total(self):
-        total = self.order_total + self.franchise_cgst() + self.franchise_sgst()
-        rounded_total = total.__round__(0)
-        return rounded_total
-
-    def store_cgst_total(self):
-        total = self.order_total + self.store_cgst() + self.store_sgst()
-        rounded_total = total.__round__(0)
-        return rounded_total
+    def order_total_with_gst(self):
+        return round(self.order_total + self.total_gst(), 0)
 
     def normal_order_total(self):
         total = self.order_total
@@ -76,6 +60,9 @@ class Order(models.Model):
     def order_total_with_delivery(self):
         total = round(self.order_total + self.delivery, 0)
         return total
+
+    def order_total_with_gst_and_delivery(self):
+        return round(self.order_total_with_gst() + self.delivery, 0)
 
     def real_order_total(self):
         real = round((self.order_total * 100) / (100 - self.discount))

@@ -98,8 +98,9 @@
         </table>
 
 
-        {% if customer.order_type == 'normal' %}
+
         <div class="flex justify-between nowrap">
+            {% if customer.order_type == 'normal' %}
             <div class="mt-4 w-[30%]">
                 <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
                     <div>Discount:</div>
@@ -121,8 +122,16 @@
                             <button type="submit" class="bg-slate-200 rounded p-1">20%</button>
                         </form>
                     </div>
+                    <div>
+                        <form action="{% url 'order_dis_twenty_five' customer.id order.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-slate-200 rounded p-1">25%</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            {% endif %}
             <div>
                 <form action="" method="post">
                     {% csrf_token %}
@@ -133,7 +142,6 @@
                     </button>
                 </form>
             </div>
-            {% endif %}
 
             <div class="mb-60">
                 <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">

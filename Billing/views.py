@@ -13,7 +13,9 @@ import csv
 from django.http import HttpResponse
 from datetime import datetime
 from django.core.paginator import Paginator
-from django.db.models import Sum
+from django.db.models import Sum, Q
+from django.utils import timezone
+import decimal
 
 
 @login_required
@@ -63,37 +65,31 @@ def export_report_to_csv(request):
     response['Content-Disposition'] = f'attachment; filename="orders-{start_date_str}-{end_date_str}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Invoice No.', 'Invoice Date', 'Customer', 'GSTIN', 'Order Total(MRP)', 'Discount %',
-                     'Order Total(S.P.)(Customer)', 'GAP', 'Order Total(S.P.)(Super Market)', 'Super Market CGST',
-                     'Super Market SGST', 'Super Market GST Total', 'Super Market Order Total', 'GAP',
-                     'Order Total(S.P.)(Franchise)', 'Franchise CGST', 'Franchise SGST', 'Franchise GST Total',
-                     'Franchise Order Total', 'Payment Status', 'Payment Type'])
+    writer.writerow(['Invoice No.', 'Invoice Date', 'Party Name', 'GSTIN', 'Total(MRP)', 'CGST (6%)',
+                     'SGST (6%)', 'Total Tax', 'Order Total', 'Tax Type', 'Type'])
+
+    order_total_sum = 0
+    cgst_sum = 0
+    sgst_sum = 0
+    total_gst_sum = 0
+    order_total_with_gst_sum = 0
 
     for order in orders:
-        if order.customer.order_type == 'super market':
+        if order.customer.order_type != 'normal':
             writer.writerow(
-                [order.id, order.created_at.strftime('%Y-%m-%d %H:%M:%S'), order.customer, order.customer.gstin,
-                 f'₹{order.real_order_total()}', '-', '-', '-', f'₹{order.store_order_total():.2f}',
-                 f'₹{order.store_sgst():.2f}', f'₹{order.store_sgst():.2f}', f'₹{order.store_gst():.2f}',
-                 f'₹{order.store_cgst_total():.2f}', '-', '-', '-', '-', '-', '-',
-                 f'{order.payment_status} ₹{order.store_cgst_total()}',
-                 order.payment_type])
+                [order.id, order.created_at.strftime('%Y-%m-%d'), order.customer, order.customer.gstin,
+                 f'{order.order_total}', f'{order.cgst():.2f}', f'{order.sgst():.2f}',
+                 f'{order.total_gst():.2f}', f'{order.order_total_with_gst():.2f}', 'CS GST', 'Taxable'])
 
-        elif order.customer.order_type == 'franchise':
-            writer.writerow(
-                [order.id, order.created_at.strftime('%Y-%m-%d %H:%M:%S'), order.customer, order.customer.gstin,
-                 order.real_order_total(), '-', '-', '-', '-', '-', '-', '-', '-', '-',
-                 f'₹{order.franchise_order_total():.2f}', f'₹{order.franchise_sgst():.2f}',
-                 f'₹{order.franchise_sgst():.2f}', f'₹{order.franchise_gst():.2f}',
-                 f'₹{order.franchise_cgst_total():.2f}',
-                 f'{order.payment_status} ₹{order.franchise_cgst_total()}', order.payment_type])
+            order_total_sum += order.order_total
+            cgst_sum += order.cgst()
+            sgst_sum += order.sgst()
+            total_gst_sum += order.total_gst()
+            order_total_with_gst_sum += order.order_total_with_gst()
 
-        else:
-            writer.writerow(
-                [order.id, order.created_at.strftime('%Y-%m-%d %H:%M:%S'), order.customer, order.customer.gstin,
-                 f'₹{order.real_order_total()}', f'''{order.discount}%''', f'₹{order.order_total}', '-', '-', '-', '-',
-                 '-', '-',
-                 '-', '-', '-', '-', '-', '-', f'{order.payment_status} ₹{order.order_total}', order.payment_type])
+    writer.writerow(['', '', '', '', '', '', '', '', '', '', ''])
+    writer.writerow(['Total', '', '', '', f'{order_total_sum:.2f}', f'{cgst_sum:.2f}', f'{sgst_sum:.2f}',
+                     f'{total_gst_sum:.2f}', f'₹{order_total_with_gst_sum:.2f}', '', ''])
 
     return response
 
@@ -166,17 +162,13 @@ def order_list(request, customer_id):
     if total_sales is not None:
         gst_total = round(total_sales + total_sales * 12 / 100, 0)
 
-    for order in orders:
-        if order.delivery != 0:
-            total_sales += order.delivery
-
     invoice_search = request.GET.get('invoice_search')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     message = ""
 
     if invoice_search and invoice_search.strip():
-        orders = Order.objects.filter(pk__icontains=invoice_search)
+        orders = Order.objects.filter(Q(pk__icontains=invoice_search) & Q(customer=customer))
 
         if start_date and end_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
@@ -190,10 +182,10 @@ def order_list(request, customer_id):
         gst_total = round(total_sales + total_sales * 12 / 100, 0)
     else:
         if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            start_datetime = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            end_datetime = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
 
-            orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
+            orders = orders.filter(created_at__range=(start_datetime, end_datetime))
             message = f"Showing results from {start_date} to {end_date}"
             total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
             gst_total = round(total_sales + total_sales * 12 / 100, 0)
@@ -269,7 +261,8 @@ def order_detail(request, customer_id, order_id):
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_detail.html',
-                  {'form': form, 'customer': customer, 'order': order, 'order_items': order_items, 'delivery_form': delivery_form})
+                  {'form': form, 'customer': customer, 'order': order, 'order_items': order_items,
+                   'delivery_form': delivery_form})
 
 
 def order_paid_cash(request, customer_id, order_id):
@@ -398,7 +391,7 @@ def order_dis_five(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
     if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = order.order_total - order.order_total * 5 / 100
+        order.order_total = round(order.order_total - order.order_total * 5 / 100, 0)
         order.discount = 5
         order.save()
         messages.success(request, '5% Discount has been Applied')
@@ -412,7 +405,7 @@ def order_dis_ten(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
     if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = order.order_total - order.order_total * 10 / 100
+        order.order_total = round(order.order_total - order.order_total * 10 / 100, 0)
         order.discount = 10
         order.save()
         messages.success(request, '10% Discount has been Applied')
@@ -426,10 +419,24 @@ def order_dis_twenty(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
     if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = order.order_total - order.order_total * 20 / 100
+        order.order_total = round(order.order_total - order.order_total * 20 / 100, 0)
         order.discount = 20
         order.save()
         messages.success(request, '20% Discount has been Applied')
+    else:
+        messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
+
+    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
+
+
+def order_dis_twenty_five(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+    if order.payment_status != 'Paid' and order.discount == 0:
+        order.order_total = round(order.order_total - order.order_total * 25 / 100, 0)
+        order.discount = 25
+        order.save()
+        messages.success(request, '25% Discount has been Applied')
     else:
         messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
 
@@ -449,24 +456,24 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             diff = new_order_item.quantity - old_quantity
             product.stock -= diff
             if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total + order_item.product.franchise_price * diff)
+                order.order_total = round(order.order_total + product.franchise_price * diff)
             elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total + order_item.product.store_price * diff)
+                order.order_total = round(order.order_total + product.store_price * diff)
             else:
-                order.order_total = round(order.order_total + order_item.product.price * diff)
+                order.order_total = round(order.order_total + product.price * diff)
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
             if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total + order_item.product.franchise_price * diff)
+                order.order_total = round(order.order_total - product.franchise_price * diff)
             elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total + order_item.product.store_price * diff)
+                order.order_total = round(order.order_total - product.store_price * diff)
             else:
-                order.order_total = round(order.order_total + order_item.product.price * diff)
+                order.order_total = round(order.order_total - product.price * diff)
         product.save()
         new_order_item.save()
         order.save()
-        messages.success(request, product.stock)
+        messages.success(request, f'{product.stock}, {diff}, {order.order_total}')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
     return render(request, 'order_item_edit.html',
                   {'form': form, 'customer': customer, 'order': order, 'order_item': order_item})
@@ -498,17 +505,15 @@ def generate_invoice(request, order_id):
     customer = order.customer
     order_items = OrderItem.objects.filter(order=order)
     total_amount = order.order_total
-    total_amount_in_words_franchise = num2words(order.franchise_cgst_total())
+    total_amount_in_words_gst = num2words(order.order_total_with_gst())
     total_amount_in_words_normal = num2words(order.normal_order_total())
-    total_amount_in_words_store = num2words(order.store_cgst_total())
     total_amount_in_words_exhibition = num2words(order.normal_order_total())
 
     # Render the HTML template
     template = get_template('invoice.html')
     context = {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount,
-               'total_amount_in_words_franchise': total_amount_in_words_franchise,
+               'total_amount_in_words_gst': total_amount_in_words_gst,
                'total_amount_in_words_normal': total_amount_in_words_normal,
-               'total_amount_in_words_store': total_amount_in_words_store,
                'total_amount_in_words_exhibition': total_amount_in_words_exhibition,
                }
     html = template.render(context)
@@ -530,3 +535,36 @@ def invoice(request, order_id):
     # Render the HTML template
     return render(request, 'invoice_view.html',
                   {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount})
+
+
+def ledger_view(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    orders = Order.objects.filter(customer=customer)
+
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+
+        orders = orders.filter(created_at__range=(start_datetime, end_datetime))
+
+    pending_orders = orders.filter(payment_status='Pending')
+    paid_orders = orders.filter(payment_status='Paid')
+
+    pending_total = pending_orders.aggregate(total_pending=Sum('order_total'))['total_pending']
+    paid_total = paid_orders.aggregate(total_paid=Sum('order_total'))['total_paid']
+
+    diff = 0
+    if pending_total is not None and paid_total is not None:
+        diff = paid_total - pending_total
+
+    context = {
+        'customer': customer,
+        'pending_orders': pending_orders,
+        'paid_orders': paid_orders,
+        'pending_total': pending_total,
+        'paid_total': paid_total,
+        'diff': diff,
+    }
+    return render(request, 'ledger_view.html', context=context)

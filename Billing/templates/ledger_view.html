@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
+    <div><a href="add_customer/">
+        <button type="button" class="mr-1 m-2 px-4 py-2 bg-green-400 rounded">Add New Customer</button>
+    </a></div>
+    <div><a href="get-sales-report/">
+        <button type="button" class="ml-1 m-2 px-4 py-2 bg-green-400 rounded">Get Sales Report</button>
+    </a></div>
+    <div class="grow ml-8">
+        <form action="">
+            <input type="text" class="w-[100%] h-10 border indent-4 rounded" name="customer_search"
+                   placeholder="Search Customer">
+    </div>
+    <div>
+        <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
+        </form>
+    </div>
+
+</div>
+
+<body>
+    <h1>Ledger View</h1>
+    <h2>Customer: {{ customer.name }}</h2>
+
+    <h3>Pending Orders:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in pending_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_total }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No pending orders</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Paid Orders:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in paid_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_total }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No paid orders</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Summary:</h3>
+    <p>Total Pending Amount: {{ pending_total }}</p>
+    <p>Total Paid Amount: {{ paid_total }}</p>
+    <p>Difference: {{ diff }}</p>
+</body>
+
+{% endblock %}
