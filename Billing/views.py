@@ -33,7 +33,7 @@ def customer_list(request):
     return render(request, 'billing.html', {'customers': customers})
 
 
-def get_sales_report(request):
+def get_gst_report(request):
     if request.method == 'GET':
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
@@ -44,11 +44,25 @@ def get_sales_report(request):
 
             orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
         else:
-            orders = Order.objects.filter().order_by('-pk')[:10]
+            orders = Order.objects.filter().order_by('-pk')[:100]
     else:
-        orders = Order.objects.filter().order_by('-pk')[:10]
+        orders = Order.objects.filter().order_by('-pk')[:100]
 
-    return render(request, 'get-sales-report.html', {'orders': orders})
+    # Calculate the sum of desired values
+    total_real_order_total = sum(order.order_total for order in orders)
+    total_cgst = sum(order.cgst() for order in orders)
+    total_sgst = sum(order.sgst() for order in orders)
+    total_total_gst = sum(order.total_gst() for order in orders)
+    total_order_total_with_gst = sum(order.order_total_with_gst() for order in orders)
+
+    return render(request, 'get-gst-report.html', {
+        'orders': orders,
+        'total_real_order_total': total_real_order_total,
+        'total_cgst': total_cgst,
+        'total_sgst': total_sgst,
+        'total_total_gst': total_total_gst,
+        'total_order_total_with_gst': total_order_total_with_gst
+    })
 
 
 def export_report_to_csv(request):
@@ -92,6 +106,31 @@ def export_report_to_csv(request):
                      f'{total_gst_sum:.2f}', f'₹{order_total_with_gst_sum:.2f}', '', ''])
 
     return response
+
+
+@login_required
+def get_sales_report(request):
+    total_sales = Order.objects.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+    total_sales_with_gst = sum(order.order_total_with_gst() for order in Order.objects.all())
+    if request.method == 'GET':
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        if start_date and end_date:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+
+            orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
+            total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+            total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
+
+        else:
+            orders = Order.objects.filter().order_by('-pk')
+    else:
+        orders = Order.objects.filter().order_by('-pk')
+
+    return render(request, 'get_sales_report.html',
+                  {'orders': orders, 'total_sales': total_sales, 'total_sales_with_gst': total_sales_with_gst})
 
 
 @login_required

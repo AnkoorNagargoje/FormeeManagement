@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% include math %}
+
+{% block body %}
+
+<div class="m-auto w-11/12 mt-4 px-2 border rounded flex flex-row justify-between items-center shadow-md">
+    <div class="text-xl font-bold">
+        <a href="/billing/" class="text-blue-600 hover:underline">Billing</a> >
+        <a href="/billing/get-sales-report/" class="text-purple-600 hover:underline">Get Sales Report</a>
+    </div>
+    <form method="GET">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+
+        <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Search</button>
+    </form>
+
+</div>
+
+<div class="overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4 flex flex-col h-screen">
+    <table class="relative w-full text-sm text-left border flex-grow overflow-auto">
+        <thead class="text-xs uppercase">
+        <tr>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                SR. No.
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Invoice Number
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Invoice Date
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Customer
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Order Total(exl. gst)<br>
+                <span class="text-blue-600">({{ total_sales|floatformat:2 }})</span>
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Order Total(incl. gst)<br>
+                <span class="text-blue-600">({{ total_sales_with_gst|floatformat:2 }})</span>
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Action
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr class="bg-white border-b">
+            <td class="px-6 py-4">
+                {{ forloop.counter }}
+            </td>
+            <td class="px-6 py-4">
+                2022-23/{{ order.id }}
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900">
+                {{ order.created_at }}
+            </th>
+            <td class="px-6 py-4 font-bold">
+                {{ order.customer.name }}<span class="text-xs">({{ order.customer.get_order_type_display }})</span>
+            </td>
+
+            <td class="px-6 py-4">
+                {{ order.order_total }}
+            </td>
+
+            <td class="px-6 py-4">
+                {% if order.customer.order_type != 'normal' %}
+                {{ order.order_total_with_gst|floatformat:2 }}
+                {% elif order.customer.order_type == 'normal' %}
+                {{ order.order_total|floatformat:2 }}
+                {% endif %}
+            </td>
+
+            <td class="px-6 py-4">
+                <a href="/invoice/{{ order.pk }}/" class="font-medium text-blue-600 hover:underline">View</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

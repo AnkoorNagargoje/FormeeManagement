@@ -106,7 +106,7 @@ def credits_sales_view(request):
     end_date = request.GET.get('end_date')
     message = ""
 
-    credits = Credit.objects.filter(credit_type='sales')
+    credits = Credit.objects.filter(credit_type='sales').order_by('-date')
 
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
