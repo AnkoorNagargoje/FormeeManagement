@@ -234,7 +234,6 @@ def order_list(request, customer_id):
         order = form.save(commit=False)
         order.customer = customer
         order_update = Customer.objects.get(id=customer_id)
-        order_update.no_of_order = order_update.no_of_order + 1
         order_update.save()
         order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
