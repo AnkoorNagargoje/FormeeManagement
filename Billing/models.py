@@ -20,11 +20,14 @@ class Customer(models.Model):
     phone = models.PositiveBigIntegerField()
     birth_date = models.CharField(max_length=10, default="")
     order_type = models.CharField(max_length=30, choices=SALE_CHOICE, default='normal')
-    no_of_order = models.PositiveIntegerField(default=0)
     franchise_id = models.CharField(default="", max_length=5)
 
     def __str__(self):
         return self.name
+
+    @property
+    def no_of_order(self):
+        return self.order_set.count()
 
 
 class Order(models.Model):
