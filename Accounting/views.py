@@ -115,14 +115,14 @@ def credits_sales_view(request):
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
+            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-date')
             message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
     else:
         if start_date and end_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
+            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-date')
             message = f"Showing results from {start_date} to {end_date}"
 
     total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
