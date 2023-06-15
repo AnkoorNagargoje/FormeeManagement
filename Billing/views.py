@@ -1,4 +1,3 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from .models import Customer, Order, Product, OrderItem
 from .forms import OrderForm, OrderItemForm, CustomerForm, CustomerProfileForm, DeliveryForm
 from django.contrib.auth.decorators import login_required
@@ -11,11 +10,12 @@ from Accounting.models import *
 from Accounting.views import edit_credit
 import csv
 from django.http import HttpResponse
-from datetime import datetime
 from django.core.paginator import Paginator
-from django.db.models import Sum, Q
 from django.utils import timezone
-import decimal
+from django.db.models import Sum, Value, CharField, F, ExpressionWrapper, FloatField, Case, When, Q
+from datetime import datetime
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.db.models.functions import Cast
 
 
 @login_required
@@ -591,25 +591,166 @@ def ledger_view(request, customer_id):
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
         end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
-
         orders = orders.filter(created_at__range=(start_datetime, end_datetime))
+        return redirect('generate_ledger', customer_id=customer_id, start_date=start_date, end_date=end_date)
 
-    pending_orders = orders.filter(payment_status='Pending')
-    paid_orders = orders.filter(payment_status='Paid')
+    orders_and_credit = (
+        orders.annotate(
+            item_type=Value('order', output_field=CharField()),
+            item_invoice_number=Cast('id', output_field=CharField()),
+            item_created_at=F('created_at'),
+            item_total=Case(
+                When(customer__order_type='normal', then=F('order_total')),
+                default=ExpressionWrapper(
+                    F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                    output_field=FloatField()
+                ),
+                output_field=FloatField()
+            ),
+            item_payment_status=F('payment_status'),
+            item_payment_type=F('payment_type')
+        )
+        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
+                'item_payment_type')
+    )
 
-    pending_total = pending_orders.aggregate(total_pending=Sum('order_total'))['total_pending']
-    paid_total = paid_orders.aggregate(total_paid=Sum('order_total'))['total_paid']
+    credits = (
+        Credit.objects.filter(invoice_number__in=orders.values_list('id', flat=True))
+        .annotate(
+            item_type=Value('credit', output_field=CharField()),
+            item_invoice_number=Cast('invoice_number', output_field=CharField()),
+            item_created_at=F('date'),
+            item_total=F('amount'),
+            item_payment_status=Value('Paid', output_field=CharField()),
+            item_payment_type=F('payment_type')
+        )
+        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
+                'item_payment_type')
+    )
 
-    diff = 0
-    if pending_total is not None and paid_total is not None:
-        diff = paid_total - pending_total
+    orders_and_credit = orders_and_credit.union(credits).order_by('item_created_at')
+
+    sum_orders = orders.aggregate(total_pending=Sum(
+        Case(
+            When(customer__order_type='normal', then=F('order_total')),
+            default=ExpressionWrapper(
+                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                output_field=FloatField()
+            ),
+            output_field=FloatField()
+        )
+    ))['total_pending'] or 0.0
+
+    paid_total = orders.filter(payment_status='Paid').aggregate(total_paid=Sum(
+        Case(
+            When(customer__order_type='normal', then=F('order_total')),
+            default=ExpressionWrapper(
+                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                output_field=FloatField()
+            ),
+            output_field=FloatField()
+        )
+    ))['total_paid'] or 0.0
+
+    diff = round(sum_orders - paid_total, 0)
+    diff_words = num2words(diff)
 
     context = {
         'customer': customer,
-        'pending_orders': pending_orders,
-        'paid_orders': paid_orders,
-        'pending_total': pending_total,
+        'orders': orders_and_credit,
+        'sum_orders': sum_orders,
         'paid_total': paid_total,
         'diff': diff,
+        'diff_words': diff_words,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'ledger_view.html', context=context)
+
+
+def generate_ledger(request, customer_id, start_date, end_date):
+    customer = get_object_or_404(Customer, id=customer_id)
+    start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+    end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+    orders = Order.objects.filter(customer=customer, created_at__range=(start_datetime, end_datetime))
+
+    orders_and_credit = (
+        orders.annotate(
+            item_type=Value('order', output_field=CharField()),
+            item_invoice_number=Cast('id', output_field=CharField()),
+            item_created_at=F('created_at'),
+            item_total=Case(
+                When(customer__order_type='normal', then=F('order_total')),
+                default=ExpressionWrapper(
+                    F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                    output_field=FloatField()
+                ),
+                output_field=FloatField()
+            ),
+            item_payment_status=F('payment_status'),
+            item_payment_type=F('payment_type')
+        )
+        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
+                'item_payment_type')
+    )
+
+    credits = (
+        Credit.objects.filter(invoice_number__in=orders.values_list('id', flat=True))
+        .annotate(
+            item_type=Value('credit', output_field=CharField()),
+            item_invoice_number=Cast('invoice_number', output_field=CharField()),
+            item_created_at=F('date'),
+            item_total=F('amount'),
+            item_payment_status=Value('Paid', output_field=CharField()),
+            item_payment_type=F('payment_type')
+        )
+        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
+                'item_payment_type')
+    )
+
+    orders_and_credit = orders_and_credit.union(credits).order_by('item_created_at')
+
+    sum_orders = orders.aggregate(total_pending=Sum(
+        Case(
+            When(customer__order_type='normal', then=F('order_total')),
+            default=ExpressionWrapper(
+                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                output_field=FloatField()
+            ),
+            output_field=FloatField()
+        )
+    ))['total_pending'] or 0.0
+
+    paid_total = orders.filter(payment_status='Paid').aggregate(total_paid=Sum(
+        Case(
+            When(customer__order_type='normal', then=F('order_total')),
+            default=ExpressionWrapper(
+                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                output_field=FloatField()
+            ),
+            output_field=FloatField()
+        )
+    ))['total_paid'] or 0.0
+
+    diff = round(sum_orders - paid_total, 0)
+    diff_words = num2words(diff)
+
+    template = get_template('ledger.html')
+    context = {
+        'customer': customer,
+        'orders': orders_and_credit,
+        'sum_orders': sum_orders,
+        'paid_total': paid_total,
+        'diff': diff,
+        'diff_words':diff_words,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+    html = template.render(context)
+
+    # Create a PDF file using xhtml2pdf
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=Ledger-{customer.name}-{start_date}.pdf'
+    pisa.CreatePDF(html, dest=response, encoding='utf-8')
+
+    return response

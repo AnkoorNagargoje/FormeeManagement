@@ -12,7 +12,8 @@ urlpatterns = [
     path('billing/add_customer/<int:customer_id>/extended/', views.customer_extended_form, name='customer_extended_form'),
 
     path('billing/<int:customer_id>/orders/', views.order_list, name='order_list'),
-    path('billing/<int:customer_id>/orders/ledger/', views.ledger_view, name='ledger_view'),
+    path('ledger_view/<int:customer_id>/', views.ledger_view, name='ledger_view'),
+    path('generate_ledger/<int:customer_id>/<str:start_date>/<str:end_date>/', views.generate_ledger, name='generate_ledger'),
     path('billing/<int:customer_id>/orders/<int:order_id>/delete/', views.order_delete, name='order_delete'),
     path('billing/<int:customer_id>/orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('billing/<int:customer_id>/order/<int:order_id>/cash/', views.order_paid_cash, name='order_paid_cash'),
