@@ -22,6 +22,7 @@ urlpatterns = [
     path('accounting/de/<str:debit_type>/<int:debit_type_id>/debit/<int:debit_id>/', views.sub_debits_view),
     path('accounting/de/<str:debit_type>/<int:debit_type_id>/debit/<int:debit_id>/add_debit/', views.add_subdebits_form),
     path('accounting/de/<str:debit_type>/<int:debit_type_id>/debit/<int:debit_id>/<int:sub_debit_id>/', views.sub_debits_expand_view),
+    path('accounting/de/<str:debit_type>/<int:debit_type_id>/debit/<int:debit_id>/<int:sub_debit_id>/edit/', views.sub_debits_edit_view),
 
     path('accounting/de/add_debit/', views.add_debit),
     path('accounting/de/debit/<int:debit_id>/edit/', views.edit_debit),

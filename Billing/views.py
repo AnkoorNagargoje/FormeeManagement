@@ -16,6 +16,7 @@ from django.db.models import Sum, Value, CharField, F, ExpressionWrapper, FloatF
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.db.models.functions import Cast
+from django.db.models.functions import Round
 
 
 @login_required
@@ -311,11 +312,11 @@ def order_paid_cash(request, customer_id, order_id):
         order.save()
 
         if customer.order_type != 'normal':
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), payment_type='Cash',
                                                amount=order.order_total_with_gst())
         else:
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), amount=order.order_total,
                                                payment_type='Cash')
 
@@ -343,11 +344,11 @@ def order_paid_upi(request, customer_id, order_id):
         order.save()
 
         if customer.order_type != 'normal':
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), payment_type='UPI',
                                                amount=order.order_total_with_gst())
         else:
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), amount=order.order_total,
                                                payment_type='UPI')
 
@@ -376,11 +377,11 @@ def order_paid_net(request, customer_id, order_id):
         order.save()
 
         if customer.order_type != 'normal':
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), payment_type='Net Banking',
                                                amount=order.order_total_with_gst())
         else:
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), amount=order.order_total,
                                                payment_type='Net Banking')
 
@@ -409,11 +410,11 @@ def order_paid_cheque(request, customer_id, order_id):
         order.save()
 
         if customer.order_type != 'normal':
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), payment_type='Cheque',
                                                amount=order.order_total_with_gst())
         else:
-            add_credit = Credit.objects.create(name=customer.name + f"#{order_id}", invoice_number=order_id,
+            add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
                                                date=datetime.now().date(), amount=order.order_total,
                                                payment_type='Cheque')
 
@@ -600,18 +601,17 @@ def ledger_view(request, customer_id):
             item_invoice_number=Cast('id', output_field=CharField()),
             item_created_at=F('created_at'),
             item_total=Case(
-                When(customer__order_type='normal', then=F('order_total')),
-                default=ExpressionWrapper(
-                    F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
-                    output_field=FloatField()
-                ),
+                When(customer__order_type='normal', then=Round(F('order_total'), 0)),
+                default=Round(F('order_total') + F('order_total') * 0.12, 0),
+                # Calculate order total with GST and round off
                 output_field=FloatField()
             ),
             item_payment_status=F('payment_status'),
-            item_payment_type=F('payment_type')
+            item_payment_type=F('payment_type'),
+            item_primary_key=F('pk')  # Add primary key field
         )
         .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type')
+                'item_payment_type', 'item_primary_key')  # Include primary key field
     )
 
     credits = (
@@ -622,10 +622,11 @@ def ledger_view(request, customer_id):
             item_created_at=F('date'),
             item_total=F('amount'),
             item_payment_status=Value('Paid', output_field=CharField()),
-            item_payment_type=F('payment_type')
+            item_payment_type=F('payment_type'),
+            item_primary_key=F('pk')  # Add primary key field
         )
         .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type')
+                'item_payment_type', 'item_primary_key')  # Include primary key field
     )
 
     orders_and_credit = orders_and_credit.union(credits).order_by('item_created_at')

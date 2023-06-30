@@ -98,13 +98,39 @@ Quantity_Choice = (
 
 class SubDebit(models.Model):
     name = models.CharField(max_length=100)
-    quantity = models.IntegerField(default=0, null=True)
+    quantity = models.IntegerField(default=0, null=True, blank=True)
     quantity_type = models.CharField(max_length=20, choices=Quantity_Choice, default='kgs')
-    price = models.FloatField(default=0.0, null=True)
+    price = models.FloatField(default=0.0, null=True, blank=True)
+    cgst = models.IntegerField(default=0, null=True, blank=True)
+    sgst = models.IntegerField(default=0, null=True, blank=True)
+    sub_amount = models.FloatField(default=0)
     amount = models.FloatField()
     date = models.DateField()
-    reason = models.TextField()
+    reason = models.TextField(null=True, blank=True)
     debit = models.ForeignKey(Debit, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+    @property
+    def cgst_amount(self):
+        amt = 0
+        if self.cgst:
+            amt = (self.price * self.quantity) * self.cgst / 100
+        else:
+            None
+
+        return amt
+
+    @property
+    def sgst_amount(self):
+        amt = 0
+        if self.sgst:
+            amt = (self.price * self.quantity) * self.sgst / 100
+        else:
+            None
+        return amt
+
+    @property
+    def amount_without_gst(self):
+        return self.amount - (self.sgst_amount + self.cgst_amount)

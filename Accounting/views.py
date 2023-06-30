@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect
 from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
 from django.contrib import messages
-from django.db.models import Sum, DecimalField, ExpressionWrapper, F, Q, Case, When
+from django.db.models import Sum, DecimalField, ExpressionWrapper, F, Q
 from decimal import Decimal
 from django.core.paginator import Paginator
+import datetime
+from dateutil.relativedelta import relativedelta
 
 
 @login_required
@@ -14,38 +15,61 @@ def accounting(request):
     return render(request, 'accounting.html')
 
 
-from django.db.models import Sum, Q
-
-from decimal import Decimal
-from django.db.models import Sum, Q
-
+@login_required
 def pnl(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    # Calculate total sales within the specified date range
-    total_sales = Order.objects.filter(created_at__range=[start_date, end_date]).aggregate(TOTAL=Sum('order_total'))['TOTAL']
+    total_sales = Order.objects.filter(created_at__range=[start_date, end_date]).aggregate(TOTAL=Sum('order_total'))[
+        'TOTAL']
     total_sales = Decimal(total_sales or 0)
 
     direct_debit_types = DebitType.objects.filter(type='direct')
     direct_debits = Debit.objects.filter(debit_type__in=direct_debit_types)
-    direct_subdebit_total = SubDebit.objects.filter(debit__in=direct_debits, date__range=[start_date, end_date]).aggregate(total_sum=Sum('amount'))['total_sum']
+    direct_subdebit_total = \
+        SubDebit.objects.filter(debit__in=direct_debits, date__range=[start_date, end_date]).aggregate(
+            total_sum=Sum('amount'))['total_sum']
     direct_subdebit_total = Decimal(direct_subdebit_total or 0)
 
     indirect_debit_types = DebitType.objects.filter(type='indirect')
     indirect_debits = Debit.objects.filter(debit_type__in=indirect_debit_types)
-    indirect_subdebit_total = SubDebit.objects.filter(debit__in=indirect_debits, date__range=[start_date, end_date]).aggregate(total_sum=Sum('amount'))['total_sum']
+    indirect_subdebit_total = \
+        SubDebit.objects.filter(debit__in=indirect_debits, date__range=[start_date, end_date]).aggregate(
+            total_sum=Sum('amount'))['total_sum']
     indirect_subdebit_total = Decimal(indirect_subdebit_total or 0)
 
     miscellaneous_debit_types = DebitType.objects.filter(type='miscellaneous')
     miscellaneous_debits = Debit.objects.filter(debit_type__in=miscellaneous_debit_types)
-    miscellaneous_subdebit_total = SubDebit.objects.filter(debit__in=miscellaneous_debits, date__range=[start_date, end_date]).aggregate(total_sum=Sum('amount'))['total_sum']
+    miscellaneous_subdebit_total = \
+        SubDebit.objects.filter(debit__in=miscellaneous_debits, date__range=[start_date, end_date]).aggregate(
+            total_sum=Sum('amount'))['total_sum']
     miscellaneous_subdebit_total = Decimal(miscellaneous_subdebit_total or 0)
 
     total_sum_of_subdebits = direct_subdebit_total + indirect_subdebit_total + miscellaneous_subdebit_total
 
     pnl = total_sales - total_sum_of_subdebits
     x = 'Profit' if pnl > 0 else 'Loss'
+
+    today = datetime.date.today()
+    g_end_date = today.replace(day=1)  # First day of the current month
+    g_start_date = g_end_date - relativedelta(months=6)
+
+    months = []
+    current_date = g_end_date
+    for _ in range(7):
+        months.append(current_date.strftime('%B %Y'))
+        current_date -= relativedelta(months=1)
+    months.reverse()  # Reverse the order to display in ascending order
+
+    # Calculate the sum of order totals for each month
+    order_totals = []
+    for month in range(7):
+        month_start = g_start_date + relativedelta(months=month)
+        month_end = month_start + relativedelta(months=1) - relativedelta(days=1)
+        month_total = \
+        Order.objects.filter(created_at__range=[month_start, month_end]).aggregate(total=Sum('order_total'))['total']
+        month_total = round(month_total or 0)
+        order_totals.append(month_total or 0)
 
     context = {
         'total_sales': total_sales,
@@ -57,11 +81,11 @@ def pnl(request):
         'total_sum_of_subdebits': total_sum_of_subdebits,
         'start_date': start_date,
         'end_date': end_date,
+        'months': months,
+        'order_sums': order_totals,
     }
 
     return render(request, 'pnl.html', context=context)
-
-
 
 
 @login_required
@@ -142,9 +166,6 @@ def credits_sales_view(request):
     }
 
     return render(request, 'sales_view.html', context=context)
-
-
-
 
 
 @login_required
@@ -233,6 +254,7 @@ def credits_miscellaneous_view(request):
     return render(request, 'miscellaneous_view.html', context=context)
 
 
+@login_required
 def debits_view(request):
     debit_types = dict(DebitType.TYPE_CHOICES)
 
@@ -250,7 +272,7 @@ def debits_view(request):
         subdebit_end_datetime = datetime.strptime(subdebit_end_date, '%Y-%m-%d')
         subdebit_sum = subdebit_sum.filter(date__range=(subdebit_start_datetime, subdebit_end_datetime))
 
-    subdebit_sum = subdebit_sum.aggregate(total_subdebit=Sum('amount'))
+    subdebit_sum = subdebit_sum.aggregate(total_subdebit=Sum('sub_amount'))
     total_subdebit_sum = subdebit_sum['total_subdebit'] or 0
 
     # Calculate the sum of subdebits for each DebitType
@@ -260,7 +282,7 @@ def debits_view(request):
         if subdebit_start_date and subdebit_end_date:
             subdebit_sum = subdebit_sum.filter(date__range=(subdebit_start_datetime, subdebit_end_datetime))
 
-        subdebit_sum = subdebit_sum.aggregate(total_subdebit=Sum('amount'))
+        subdebit_sum = subdebit_sum.aggregate(total_subdebit=Sum('sub_amount'))
         subdebit_sums[debit_type] = subdebit_sum['total_subdebit'] or 0
 
     # Convert debit_sums dictionary to a list of tuples
@@ -294,7 +316,7 @@ def debit_type_view(request, debit_type_param):
 
     for debit_type in debit_types:
         total_amount = debits.filter(debit_type=debit_type).aggregate(
-            total_sum=Sum(ExpressionWrapper(F('subdebit__amount') / 1.0, output_field=DecimalField()))
+            total_sum=Sum(ExpressionWrapper(F('subdebit__sub_amount') / 1.0, output_field=DecimalField()))
         )['total_sum']
         debits_with_total_amount.append((debit_type, total_amount))
 
@@ -309,6 +331,7 @@ def debit_type_view(request, debit_type_param):
     return render(request, 'debit_type.html', context=context)
 
 
+@login_required
 def add_debit_type_form(request, debit_type):
     form = DirectDebitTypeForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -320,11 +343,7 @@ def add_debit_type_form(request, debit_type):
     return render(request, 'add_debitType.html', {'form': form})
 
 
-from django.db.models import Sum, DecimalField
-from django.db.models import Q
-from datetime import datetime
-
-
+@login_required
 def debits_by_type_view(request, debit_type, debit_type_id):
     debit_type = DebitType.objects.get(type=debit_type, id=debit_type_id)
 
@@ -342,7 +361,7 @@ def debits_by_type_view(request, debit_type, debit_type_id):
         debits = debits.filter(Q(name__icontains=debit_name) | Q(subdebit__name__icontains=debit_name))
 
     debits = debits.annotate(
-        sub_debit_sum=Sum('subdebit__amount', output_field=DecimalField())
+        sub_debit_sum=Sum('subdebit__sub_amount', output_field=DecimalField())
     )
 
     grand_total_sum = debits.aggregate(total_sum=Sum('sub_debit_sum'))['total_sum'] or 0
@@ -377,7 +396,7 @@ def sub_debits_view(request, debit_type, debit_type_id, debit_id):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    sub_debits = SubDebit.objects.filter(debit=debit)
+    sub_debits = SubDebit.objects.filter(debit=debit).order_by('-date')
 
     if name_filter:
         sub_debits = sub_debits.filter(name__icontains=name_filter)
@@ -385,13 +404,15 @@ def sub_debits_view(request, debit_type, debit_type_id, debit_id):
     if start_date and end_date:
         sub_debits = sub_debits.filter(date__range=[start_date, end_date])
 
-    total_amount = sub_debits.aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+    total_amount_with_gst = sub_debits.aggregate(total_amount=Sum('amount'))['total_amount'] or 0
+    total_amount_without_gst = sub_debits.aggregate(total_amount=Sum('sub_amount'))['total_amount'] or 0
 
     context = {
         'debit_type': debit_type_instance,
         'debit': debit,
         'sub_debits': sub_debits,
-        'total_amount': total_amount,
+        'total_amount_with_gst': total_amount_with_gst,
+        'total_amount_without_gst': total_amount_without_gst,
     }
 
     return render(request, 'sub_debits.html', context)
@@ -408,6 +429,11 @@ def add_subdebits_form(request, debit_type, debit_type_id, debit_id):
         unsaved = form.save(commit=False)
         unsaved.debit = debit
         debit.amount += unsaved.amount
+        debit.amount += unsaved.amount
+        if unsaved.quantity:
+            unsaved.sub_amount = unsaved.price * unsaved.quantity
+        else:
+            unsaved.sub_amount = unsaved.amount
         unsaved.save()
         debit.save()
         messages.success(request, 'Debit has been Successfully Added!')
@@ -435,6 +461,32 @@ def sub_debits_expand_view(request, debit_type, debit_type_id, debit_id, sub_deb
     }
 
     return render(request, 'sub_debit_expand.html', context=context)
+
+
+@login_required
+def sub_debits_edit_view(request, debit_type, debit_type_id, debit_id, sub_debit_id):
+    debit_type_instance = DebitType.objects.get(type=debit_type, id=debit_type_id)
+    debit = Debit.objects.get(id=debit_id)
+    subdebit = SubDebit.objects.get(id=sub_debit_id)
+    form = SubDebitForm(request.POST or None, instance=subdebit)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect(sub_debits_expand_view, debit_type=debit_type, debit_type_id=debit_type_id,
+                            debit_id=debit_id,
+                            sub_debit_id=sub_debit_id)
+        else:
+            form = SubDebitForm(request.POST or None, instance=subdebit)
+
+    context = {
+        'debit_type': debit_type_instance,
+        'debit': debit,
+        'subdebit': subdebit,
+        'form': form
+    }
+
+    return render(request, 'sub_debit_edit.html', context=context)
 
 
 @login_required

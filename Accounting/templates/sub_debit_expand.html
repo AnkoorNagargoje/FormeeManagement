@@ -34,6 +34,9 @@
                 <th scope="col" class="px-6 py-3">
                     Name
                 </th>
+
+                {% for debit in subdebit %}
+                {% if debit.price %}
                 <th scope="col" class="px-6 py-3">
                     Price
                 </th>
@@ -43,8 +46,22 @@
                 <th scope="col" class="px-6 py-3">
                     Quantity Type
                 </th>
+                {% endif %}
+                {% endfor %}
+
+                {% for debit in subdebit %}
+                {% if debit.cgst or debit.sgst %}
                 <th scope="col" class="px-6 py-3">
-                    Amount
+                    CGST
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    SGST
+                </th>
+                {% endif %}
+                {% endfor %}
+
+                <th scope="col" class="px-6 py-3">
+                    Amount<br>(incl. gst)
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Date
@@ -66,6 +83,7 @@
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
                     {{ debit.name }}
                 </th>
+                {% if debit.price %}
                 <td class="px-6 py-4">
                     {{ debit.price|floatformat:2 }}
                 </td>
@@ -75,6 +93,17 @@
                 <td class="px-6 py-4">
                     {{ debit.quantity_type|title }}
                 </td>
+                {% endif %}
+
+                {% if debit.cgst or debit.sgst %}
+                <td class="px-6 py-4">
+                    {{ debit.cgst }}% <span class="text-xs">({{ debit.cgst_amount|floatformat:2 }})</span>
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.sgst }}% <span class="text-xs">({{ debit.sgst_amount|floatformat:2 }})</span>
+                </td>
+                {% endif %}
+
                 <td class="px-6 py-4">
                     {{ debit.amount|floatformat:2 }}
                 </td>

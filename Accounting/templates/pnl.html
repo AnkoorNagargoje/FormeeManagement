@@ -5,7 +5,8 @@
 <ul class="messages">
     {% for message in messages %}
     <li
-    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
     {% endfor %}
 </ul>
 {% endif %}
@@ -16,67 +17,146 @@
     </div>
 </div>
 
-<div class="flex justify-end mx-auto w-11/12">
-    <div>
-        <form action="" class="flex">
-            <div class="mr-2">
-                <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16 mt-8">
+    <div class="w-1/2">
+        <div class="flex justify-start mb-6">
+            <div>
+                <form action="" class="flex">
+                    <div class="mr-2">
+                        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+                    </div>
+
+                    <div class="mx-2">
+                        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+                    </div>
+
+                    <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
+                </form>
+            </div>
+        </div>
+        <div class="flex justify-between gap-4">
+            <div class="grow">
+                <table class="w-full text-md text-left border">
+                    <tr>
+                        <td><a href="/billing/" class="text-blue-600">Closing Balance</a></td>
+                        <td>{{ closing_balance|floatformat:2 }} -</td>
+                    </tr>
+                    <tr>
+                        <td><a href="/accounting/de/direct/" class="text-blue-600">Direct Expenses</a></td>
+                        <td>{{ direct_total|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td><a href="/accounting/de/indirect/" class="text-blue-600">Indirect Expenses</a></td>
+                        <td>{{ indirect_total|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td><a href="/accounting/de/miscellaneous/" class="text-blue-600">Miscellaneous Expenses</a>
+                        </td>
+                        <td>{{ miscellaneous_total|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Expenditure</td>
+                        <td>{{ total_sum_of_subdebits|floatformat:2 }}</td>
+                    </tr>
+                </table>
             </div>
 
-            <div class="mx-2">
-                <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+            <div class="grow">
+                <table class="w-full text-md text-left border">
+                    <tr>
+                        <td><a href="sales/" class="text-blue-600">Sales Accounts</a></td>
+                        <td>{{ total_sales|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td><a href="debits/" class="text-blue-600">Expenses Accounts</a></td>
+                        <td>{{ total_sum_of_subdebits|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Net {{ x }}</td>
+                        <td>{{ pnl|floatformat:2 }}</td>
+                    </tr>
+                </table>
             </div>
-
-            <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
-        </form>
+        </div>
     </div>
+    <div class="grow">
+    <canvas id="order-chart"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script>
+        const months = {{ months|safe }};
+        const orderSums = {{ order_sums|safe }};
+
+        const ctx = document.getElementById('order-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Order Sums',
+                    data: orderSums,
+                    fill: false,
+                    borderColor: '#49DE80',
+                    borderWidth: '4',
+                    tension: '.3',
+                }]
+            },
+    options: {
+    	elements: {
+    		point:{
+				pointBackgroundColor:'#fff'
+    		}
+    	},
+    	interaction: {
+      		intersect: false,
+      		mode: 'index',
+    		},
+    	plugins: {
+			legend: {
+                display: false,
+            },
+            tooltip: {
+            	displayColors: false,
+            	titleFont: {
+          			size: 15,
+          			family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue',
+          			weight:500
+    			},
+        		bodyFont: {
+          			size: 12,
+          			family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue',
+          			weight:300
+        		},
+        		padding: 10,
+      		},
+        },
+        scales: {
+        	x:{
+        		grid:{
+        			display:false
+        		},
+            	ticks: {
+                font:{
+                    size:11,
+                  },
+                	padding: 10,
+            	}
+        	},
+        	y:{
+            	ticks: {
+                  font:{
+                    size:11,
+                  },
+                	padding: 10,
+                  maxTicksLimit:8,
+            	}
+        	},
+        }
+    },
+        });
+
+    </script>
 </div>
 
-<div class="w-5/12 m-auto flex justify-between gap-8 mb-16 mt-8">
-    <div class="w-full">
-        <table class="w-full text-md text-left border">
-            <tr>
-                <td><a href="/billing/" class="text-blue-600">Closing Balance</a></td>
-                <td>{{ closing_balance|floatformat:2 }} -</td>
-            </tr>
-            <tr>
-                <td><a href="/accounting/de/direct/" class="text-blue-600">Direct Expenses</a></td>
-                <td>{{ direct_total|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td><a href="/accounting/de/indirect/" class="text-blue-600">Indirect Expenses</a></td>
-                <td>{{ indirect_total|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td><a href="/accounting/de/miscellaneous/" class="text-blue-600">Miscellaneous Expenses</a></td>
-                <td>{{ miscellaneous_total|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td>Total Expenditure</td>
-                <td>{{ total_sum_of_subdebits|floatformat:2 }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="w-full">
-        <table class="w-full text-md text-left border">
-            <tr>
-                <td><a href="sales/" class="text-blue-600">Sales Accounts</a></td>
-                <td>{{ total_sales|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td><a href="debits/" class="text-blue-600">Expenses Accounts</a></td>
-                <td>{{ total_sum_of_subdebits|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td>Net {{ x }}</td>
-                <td>{{ pnl|floatformat:2 }}</td>
-            </tr>
-        </table>
-    </div>
 </div>
-<table>
-
-</table>
 
 {% endblock %}

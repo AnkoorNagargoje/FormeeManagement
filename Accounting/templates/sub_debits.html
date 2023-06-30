@@ -56,7 +56,7 @@
                     Name
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Amount
+                    Amount(incl. gst)
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Date
@@ -93,7 +93,9 @@
             <tr>
                 <td class="px-6 py-4" colspan="1"></td>
                 <td class="px-6 py-4">Total Expenditure</td>
-                <td class="px-6 py-4">{{ total_amount|floatformat:2 }}
+                <td class="px-6 py-4">
+                    {{ total_amount_with_gst|floatformat:2 }}
+                    <span class="text-xs text-blue-600 font-bold">({{ total_amount_without_gst|floatformat:2 }} exl. gst)</span>
                 </td>
                 <td class="px-6 py-4" colspan="2"></td>
             </tr>
