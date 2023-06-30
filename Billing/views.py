@@ -45,9 +45,9 @@ def get_gst_report(request):
 
             orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
         else:
-            orders = Order.objects.filter().order_by('-pk')[:100]
+            orders = Order.objects.filter().order_by('-created_at')[:100]
     else:
-        orders = Order.objects.filter().order_by('-pk')[:100]
+        orders = Order.objects.filter().order_by('-created_at')[:100]
 
     # Calculate the sum of desired values
     total_real_order_total = sum(order.order_total for order in orders)
@@ -113,6 +113,9 @@ def export_report_to_csv(request):
 def get_sales_report(request):
     total_sales = Order.objects.aggregate(TOTAL=Sum('order_total'))['TOTAL']
     total_sales_with_gst = sum(order.order_total_with_gst() for order in Order.objects.all())
+
+    order_types = request.GET.getlist('order_type[]')
+
     if request.method == 'GET':
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
@@ -122,13 +125,22 @@ def get_sales_report(request):
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
             orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
+            if order_types:
+                orders = orders.filter(customer__order_type__in=order_types)
+
             total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
             total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
 
         else:
-            orders = Order.objects.filter().order_by('-pk')
+            orders = Order.objects.filter()
+            if order_types:
+                orders = orders.filter(customer__order_type__in=order_types)
+            orders = orders.order_by('-created_at')
     else:
-        orders = Order.objects.filter().order_by('-pk')
+        orders = Order.objects.filter()
+        if order_types:
+            orders = orders.filter(customer__order_type__in=order_types)
+        orders = orders.order_by('-created_at')
 
     return render(request, 'get_sales_report.html',
                   {'orders': orders, 'total_sales': total_sales, 'total_sales_with_gst': total_sales_with_gst})

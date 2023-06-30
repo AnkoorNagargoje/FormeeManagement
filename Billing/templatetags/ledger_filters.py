@@ -10,3 +10,8 @@ def get_month(created_at):
 def is_month_changed(previous_date, current_date):
     return previous_date.month != current_date.month
 
+@register.filter
+def in_list(value, arg):
+    return value in arg
+
+

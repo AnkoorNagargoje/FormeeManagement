@@ -66,6 +66,9 @@
                 Total Amount<br>
                 <span class="text-blue-600">{{ total_order_total_with_gst|floatformat:2 }}</span>
             </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                Payment Status<br>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -126,6 +129,9 @@
                 {% if order.discount %}
                 (<span class="text-xs">{{ order.discount }}% disc.)</span>
                 {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {{ order.payment_status }}
             </td>
         </tr>
         {% endfor %}
