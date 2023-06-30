@@ -87,6 +87,10 @@
         const orderSums = {{ order_sums|safe }};
 
         const ctx = document.getElementById('order-chart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+        gradient.addColorStop(0, 'rgba(73, 222, 128, 1)'); // Start color (matching line color)
+        gradient.addColorStop(1, 'rgba(73, 222, 128, .3)'); // End color (fading)
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -94,10 +98,11 @@
                 datasets: [{
                     label: 'Order Sums',
                     data: orderSums,
-                    fill: false,
+                    fill: true,
+                    backgroundColor: gradient, // Use the gradient as the background color
                     borderColor: '#49DE80',
-                    borderWidth: '4',
-                    tension: '.3',
+                    borderWidth: 4,
+                    tension: 0.3,
                 }]
             },
     options: {
@@ -114,16 +119,18 @@
 			legend: {
                 display: false,
             },
+            title: {
+                display: true,
+                text: 'Sales Chart',
+            },
             tooltip: {
             	displayColors: false,
             	titleFont: {
           			size: 15,
-          			family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue',
           			weight:500
     			},
         		bodyFont: {
           			size: 12,
-          			family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue',
           			weight:300
         		},
         		padding: 10,
