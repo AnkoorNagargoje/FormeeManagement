@@ -294,13 +294,13 @@ def order_detail(request, customer_id, order_id):
                                                   invoice_number=order_id)
         quantity_object.save()
         if customer.order_type == 'franchise':
-            order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 0)
+            order.order_total = (order.order_total + order_item.quantity * product.franchise_price, 0)
             order.save()
         elif customer.order_type == 'super market':
-            order.order_total = round(order.order_total + order_item.quantity * product.store_price, 0)
+            order.order_total = (order.order_total + order_item.quantity * product.store_price, 0)
             order.save()
         else:
-            order.order_total = round(order.order_total + order_item.quantity * product.price, 0)
+            order.order_total = (order.order_total + order_item.quantity * product.price, 0)
             order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
@@ -514,20 +514,20 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             diff = new_order_item.quantity - old_quantity
             product.stock -= diff
             if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total + product.franchise_price * diff)
+                order.order_total = (order.order_total + product.franchise_price * diff)
             elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total + product.store_price * diff)
+                order.order_total = (order.order_total + product.store_price * diff)
             else:
-                order.order_total = round(order.order_total + product.price * diff)
+                order.order_total = (order.order_total + product.price * diff)
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
             if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total - product.franchise_price * diff)
+                order.order_total = (order.order_total - product.franchise_price * diff)
             elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total - product.store_price * diff)
+                order.order_total = (order.order_total - product.store_price * diff)
             else:
-                order.order_total = round(order.order_total - product.price * diff)
+                order.order_total = (order.order_total - product.price * diff)
         product.save()
         new_order_item.save()
         order.save()

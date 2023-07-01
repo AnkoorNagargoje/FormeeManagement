@@ -87,7 +87,11 @@
             <tr>
                 <td class="px-6 py-4" colspan="1"></td>
                 <td class="px-6 py-4">Total Expenditure</td>
-                <td class="px-6 py-4 text-blue-600 font-bold">{{ grand_total_sum|floatformat:2 }}
+                <td class="px-6 py-4">
+                    {{ grand_total_sum|floatformat:2 }}
+                    {% if grand_total_sum_sub_amount != 0 %}
+                    <span class="text-xs text-blue-600 font-bold">({{ grand_total_sum_sub_amount|floatformat:2 }} exl. gst)</span>
+                    {% endif %}
                 </td>
                 <td class="px-6 py-4" colspan="1"></td>
             </tr>

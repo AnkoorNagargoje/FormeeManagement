@@ -28,7 +28,7 @@
         <div class="flex gap-16 my-6">
             <div class="w-1/2">
                 <p class="text-xl my-2">Email</p>
-                {% render_field form.email class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="abc@gmail.com" %}
+                {% render_field form.email|attr:"required:false" class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="abc@gmail.com" required=False %}
             </div>
             <div class="w-1/2">
                 <p class="text-xl my-2">District</p>

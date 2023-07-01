@@ -361,15 +361,25 @@ def debits_by_type_view(request, debit_type, debit_type_id):
         debits = debits.filter(Q(name__icontains=debit_name) | Q(subdebit__name__icontains=debit_name))
 
     debits = debits.annotate(
-        sub_debit_sum=Sum('subdebit__sub_amount', output_field=DecimalField())
+        sub_debit_sum=Sum('subdebit__amount', output_field=DecimalField())
+    )
+    debits = debits.annotate(
+        sub_debit_sub_amount_sum=Sum('subdebit__sub_amount', output_field=DecimalField())
     )
 
-    grand_total_sum = debits.aggregate(total_sum=Sum('sub_debit_sum'))['total_sum'] or 0
+    grand_total_sum_of_sub_amount = 0
+
+    grand_total_sum_of_amount = debits.aggregate(total_sum=Sum('sub_debit_sum'))['total_sum'] or 0
+    if debits.filter(subdebit__cgst=True).exists() or debits.filter(subdebit__sgst=True).exists():
+        grand_total_sum_of_sub_amount = debits.aggregate(total_sum=Sum('sub_debit_sub_amount_sum'))['total_sum'] or 0
+    else:
+        None
 
     context = {
         'debit_type': debit_type,
         'debits': debits,
-        'grand_total_sum': grand_total_sum,
+        'grand_total_sum': grand_total_sum_of_amount,
+        'grand_total_sum_sub_amount': grand_total_sum_of_sub_amount,
     }
     return render(request, 'debits_by_type.html', context=context)
 

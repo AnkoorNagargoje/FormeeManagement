@@ -25,9 +25,9 @@ class CustomerForm(forms.ModelForm):
 class CustomerProfileForm(forms.ModelForm):
     address = forms.CharField(widget=forms.Textarea)
     district = forms.CharField()
-    email = forms.EmailField()
-    gstin = forms.CharField()
-    fssai = forms.CharField()
+    email = forms.EmailField(required=False)
+    gstin = forms.CharField(required=False)
+    fssai = forms.CharField(required=False)
     franchise_id = forms.CharField(required=False)
 
     class Meta:
