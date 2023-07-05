@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.core.paginator import Paginator
 import datetime
 from dateutil.relativedelta import relativedelta
-from datetime import datetime
+from datetime import datetime, date
 
 
 @login_required
@@ -51,7 +51,7 @@ def pnl(request):
     pnl = total_sales - total_sum_of_subdebits
     x = 'Profit' if pnl > 0 else 'Loss'
 
-    today = datetime.date.today()
+    today = date.today()
     g_end_date = today.replace(day=1)  # First day of the current month
     g_start_date = g_end_date - relativedelta(months=6)
 
