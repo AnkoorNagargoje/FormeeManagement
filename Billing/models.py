@@ -40,6 +40,10 @@ class Order(models.Model):
     discount = models.PositiveIntegerField(default=0)
     delivery = models.FloatField(default=0)
 
+    def save(self, *args, **kwargs):
+        self.order_total = max(0, self.order_total)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.customer} - {self.id}"
 
@@ -68,8 +72,11 @@ class Order(models.Model):
         return round(self.order_total_with_gst() + self.delivery, 0)
 
     def real_order_total(self):
-        real = round((self.order_total * 100) / (100 - self.discount))
+        real = round((self.order_total * 100) / (100 - self.discount), 0)
         return real
+
+    def discount_amount(self):
+        return self.real_order_total() - self.order_total
 
 
 class OrderItem(models.Model):

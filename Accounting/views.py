@@ -8,6 +8,7 @@ from decimal import Decimal
 from django.core.paginator import Paginator
 import datetime
 from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 
 @login_required
@@ -86,6 +87,7 @@ def pnl(request):
     }
 
     return render(request, 'pnl.html', context=context)
+
 
 
 @login_required

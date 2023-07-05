@@ -115,6 +115,7 @@ def get_sales_report(request):
     total_sales_with_gst = sum(order.order_total_with_gst() for order in Order.objects.all())
 
     order_types = request.GET.getlist('order_type[]')
+    payment_statuses = request.GET.getlist('payment_status[]')
 
     if request.method == 'GET':
         start_date = request.GET.get('start_date')
@@ -127,6 +128,8 @@ def get_sales_report(request):
             orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
             if order_types:
                 orders = orders.filter(customer__order_type__in=order_types)
+            if payment_statuses:
+                orders = orders.filter(payment_status__in=payment_statuses)
 
             total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
             total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
@@ -135,15 +138,20 @@ def get_sales_report(request):
             orders = Order.objects.filter()
             if order_types:
                 orders = orders.filter(customer__order_type__in=order_types)
+            if payment_statuses:
+                orders = orders.filter(payment_status__in=payment_statuses)
             orders = orders.order_by('-created_at')
     else:
         orders = Order.objects.filter()
         if order_types:
             orders = orders.filter(customer__order_type__in=order_types)
+        if payment_statuses:
+            orders = orders.filter(payment_status__in=payment_statuses)
         orders = orders.order_by('-created_at')
 
     return render(request, 'get_sales_report.html',
                   {'orders': orders, 'total_sales': total_sales, 'total_sales_with_gst': total_sales_with_gst})
+
 
 
 @login_required
@@ -547,8 +555,12 @@ def order_item_delete(request, customer_id, order_id, order_item_id):
     product.stock += order_item.quantity
     product.save()
 
-    # Subtract the order item total from the order total
-    order.order_total -= order_item.product.price * order_item.quantity
+    if customer.order_type == 'franchise':
+        order.order_total -= order_item.product.franchise_price * order_item.quantity
+    elif customer.order_type == 'super market':
+        order.order_total -= order_item.product.store_price * order_item.quantity
+    else:
+        order.order_total -= order_item.product.price * order_item.quantity
     order.save()
 
     # Delete the order item

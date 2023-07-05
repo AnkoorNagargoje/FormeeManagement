@@ -219,7 +219,7 @@
                 <tr>
                     <td>Sub Total</td>
                     <td>
-                        {{ order.order_total|floatformat:2 }}
+                        {{ order.real_order_total|floatformat:2 }}
                     </td>
                 </tr>
                 {% if customer.order_type != 'normal' %}
@@ -237,6 +237,15 @@
                 </tr>
                 {% endif %}
 
+                {% if order.discount %}
+                <tr>
+                    <td>Discount</td>
+                    <td>
+                        {{ order.discount_amount|floatformat:2 }} <span style="font-size:8px;">({{ order.discount }}%)</span>
+                    </td>
+                </tr>
+                {% endif %}
+
                 {% if order.delivery %}
                 <tr>
                     <td>Delivery Charges</td>
@@ -245,6 +254,7 @@
                     </td>
                 </tr>
                 {% endif %}
+
                 <tr>
                     <td>Invoice Total<span style="font-size:8px;">(incl. of taxes)</span></td>
                     <td>
