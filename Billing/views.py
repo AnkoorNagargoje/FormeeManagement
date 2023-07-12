@@ -520,62 +520,6 @@ def order_paid_cheque(request, customer_id, order_id):
         return redirect(order_list, customer_id=customer_id)
 
 
-def order_dis_five(request, customer_id, order_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    order = get_object_or_404(Order, id=order_id, customer=customer)
-    if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = round(order.order_total - order.order_total * 5 / 100, 0)
-        order.discount = 5
-        order.save()
-        messages.success(request, '5% Discount has been Applied')
-    else:
-        messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
-
-    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
-
-
-def order_dis_ten(request, customer_id, order_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    order = get_object_or_404(Order, id=order_id, customer=customer)
-    if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = round(order.order_total - order.order_total * 10 / 100, 0)
-        order.discount = 10
-        order.save()
-        messages.success(request, '10% Discount has been Applied')
-    else:
-        messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
-
-    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
-
-
-def order_dis_twenty(request, customer_id, order_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    order = get_object_or_404(Order, id=order_id, customer=customer)
-    if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = round(order.order_total - order.order_total * 20 / 100, 0)
-        order.discount = 20
-        order.save()
-        messages.success(request, '20% Discount has been Applied')
-    else:
-        messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
-
-    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
-
-
-def order_dis_twenty_five(request, customer_id, order_id):
-    customer = get_object_or_404(Customer, id=customer_id)
-    order = get_object_or_404(Order, id=order_id, customer=customer)
-    if order.payment_status != 'Paid' and order.discount == 0:
-        order.order_total = round(order.order_total - order.order_total * 25 / 100, 0)
-        order.discount = 25
-        order.save()
-        messages.success(request, '25% Discount has been Applied')
-    else:
-        messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
-
-    return redirect('order_detail', customer_id=customer_id, order_id=order_id)
-
-
 def order_item_edit(request, customer_id, order_id, order_item_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)

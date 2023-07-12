@@ -159,17 +159,17 @@
                 </td>
                 <td class="px-6 py-4">
                     {% if order.delivery %}
-                    {% if customer.order_type == 'normal' %}
-                    {{ order.order_total_with_delivery|floatformat:2 }}
-                    {% else %}
+                    {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                     {{ order.order_total_with_gst_and_delivery|floatformat:2 }}
+                    {% else %}
+                    {{ order.order_total_with_delivery|floatformat:2 }}
                     {% endif %}<span class="text-xs">(incl. delivery)</span>
 
                     {% else %}
-                    {% if customer.order_type == 'normal' %}
-                    {{ order.order_total|floatformat:2 }}
-                    {% else %}
+                    {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                     {{ order.order_total_with_gst|floatformat:2 }}
+                    {% else %}
+                    {{ order.order_total|floatformat:2 }}
                     {% endif %}
                     {% endif %}
 
@@ -215,7 +215,7 @@
             <tr class="border-y-2 border-blue-600">
                 <td class="px-6 py-4" colspan="2">{{ message }}</td>
                 <td class="px-6 py-4">
-                    {% if customer.order_type != 'normal' %}
+                    {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                     {{ gst_total }}
                     {% else %}
                     {{ total_sales }}

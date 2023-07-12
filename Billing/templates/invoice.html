@@ -222,7 +222,7 @@
                         {{ order.real_order_total|floatformat:2 }}
                     </td>
                 </tr>
-                {% if customer.order_type != 'normal' %}
+                {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                 <tr>
                     <td>CGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
@@ -258,9 +258,9 @@
                 <tr>
                     <td>Invoice Total<span style="font-size:8px;">(incl. of taxes)</span></td>
                     <td>
-                        {% if customer.order_type != 'normal' and order.delivery %}
+                        {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' and order.delivery %}
                         {{ order.order_total_with_gst_and_delivery|floatformat:2 }}
-                        {% elif customer.order_type != 'normal' %}
+                        {% elif customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                         {{ order.order_total_with_gst|floatformat:2 }}
                         {% elif customer.order_type == 'normal' and order.delivery %}
                         {{ order.order_total_with_delivery|floatformat:2 }}
@@ -278,10 +278,10 @@
 <div style="text-transform: uppercase;">
     Amount Chargeable(in words):<br>
     <p style="font-weight:700;">
-        {% if customer.order_type == 'normal' %}
-        INR {{ total_amount_in_words_normal|title }} Only
-        {% else %}
+        {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
         INR {{ total_amount_in_words_gst|title }} Only
+        {% else %}
+        INR {{ total_amount_in_words_normal|title }} Only
         {% endif %}
 
     </p>
