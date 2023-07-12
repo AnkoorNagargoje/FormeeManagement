@@ -37,8 +37,8 @@ class Order(models.Model):
     order_total = models.FloatField(default=0)
     payment_status = models.CharField(max_length=30, default='Pending')
     payment_type = models.CharField(max_length=20, default='')
-    discount = models.PositiveIntegerField(default=0)
-    delivery = models.FloatField(default=0)
+    discount = models.PositiveIntegerField(default=0, null=True, blank=True)
+    delivery = models.FloatField(default=0, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.order_total = max(0, self.order_total)

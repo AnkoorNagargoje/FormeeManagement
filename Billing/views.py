@@ -147,7 +147,6 @@ def get_sales_report(request):
     })
 
 
-
 @login_required
 def add_new_customer(request):
     form = CustomerForm(request.POST or None)
@@ -317,9 +316,19 @@ def order_detail(request, customer_id, order_id):
 
     delivery_form = DeliveryForm(request.POST or None)
     if delivery_form.is_valid():
-        order.delivery = delivery_form.cleaned_data['delivery']
+        if delivery_form.cleaned_data['delivery']:
+            order.delivery = delivery_form.cleaned_data['delivery']
+            messages.success(request, f'{order.delivery} Delivery Charges have been successfully added!')
+
+        if delivery_form.cleaned_data['discount']:
+            if order.payment_status != 'Paid' and order.discount == 0:
+                order.discount = delivery_form.cleaned_data['discount']
+                order.order_total = round(order.order_total - order.order_total * order.discount / 100, 0)
+                order.save()
+                messages.success(request, f'{order.discount}% Discount has been Applied')
+            else:
+                messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
         order.save()
-        messages.success(request, f'Rs.{order.delivery} of Delivery Charges have been successfully added!')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_detail.html',
@@ -352,18 +361,23 @@ def returned_items(request, customer_id, order_id, sales_return_id):
             returned_item = returned_item_form.save(commit=False)
             returned_item.sales_return = sales_return
             if sales_return.customer.order_type == 'franchise':
-                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.franchise_price, 2)
+                returned_item.return_total = round(
+                    returned_item.return_total + returned_item.quantity * returned_item.product.product.franchise_price,
+                    2)
                 returned_item.save()
             if sales_return.customer.order_type == 'super market':
-                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.store_price, 2)
+                returned_item.return_total = round(
+                    returned_item.return_total + returned_item.quantity * returned_item.product.product.store_price, 2)
                 returned_item.save()
             if sales_return.customer.order_type == 'normal':
-                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.price, 2)
+                returned_item.return_total = round(
+                    returned_item.return_total + returned_item.quantity * returned_item.product.product.price, 2)
                 returned_item.save()
 
             returned_item.save()
 
-            return redirect('returned_items', customer_id=customer_id, order_id=order_id, sales_return_id=sales_return.id)
+            return redirect('returned_items', customer_id=customer_id, order_id=order_id,
+                            sales_return_id=sales_return.id)
 
     else:
         returned_item_form = ReturnedItemForm(order_id=order_id)

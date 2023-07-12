@@ -116,40 +116,11 @@
 
         <div class="flex justify-between nowrap">
             {% if customer.order_type == 'normal' %}
-            <div class="mt-4 w-[30%]">
-                <div class="px-4 py-2 rounded-xl bg-green-400 text-md flex align-center items-center justify-between">
-                    <div>Discount:</div>
-                    <div>
-                        <form action="{% url 'order_dis_five' customer.id order.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-slate-200 rounded px-2 py-1">5%</button>
-                        </form>
-                    </div>
-                    <div>
-                        <form action="{% url 'order_dis_ten' customer.id order.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-slate-200 rounded p-1">10%</button>
-                        </form>
-                    </div>
-                    <div>
-                        <form action="{% url 'order_dis_twenty' customer.id order.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-slate-200 rounded p-1">20%</button>
-                        </form>
-                    </div>
-                    <div>
-                        <form action="{% url 'order_dis_twenty_five' customer.id order.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-slate-200 rounded p-1">25%</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
             {% endif %}
             <div>
                 <form action="" method="post">
                     {% csrf_token %}
+                    {% render_field delivery_form.discount class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Discount %' %}
                     {% render_field delivery_form.delivery class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Delivery Charges' %}
                     <button type="submit"
                             class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">

@@ -51,11 +51,12 @@ class OrderForm(forms.ModelForm):
 
 
 class DeliveryForm(forms.ModelForm):
-    delivery = forms.FloatField()
+    delivery = forms.FloatField(required=False)
+    discount = forms.IntegerField(required=False)
 
     class Meta:
         model = Order
-        fields = ['delivery']
+        fields = ['delivery', 'discount']
 
 
 class OrderItemForm(forms.ModelForm):
