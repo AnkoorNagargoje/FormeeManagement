@@ -17,7 +17,6 @@
     }
 
 
-
 </style>
 
 {% if messages %}
@@ -50,6 +49,23 @@
                 Add Item
             </button>
         </form>
+        {% if sales_return%}
+        <a href="sales_return/{{ sales_return.id }}/">
+            <button type="submit"
+                    class="w-full mt-4 bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
+                View Sales Return
+            </button>
+        </a>
+        {% else %}
+        <form method="POST" action="{% url 'register_sales_return' customer.id order.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full mt-4 bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
+                Register Sales Return
+            </button>
+        </form>
+        {% endif %}
+
     </div>
 
     <div class="relative overflow-x-auto sm:rounded-lg w-5/6 m-auto mt-6 ml-6">
@@ -96,7 +112,6 @@
             {% endfor %}
             </tbody>
         </table>
-
 
 
         <div class="flex justify-between nowrap">

@@ -1,5 +1,5 @@
 from .models import Customer, Order, Product, OrderItem
-from .forms import OrderForm, OrderItemForm, CustomerForm, CustomerProfileForm, DeliveryForm
+from .forms import *
 from django.contrib.auth.decorators import login_required
 from Stock.models import Quantity
 from xhtml2pdf import pisa
@@ -111,46 +111,40 @@ def export_report_to_csv(request):
 
 @login_required
 def get_sales_report(request):
-    total_sales = Order.objects.aggregate(TOTAL=Sum('order_total'))['TOTAL']
-    total_sales_with_gst = sum(order.order_total_with_gst() for order in Order.objects.all())
-
     order_types = request.GET.getlist('order_type[]')
     payment_statuses = request.GET.getlist('payment_status[]')
+    payment_types = ['Cash', 'UPI', 'Cheque', 'Net Banking']  # Available payment types
 
-    if request.method == 'GET':
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+    orders = Order.objects.all()
 
-            orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime))
-            if order_types:
-                orders = orders.filter(customer__order_type__in=order_types)
-            if payment_statuses:
-                orders = orders.filter(payment_status__in=payment_statuses)
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        orders = orders.filter(created_at__range=(start_datetime, end_datetime))
 
-            total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
-            total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
+    if order_types:
+        orders = orders.filter(customer__order_type__in=order_types)
 
-        else:
-            orders = Order.objects.filter()
-            if order_types:
-                orders = orders.filter(customer__order_type__in=order_types)
-            if payment_statuses:
-                orders = orders.filter(payment_status__in=payment_statuses)
-            orders = orders.order_by('-created_at')
-    else:
-        orders = Order.objects.filter()
-        if order_types:
-            orders = orders.filter(customer__order_type__in=order_types)
-        if payment_statuses:
-            orders = orders.filter(payment_status__in=payment_statuses)
-        orders = orders.order_by('-created_at')
+    if payment_statuses:
+        orders = orders.filter(payment_status__in=payment_statuses)
 
-    return render(request, 'get_sales_report.html',
-                  {'orders': orders, 'total_sales': total_sales, 'total_sales_with_gst': total_sales_with_gst})
+    if 'payment_type' in request.GET:
+        payment_type = request.GET.get('payment_type')
+        if payment_type in payment_types:
+            orders = orders.filter(payment_type=payment_type)
+
+    total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
+    total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
+
+    return render(request, 'get_sales_report.html', {
+        'orders': orders,
+        'total_sales': total_sales,
+        'total_sales_with_gst': total_sales_with_gst,
+        'payment_types': payment_types
+    })
 
 
 
@@ -218,6 +212,8 @@ def order_list(request, customer_id):
     orders = customer.order_set.all().order_by('-created_at')
     total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
     gst_total = 0
+    sales_returns = SalesReturn.objects.filter(customer=customer, order__in=orders)
+    return_items = ReturnItem.objects.filter(sales_return__in=sales_returns)
 
     if total_sales is not None:
         gst_total = round(total_sales + total_sales * 12 / 100, 0)
@@ -266,6 +262,8 @@ def order_list(request, customer_id):
         'total_sales': total_sales,
         'message': message,
         'gst_total': gst_total,
+        'sales_returns': sales_returns,
+        'return_items': return_items,
     }
     return render(request, 'order_list.html', context=context)
 
@@ -288,6 +286,11 @@ def order_detail(request, customer_id, order_id):
     customer = get_object_or_404(Customer, id=customer_id)
     order = get_object_or_404(Order, id=order_id, customer=customer)
     order_items = order.orderitem_set.all()
+
+    try:
+        sales_return = SalesReturn.objects.get(order=order, customer=customer)
+    except SalesReturn.DoesNotExist:
+        sales_return = None
 
     form = OrderItemForm(request.POST or None)
     if form.is_valid():
@@ -321,7 +324,57 @@ def order_detail(request, customer_id, order_id):
 
     return render(request, 'order_detail.html',
                   {'form': form, 'customer': customer, 'order': order, 'order_items': order_items,
-                   'delivery_form': delivery_form})
+                   'delivery_form': delivery_form, 'sales_return': sales_return})
+
+
+def register_sales_return(request, customer_id, order_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    order = get_object_or_404(Order, id=order_id, customer=customer)
+
+    if request.method == 'POST':
+        add_sales_return = SalesReturn.objects.create(customer=customer, order=order)
+        add_sales_return.save()
+
+        return redirect('returned_items', customer_id=customer_id, order_id=order_id,
+                        sales_return_id=add_sales_return.id)
+
+
+def returned_items(request, customer_id, order_id, sales_return_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    sales_order = get_object_or_404(Order, id=order_id, customer=customer)
+    sales_return = get_object_or_404(SalesReturn, id=sales_return_id)
+    order_items = sales_return.returnitem_set.all()
+
+    if request.method == 'POST':
+        returned_item_form = ReturnedItemForm(order_id=order_id, data=request.POST)
+
+        if returned_item_form.is_valid():
+            returned_item = returned_item_form.save(commit=False)
+            returned_item.sales_return = sales_return
+            if sales_return.customer.order_type == 'franchise':
+                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.franchise_price, 2)
+                returned_item.save()
+            if sales_return.customer.order_type == 'super market':
+                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.store_price, 2)
+                returned_item.save()
+            if sales_return.customer.order_type == 'normal':
+                returned_item.return_total = round(returned_item.return_total + returned_item.quantity * returned_item.product.product.price, 2)
+                returned_item.save()
+
+            returned_item.save()
+
+            return redirect('returned_items', customer_id=customer_id, order_id=order_id, sales_return_id=sales_return.id)
+
+    else:
+        returned_item_form = ReturnedItemForm(order_id=order_id)
+    context = {
+        'sales_return': sales_return,
+        'order': sales_order,
+        'order_items': order_items,
+        'form': returned_item_form,
+    }
+
+    return render(request, 'returned_items.html', context)
 
 
 def order_paid_cash(request, customer_id, order_id):
@@ -767,7 +820,7 @@ def generate_ledger(request, customer_id, start_date, end_date):
         'sum_orders': sum_orders,
         'paid_total': paid_total,
         'diff': diff,
-        'diff_words':diff_words,
+        'diff_words': diff_words,
         'start_date': start_date,
         'end_date': end_date,
     }

@@ -95,3 +95,27 @@ class OrderItem(models.Model):
 
     def customer_item_total(self):
         return self.product.price * self.quantity
+
+
+class SalesReturn(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Return for Order {self.order.id} by {self.customer.name}"
+
+
+class ReturnItem(models.Model):
+    sales_return = models.ForeignKey(SalesReturn, on_delete=models.CASCADE)
+    product = models.ForeignKey(OrderItem, on_delete=models.CASCADE, default=None)
+    quantity = models.PositiveIntegerField(default=1)
+    return_total = models.FloatField(default=0)
+    payment_status = models.CharField(max_length=30, default='')
+    payment_type = models.CharField(max_length=20, default='')
+
+    def __str__(self):
+        return f"ReturnItem of {self.sales_return.id} - {self.id}"
+
+
+
+

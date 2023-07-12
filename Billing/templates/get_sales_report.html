@@ -11,32 +11,42 @@
 <div class="m-auto w-11/12 mt-4 px-2 border rounded shadow-md">
     <form method="GET" action="{% url 'get_sales_report' %}" class="flex flex-row justify-between items-center">
 
-    <div>
-    <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="h-10 border indent-1 rounded">
-    <label for="end_date">End Date:</label>
-    <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}"  class="h-10 border indent-1 rounded">
-    </div>
+        <div>
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="h-10 border indent-1 rounded">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="h-10 border indent-1 rounded">
+        </div>
 
-    <div>
-    <label for="order_type"></label>
-    <input type="checkbox" id="normal" name="order_type[]" value="normal" {% if 'normal' in request.GET.order_type %}checked{% endif %}>
-    <label for="normal">Normal</label>
-    <input type="checkbox" id="super_market" name="order_type[]" value="super market" {% if 'super market' in request.GET.order_type %}checked{% endif %}>
-    <label for="super_market">Super Market</label>
-    <input type="checkbox" id="franchise" name="order_type[]" value="franchise" {% if 'franchise' in request.GET.order_type %}checked{% endif %}>
-    <label for="franchise">Franchise</label>
-    </div>
+        <div>
+            <label for="order_type"></label>
+            <input type="checkbox" id="normal" name="order_type[]" value="normal" {% if 'normal' in request.GET.order_type %}checked{% endif %}>
+            <label for="normal">Normal</label>
+            <input type="checkbox" id="super_market" name="order_type[]" value="super market" {% if 'super market' in request.GET.order_type %}checked{% endif %}>
+            <label for="super_market">Super Market</label>
+            <input type="checkbox" id="franchise" name="order_type[]" value="franchise" {% if 'franchise' in request.GET.order_type %}checked{% endif %}>
+            <label for="franchise">Franchise</label>
+        </div>
 
-    <div>
-    <label for="payment_status"></label>
-    <input type="checkbox" id="pending" name="payment_status[]" value="Pending" {% if 'Pending' in request.GET.payment_status %}checked{% endif %}>
-    <label for="pending">Pending</label>
-    <input type="checkbox" id="paid" name="payment_status[]" value="Paid" {% if 'Paid' in request.GET.payment_status %}checked{% endif %}>
-    <label for="paid">Paid</label>
-    </div>
+        <div>
+            <label for="payment_status"></label>
+            <input type="checkbox" id="pending" name="payment_status[]" value="Pending" {% if 'Pending' in request.GET.payment_status %}checked{% endif %}>
+            <label for="pending">Pending</label>
+            <input type="checkbox" id="paid" name="payment_status[]" value="Paid" {% if 'Paid' in request.GET.payment_status %}checked{% endif %}>
+            <label for="paid">Paid</label>
+        </div>
 
-    <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Apply Filters</button>
+        <div>
+            <label for="payment_type">Payment Type:</label>
+            <select name="payment_type" id="payment_type">
+                <option value="">All</option>
+                    {% for type in payment_types %}
+                    <option value="{{ type }}" {% if request.GET.payment_type == type %}selected{% endif %}>{{ type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Apply Filters</button>
     </form>
 
 

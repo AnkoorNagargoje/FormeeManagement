@@ -68,3 +68,34 @@ class OrderItemForm(forms.ModelForm):
     class Meta:
         model = OrderItem
         fields = ('product', 'quantity')
+
+
+class ReturnedItemForm(forms.ModelForm):
+    product = forms.ModelChoiceField(queryset=None)
+    quantity = forms.IntegerField(initial=1)
+
+    class Meta:
+        model = ReturnItem
+        fields = ['product', 'quantity']
+
+    def __init__(self, order_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        order_items = OrderItem.objects.filter(order_id=order_id)
+        self.fields['product'].queryset = order_items
+        self.fields['product'].label_from_instance = lambda obj: f"{obj.product.barcode} - {obj.product.size} - {obj.product.name}"
+        def clean(self):
+            cleaned_data = super().clean()
+            product = cleaned_data.get('product')
+            quantity = cleaned_data.get('quantity')
+            return cleaned_data
+
+
+class SalesReturnForm(forms.ModelForm):
+    class Meta:
+        model = SalesReturn
+        fields = '__all__'
+
+    def __init__(self, order_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        order_items = OrderItem.objects.filter(order_id=order_id)
+        self.fields['returned_items'].queryset = order_items
