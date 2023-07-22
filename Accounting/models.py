@@ -58,11 +58,13 @@ TYPE = (
 
 
 class DebitType(models.Model):
+    PURCHASE = 'purchase'
     DIRECT = 'direct'
     INDIRECT = 'indirect'
     MISCELLANEOUS = 'miscellaneous'
 
     TYPE_CHOICES = (
+        (PURCHASE, 'Purchase'),
         (DIRECT, 'Direct'),
         (INDIRECT, 'Indirect'),
         (MISCELLANEOUS, 'Miscellaneous'),

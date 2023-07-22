@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
@@ -268,7 +268,7 @@ def debits_view(request):
 
     # Calculate the sum of all subdebits for the DebitType under 'direct,' 'indirect,' and 'miscellaneous'
     subdebit_sum = SubDebit.objects.filter(
-        debit__debit_type__type__in=[DebitType.DIRECT, DebitType.INDIRECT, DebitType.MISCELLANEOUS])
+        debit__debit_type__type__in=[DebitType.PURCHASE, DebitType.DIRECT, DebitType.INDIRECT, DebitType.MISCELLANEOUS])
     if subdebit_start_date and subdebit_end_date:
         subdebit_start_datetime = datetime.strptime(subdebit_start_date, '%Y-%m-%d')
         subdebit_end_datetime = datetime.strptime(subdebit_end_date, '%Y-%m-%d')
@@ -335,14 +335,24 @@ def debit_type_view(request, debit_type_param):
 
 @login_required
 def add_debit_type_form(request, debit_type):
-    form = DirectDebitTypeForm(request.POST or None)
+    form = DebitTypeForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         unsaved = form.save(commit=False)
         unsaved.type = debit_type
         unsaved.save()
         messages.success(request, 'Debit has been Successfully Added!')
         return redirect(debit_type_view, debit_type_param=debit_type)
-    return render(request, 'add_debitType.html', {'form': form})
+    return render(request, 'debit_type_add.html', {'form': form})
+
+@login_required
+def edit_debit_type_form(request, debit_type, debit_type_id):
+    debit = DebitType.objects.get(id=debit_type_id)
+    form = DebitTypeEditForm(request.POST or None, instance=debit)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Debit has been Successfully Edited!')
+        return redirect(debit_type_view, debit_type_param=debit_type)
+    return render(request, 'debit_type_edit.html', {'form': form})
 
 
 @login_required
@@ -396,7 +406,20 @@ def add_debits_form(request, debit_type, debit_type_id):
         unsaved.save()
         messages.success(request, 'Debit has been Successfully Added!')
         return redirect(debits_by_type_view, debit_type=debit_type, debit_type_id=debit_type_id)
-    return render(request, 'add_debit.html', {'form': form})
+    return render(request, 'debits_by_type_add.html', {'form': form})
+
+
+@login_required
+def edit_debit_form(request, debit_type, debit_type_id, debit_id):
+    debit_type_instance = get_object_or_404(DebitType, type=debit_type, id=debit_type_id)
+    debit_instance = get_object_or_404(Debit, id=debit_id)
+    form = EditDebitForm(request.POST or None, instance=debit_instance)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Debit has been Successfully Edited!')
+        return redirect(debits_by_type_view, debit_type=debit_type, debit_type_id=debit_type_id)
+
+    return render(request, 'debits_by_type_edit.html', {'form': form})
 
 
 @login_required
@@ -563,7 +586,7 @@ def add_debit(request):
         form.save()
         messages.success(request, 'Debit has been Successfully Added!')
         return redirect(debits_view)
-    return render(request, 'add_debit.html', {'form': form})
+    return render(request, 'debits_by_type_add.html', {'form': form})
 
 
 @login_required

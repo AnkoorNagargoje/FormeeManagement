@@ -59,6 +59,9 @@
                 <th scope="col" class="px-6 py-3">
                     Action
                 </th>
+                <th scope="col" class="px-6 py-3">
+                    Action
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -76,10 +79,13 @@
                 <td class="px-6 py-4">
                     <a href="{{ debit_type.pk }}/debit/" class="font-medium text-blue-600 hover:underline">View</a>
                 </td>
+                <td class="px-6 py-4">
+                    <a href="{{ debit_type.pk }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
+                </td>
             </tr>
             {% endfor %}
             <tr class="bg-blue-600">
-                <td colspan="4"></td>
+                <td colspan="5"></td>
             </tr>
 
             <tr>
@@ -87,10 +93,10 @@
                 <td class="px-6 py-4">Total Expenditure</td>
                 <td class="px-6 py-4 text-blue-600 font-bold">{{ total_amount_sum|floatformat:2 }}
                 </td>
-                <td class="px-6 py-4" colspan="1"></td>
+                <td class="px-6 py-4" colspan="2"></td>
             </tr>
             <tr class="bg-blue-600">
-                <td colspan="4"></td>
+                <td colspan="5"></td>
             </tr>
 
             </tbody>

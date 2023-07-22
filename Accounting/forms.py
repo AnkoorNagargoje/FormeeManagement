@@ -21,10 +21,16 @@ class CreditForm(forms.ModelForm):
                   'bank_name', 'note', 'credit_type']
 
 
-class DirectDebitTypeForm(forms.ModelForm):
+class DebitTypeForm(forms.ModelForm):
     class Meta:
         model = DebitType
         fields = ['name']
+
+
+class DebitTypeEditForm(forms.ModelForm):
+    class Meta:
+        model = DebitType
+        fields = '__all__'
 
 
 class DebitForm(forms.ModelForm):
@@ -34,6 +40,15 @@ class DebitForm(forms.ModelForm):
     class Meta:
         model = Debit
         fields = ['name', 'reason']
+
+
+class EditDebitForm(forms.ModelForm):
+    amount = forms.FloatField(required=False)
+    reason = forms.CharField(widget=forms.Textarea, required=False)
+
+    class Meta:
+        model = Debit
+        fields = '__all__'
 
 
 class SubDebitForm(forms.ModelForm):
