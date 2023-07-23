@@ -25,6 +25,13 @@ def pnl(request):
         'TOTAL']
     total_sales = Decimal(total_sales or 0)
 
+    purchase_debit_types = DebitType.objects.filter(type='purchase')
+    purchase_debits = Debit.objects.filter(debit_type__in=purchase_debit_types)
+    purchase_subdebit_total = \
+        SubDebit.objects.filter(debit__in=purchase_debits, date__range=[start_date, end_date]).aggregate(
+            total_sum=Sum('amount'))['total_sum']
+    purchase_subdebit_total = Decimal(purchase_subdebit_total or 0)
+
     direct_debit_types = DebitType.objects.filter(type='direct')
     direct_debits = Debit.objects.filter(debit_type__in=direct_debit_types)
     direct_subdebit_total = \
@@ -76,6 +83,7 @@ def pnl(request):
         'total_sales': total_sales,
         'pnl': pnl,
         'x': x,
+        'purchase_total': purchase_subdebit_total,
         'direct_total': direct_subdebit_total,
         'indirect_total': indirect_subdebit_total,
         'miscellaneous_total': miscellaneous_subdebit_total,
@@ -132,7 +140,7 @@ def credits_sales_view(request):
     end_date = request.GET.get('end_date')
     message = ""
 
-    credits = Credit.objects.filter(credit_type='sales').order_by('-date')
+    credits = Credit.objects.filter(credit_type='sales').order_by('-id')
 
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
@@ -141,14 +149,14 @@ def credits_sales_view(request):
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-date')
+            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-id')
             message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
     else:
         if start_date and end_date:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-date')
+            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-id')
             message = f"Showing results from {start_date} to {end_date}"
 
     total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
@@ -156,7 +164,7 @@ def credits_sales_view(request):
     total = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
 
     # Configure pagination
-    paginator = Paginator(credits, 20)  # Show 20 credits per page
+    paginator = Paginator(credits, 50)  # Show 20 credits per page
     page = request.GET.get('page')
     credits = paginator.get_page(page)
 
@@ -299,11 +307,12 @@ def debits_view(request):
     return render(request, 'debits_view.html', context)
 
 
+from django.db.models import F, Sum, DecimalField, ExpressionWrapper
 @login_required
 def debit_type_view(request, debit_type_param):
     debit_types = DebitType.objects.filter(type=debit_type_param)
 
-    debits_with_total_amount = []
+    debits_with_total_amount = {}
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -320,9 +329,11 @@ def debit_type_view(request, debit_type_param):
         total_amount = debits.filter(debit_type=debit_type).aggregate(
             total_sum=Sum(ExpressionWrapper(F('subdebit__sub_amount') / 1.0, output_field=DecimalField()))
         )['total_sum']
-        debits_with_total_amount.append((debit_type, total_amount))
 
-    total_amount_sum = sum(total_amount or Decimal(0) for _, total_amount in debits_with_total_amount)
+        # Store the total_amount in the debits_with_total_amount dictionary
+        debits_with_total_amount[debit_type] = total_amount or 0
+
+    total_amount_sum = sum(debits_with_total_amount.values())
 
     context = {
         'debits_with_total_amount': debits_with_total_amount,
@@ -331,6 +342,7 @@ def debit_type_view(request, debit_type_param):
     }
 
     return render(request, 'debit_type.html', context=context)
+
 
 
 @login_required

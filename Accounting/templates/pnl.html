@@ -42,15 +42,46 @@
                         <td>{{ closing_balance|floatformat:2 }} -</td>
                     </tr>
                     <tr>
-                        <td><a href="/accounting/de/direct/" class="text-blue-600">Direct Expenses</a></td>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/de/purchase/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Purchase Account</a>
+                            {% else %}
+                            <a href="/accounting/de/purchase/" class="text-blue-600">Purchase Account</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ purchase_total|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/de/direct/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Direct Expenses</a>
+                            {% else %}
+                            <a href="/accounting/de/direct/" class="text-blue-600">Direct Expenses</a>
+                            {% endif %}
+                        </td>
                         <td>{{ direct_total|floatformat:2 }}</td>
                     </tr>
                     <tr>
-                        <td><a href="/accounting/de/indirect/" class="text-blue-600">Indirect Expenses</a></td>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/de/indirect/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Indirect Expenses</a>
+                            {% else %}
+                            <a href="/accounting/de/indirect/" class="text-blue-600">Indirect Expenses</a>
+                            {% endif %}
+                        </td>
                         <td>{{ indirect_total|floatformat:2 }}</td>
                     </tr>
                     <tr>
-                        <td><a href="/accounting/de/miscellaneous/" class="text-blue-600">Miscellaneous Expenses</a>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/de/miscellaneous/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Miscellaneous Expenses</a>
+                            {% else %}
+                            <a href="/accounting/de/miscellaneous/" class="text-blue-600">Miscellaneous Expenses</a>
+                            {% endif %}
                         </td>
                         <td>{{ miscellaneous_total|floatformat:2 }}</td>
                     </tr>
@@ -64,11 +95,25 @@
             <div class="grow">
                 <table class="w-full text-md text-left border">
                     <tr>
-                        <td><a href="sales/" class="text-blue-600">Sales Accounts</a></td>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="sales/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Sales Accounts</a>
+                            {% else %}
+                            <a href="sales/" class="text-blue-600">Sales Accounts</a>
+                            {% endif %}
+                        </td>
                         <td>{{ total_sales|floatformat:2 }}</td>
                     </tr>
                     <tr>
-                        <td><a href="debits/" class="text-blue-600">Expenses Accounts</a></td>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="debits/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Expenses Accounts</a>
+                            {% else %}
+                            <a href="debits/" class="text-blue-600">Expenses Accounts</a>
+                            {% endif %}
+                        </td>
                         <td>{{ total_sum_of_subdebits|floatformat:2 }}</td>
                     </tr>
                     <tr>
@@ -80,9 +125,9 @@
         </div>
     </div>
     <div class="grow">
-    <canvas id="order-chart"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
-    <script>
+        <canvas id="order-chart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+        <script>
         const months = {{ months|safe }};
         const orderSums = {{ order_sums|safe }};
 
@@ -161,8 +206,13 @@
     },
         });
 
-    </script>
-</div>
+
+
+
+
+
+        </script>
+    </div>
 
 </div>
 

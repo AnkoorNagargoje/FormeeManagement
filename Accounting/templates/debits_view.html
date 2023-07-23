@@ -5,7 +5,8 @@
 <ul class="messages">
     {% for message in messages %}
     <li
-    {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
     {% endfor %}
 </ul>
 {% endif %}
@@ -66,7 +67,12 @@
                     {{ subdebit_sum }}
                 </td>
                 <td class="px-6 py-4">
+                    {% if request.GET.subdebit_start_date and request.GET.subdebit_end_date %}
+                    <a href="{{ debit_type }}/?start_date={{ request.GET.subdebit_start_date }}&end_date={{ request.GET.subdebit_end_date }}"
+                       class="font-medium text-blue-600 hover:underline">View</a>
+                    {% else %}
                     <a href="{{ debit_type }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

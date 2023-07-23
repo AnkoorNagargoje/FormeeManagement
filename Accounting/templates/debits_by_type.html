@@ -79,7 +79,12 @@
                     {{ debit.sub_debit_sum|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
+                    {% if request.GET.start_date and request.GET.end_date %}
+                    <a href="{{ debit.pk }}/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                       class="font-medium text-blue-600 hover:underline">View</a>
+                    {% else %}
                     <a href="{{ debit.pk }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    {% endif %}
                 </td>
                 <td class="px-6 py-4">
                     <a href="{{ debit.pk }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>

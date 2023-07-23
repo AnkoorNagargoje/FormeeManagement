@@ -410,7 +410,8 @@ def order_paid_cash(request, customer_id, order_id):
         if order.delivery:
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
-                                                amount=order.delivery, date=datetime.now().date(),
+                                                sub_amount=order.delivery, amount=order.delivery,
+                                                date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
     else:
@@ -442,7 +443,8 @@ def order_paid_upi(request, customer_id, order_id):
         if order.delivery:
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
-                                                amount=order.delivery, date=datetime.now().date(),
+                                                sub_amount=order.delivery, amount=order.delivery,
+                                                date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_id=add_credit.id)
@@ -475,7 +477,8 @@ def order_paid_net(request, customer_id, order_id):
         if order.delivery:
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
-                                                amount=order.delivery, date=datetime.now().date(),
+                                                sub_amount=order.delivery, amount=order.delivery,
+                                                date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_id=add_credit.id)
@@ -508,7 +511,8 @@ def order_paid_cheque(request, customer_id, order_id):
         if order.delivery:
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
-                                                amount=order.delivery, date=datetime.now().date(),
+                                                sub_amount=order.delivery, amount=order.delivery,
+                                                date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_id=add_credit.id)
