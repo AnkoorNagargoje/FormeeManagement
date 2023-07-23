@@ -61,7 +61,8 @@ class SubDebitForm(forms.ModelForm):
     amount = forms.FloatField()
     reason = forms.CharField(widget=forms.Textarea, required=False)
     date = forms.DateField(label='Date', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    payment_type = forms.ChoiceField(choices=Payment_Type)
 
     class Meta:
         model = SubDebit
-        fields = ['name', 'quantity', 'price', 'quantity_type', 'cgst', 'sgst', 'amount', 'reason', 'date']
+        fields = ['name', 'quantity', 'price', 'quantity_type', 'cgst', 'sgst', 'amount', 'reason', 'date', 'payment_type']

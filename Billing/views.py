@@ -291,24 +291,28 @@ def order_detail(request, customer_id, order_id):
     form = OrderItemForm(request.POST or None)
     if form.is_valid():
         order_item = form.save(commit=False)
-        order_item.order = order
-        order_item.save()
         product = order_item.product
-        product.stock -= order_item.quantity
-        product.save()
-        quantity_object = Quantity.objects.create(product_code=order_item.product,
+        if order_item.quantity <= product.stock:
+            order_item.order = order
+            order_item.save()
+            product.stock -= order_item.quantity
+            product.save()
+            quantity_object = Quantity.objects.create(product_code=order_item.product,
                                                   out_quantity=order_item.quantity,
                                                   invoice_number=order_id)
-        quantity_object.save()
-        if customer.order_type == 'franchise':
-            order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 2)
-            order.save()
-        elif customer.order_type == 'super market':
-            order.order_total = round(order.order_total + order_item.quantity * product.store_price, 2)
-            order.save()
+            quantity_object.save()
+            if customer.order_type == 'franchise':
+                order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 2)
+                order.save()
+            elif customer.order_type == 'super market':
+                order.order_total = round(order.order_total + order_item.quantity * product.store_price, 2)
+                order.save()
+            else:
+                order.order_total = round(order.order_total + order_item.quantity * product.price, 2)
+                order.save()
         else:
-            order.order_total = round(order.order_total + order_item.quantity * product.price, 2)
-            order.save()
+            messages.error(request, "There not enough stock of the product in the inventory, Update Inventory!")
+
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     delivery_form = DeliveryForm(request.POST or None)

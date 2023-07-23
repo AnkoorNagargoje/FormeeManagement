@@ -45,11 +45,15 @@
         </div>
 
         <div class="flex gap-8 justify-between">
-            <div class="w-1/2">
+            <div class="w-1/3">
+                <label class="text-lg my-2">Payment Type <i class="optional">*</i></label>
+                {% render_field form.payment_type class="w-full h-10 indent-1 rounded bg-transparent border-2" placeholder="Eg: Ankoor" %}
+            </div>
+            <div class="w-1/3">
                 <label class="text-lg my-2">Date <i class="optional">*</i></label>
                 {% render_field form.date class="w-full h-10 indent-1 rounded bg-transparent border-2" placeholder="Eg: Ankoor" %}
             </div>
-            <div class="w-1/2">
+            <div class="w-1/3">
                 <label class="text-lg my-2">Note</label>
                 {% render_field form.reason class="w-full h-10 indent-2 rounded bg-transparent border-2" %}
             </div>

@@ -97,6 +97,13 @@ Quantity_Choice = (
     ('pieces', 'Pieces'),
 )
 
+Payment_Type = (
+    ('cash', 'Cash'),
+    ('upi', 'UPI'),
+    ('cheque', 'Cheque'),
+    ('net banking', 'Net Banking'),
+)
+
 
 class SubDebit(models.Model):
     name = models.CharField(max_length=100)
@@ -110,6 +117,7 @@ class SubDebit(models.Model):
     date = models.DateField()
     reason = models.TextField(null=True, blank=True)
     debit = models.ForeignKey(Debit, on_delete=models.CASCADE)
+    payment_type = models.CharField(max_length=100, choices=Payment_Type, default='cash')
 
     def __str__(self):
         return self.name
