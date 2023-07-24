@@ -69,9 +69,10 @@ def get_gst_report(request):
 def export_report_to_csv(request):
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
+
     if start_date_str and end_date_str:
-        start_datetime = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_datetime = datetime.strptime(end_date_str, '%Y-%m-%d')
+        start_datetime = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        end_datetime = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
         orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime)).order_by('pk')
     else:
         orders = Order.objects.all().order_by('pk')
@@ -90,9 +91,12 @@ def export_report_to_csv(request):
     order_total_with_gst_sum = 0
 
     for order in orders:
+        # Convert the order.created_at to a specific timezone if needed
+        order_created_at_str = order.created_at.astimezone(timezone.get_current_timezone()).strftime('%d-%m-%Y')
+
         if order.customer.order_type != 'normal':
             writer.writerow(
-                [order.id, order.created_at.strftime('%Y-%m-%d'), order.customer, order.customer.gstin,
+                [order.id, order_created_at_str, order.customer, order.customer.gstin,
                  f'{order.order_total}', f'{order.cgst():.2f}', f'{order.sgst():.2f}',
                  f'{order.total_gst():.2f}', f'{order.order_total_with_gst():.2f}', 'CS GST', 'Taxable'])
 
