@@ -8,11 +8,10 @@ urlpatterns = [
     path('accounting/pnl/debits/', views.total_expenses),
 
     path('accounting/cr/', views.credits_view),
-    path('accounting/cr/sales/', views.credits_sales_view),
-    path('accounting/cr/indirect/', views.credits_indirect_view),
-    path('accounting/cr/miscellaneous/', views.credits_miscellaneous_view),
+
+    path('accounting/cr/<str:credit_type>/', views.credits_type_view),
     path('accounting/cr/<str:credit_type>/add_credit/', views.add_credit),
-    path('accounting/cr/credit/<int:credit_id>/edit/', views.edit_credit),
+    path('accounting/cr/<str:credit_type>/<int:credit_id>/edit/', views.edit_credit),
 
     path('accounting/de/', views.debits_view),
     path('accounting/de/<str:debit_type_param>/', views.debit_type_view),

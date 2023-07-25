@@ -133,133 +133,44 @@ def credits_view(request):
 
 
 @login_required
-def credits_sales_view(request):
+def credits_type_view(request, credit_type):
+    credits = Credit.objects.filter(credit_type=credit_type)
+    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
+
     credit_search = request.GET.get('credit_search')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    message = ""
 
-    credits = Credit.objects.filter(credit_type='sales').order_by('-id')
-    credit_ids = credits.values_list('id', flat=True)  # Extract the 'id' values from the credits queryset
-    orders = Order.objects.filter(id__in=credit_ids)
+    message = ""
 
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
 
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-id')
-            message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
-    else:
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        credits = credits.filter(date__range=(start_datetime, end_datetime))
+        message = f"Showing results"
+        if credit_search and credit_search.strip():
+            message += f" of '{credit_search}'"
+        message += f" from {start_date} to {end_date}"
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime)).order_by('-id')
-            message = f"Showing results from {start_date} to {end_date}"
+    credits = credits.order_by('-id')[:100]  # Apply the slicing at the end
 
     total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
 
     total = credits.aggregate(TOTAL=Sum('amount'))['TOTAL'] or 0
 
-    # Configure pagination
-    paginator = Paginator(credits, 50)  # Show 20 credits per page
-    page = request.GET.get('page')
-    credits = paginator.get_page(page)
-
     context = {
         'credits': credits,
         'total': total,
         'total_credits': total_credits,
         'message': message,
-        'orders':orders,
+        'credit_type': credit_type,
     }
 
-    return render(request, 'sales_view.html', context=context)
-
-
-@login_required
-def credits_indirect_view(request):
-    credit_type = 'indirect'
-    credits = Credit.objects.filter(credit_type=credit_type)
-    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    credit_search = request.GET.get('credit_search')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    message = ""
-
-    if credit_search and credit_search.strip():
-        credits = credits.filter(name__icontains=credit_search)
-
-    if start_date and end_date:
-        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
-
-        credits = credits.filter(date__range=(start_datetime, end_datetime))
-        message = f"Showing results"
-        if credit_search and credit_search.strip():
-            message += f" of '{credit_search}'"
-        message += f" from {start_date} to {end_date}"
-
-    credits = credits.order_by('-id')[:10]  # Apply the slicing at the end
-
-    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    total = Credit.objects.filter(credit_type=credit_type).aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    context = {
-        'credits': credits,
-        'total': total,
-        'total_credits': total_credits,
-        'message': message,
-    }
-
-    return render(request, 'indirect_view.html', context=context)
-
-
-
-@login_required
-def credits_miscellaneous_view(request):
-    credit_type = 'miscellaneous'
-    credits = Credit.objects.filter(credit_type=credit_type)
-    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    credit_search = request.GET.get('credit_search')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    message = ""
-
-    if credit_search and credit_search.strip():
-        credits = credits.filter(name__icontains=credit_search)
-
-    if start_date and end_date:
-        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
-
-        credits = credits.filter(date__range=(start_datetime, end_datetime))
-        message = f"Showing results"
-        if credit_search and credit_search.strip():
-            message += f" of '{credit_search}'"
-        message += f" from {start_date} to {end_date}"
-
-    credits = credits.order_by('-id')[:10]  # Apply the slicing at the end
-
-    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    total = Credit.objects.filter(credit_type=credit_type).aggregate(TOTAL=Sum('amount'))['TOTAL']
-
-    context = {
-        'credits': credits,
-        'total': total,
-        'total_credits': total_credits,
-        'message': message,
-    }
-
-    return render(request, 'miscellaneous_view.html', context=context)
-
+    return render(request, 'credit_type.html', context=context)
 
 
 @login_required
@@ -601,13 +512,13 @@ def add_debit(request):
 
 
 @login_required
-def edit_credit(request, credit_id):
-    credit = Credit.objects.get(id=credit_id)
+def edit_credit(request, credit_type, credit_id):
+    credit = Credit.objects.get(credit_type=credit_type, id=credit_id)
     form = CreditForm(request.POST or None, instance=credit)
     if form.is_valid():
         form.save()
-        messages.success(request, 'Credit has been Successfully Added!')
-        return redirect(credits_sales_view)
+        messages.success(request, 'Credit has been Successfully Edited!')
+        return redirect(credits_type_view, credit_type=credit_type)
     else:
         form = CreditForm(instance=credit)
 
@@ -620,7 +531,7 @@ def edit_debit(request, debit_id):
     form = DebitForm(request.POST or None, instance=debit)
     if form.is_valid():
         form.save()
-        messages.success(request, 'Debit has been Successfully Added!')
+        messages.success(request, 'Debit has been Successfully Edited!')
         return redirect(debits_view)
     else:
         form = DebitForm(instance=debit)

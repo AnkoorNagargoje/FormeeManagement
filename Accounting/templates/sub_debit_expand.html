@@ -64,6 +64,9 @@
                     Amount<br>(incl. gst)
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Payment Type
+                </th>
+                <th scope="col" class="px-6 py-3">
                     Date
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -106,6 +109,9 @@
 
                 <td class="px-6 py-4">
                     {{ debit.amount|floatformat:2 }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ debit.payment_type|title }}
                 </td>
                 <td class="px-6 py-4">
                     {{ debit.date }}

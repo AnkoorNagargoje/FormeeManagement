@@ -10,9 +10,11 @@
 </ul>
 {% endif %}
 
-<div class="flex w-11/12 m-auto gap-8 mt-4 border-b-2 mb-4">
-    <div class="text-2xl font-bold pb-2">
-        Sales Credits <span class="text-xs">(Contains Orders Paid, also contains GST.)</span>
+<div class="flex w-11/12 m-auto gap-8 mt-4 mb-4 border-b-2">
+    <div class="text-xl font-bold pb-2">
+        <a href="/accounting/" class="text-blue-600 hover:underline">Accounting</a> >
+        <a href="/accounting/cr/" class="text-blue-600 hover:underline">Credits</a> >
+        <a href="/accounting/cr/{{ credit_type }}/" class="text-purple-600 hover:underline">{{ credit_type|title }}</a>
     </div>
 </div>
 
@@ -39,7 +41,7 @@
     </div>
 </div>
 
-<div class="w-11/12 m-auto flex justify-between gap-8 mb-8">
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16">
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
         <table class="w-full text-sm text-left border">
@@ -75,7 +77,7 @@
             {% for credit in credits %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
-                    {{ forloop.counter }}
+                    {{ credit.pk }}
                 </td>
                 <th class="px-6 py-4 font-medium text-gray-900 whitespace-wrap">
                     {{ credit.name }}
@@ -96,7 +98,7 @@
                     {{ credit.date|date:"F d, Y" }}
                 </td>
                 <td class="px-6 py-4">
-                    <a href="/accounting/cr/credit/{{ credit.id }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
+                    <a href="{{ credit.id }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
                 </td>
             </tr>
             {% endfor %}
@@ -107,7 +109,7 @@
             <tr>
                 <td class="px-6 py-4" colspan="2"></td>
                 <td class="px-6 py-4">Total Sales</td>
-                <td class="px-6 py-4">{{ total|floatformat:2 }}
+                <td class="px-6 py-4">{{ total_credits|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4" colspan="4"></td>
             </tr>
@@ -118,19 +120,5 @@
             </tbody>
         </table>
     </div>
-</div>
-
-<div class="w-11/12 m-auto mb-10">
-    <p class="mx-2">Page: {{ credits.number }} of {{ credits.paginator.num_pages}}</p>
-    <br>
-    {% for pages in credits.paginator %}
-    <a href="?page={{ forloop.counter }}"><button class="w-[35px] h-10 rounded mx-2 bg-green-400">{{ forloop.counter }}</button></a>
-    {% endfor %}
-    {% if credits.has_next %}
-    <a href="?page={{ credits.next_page_number }}">Next</a>
-    {% endif %}
-
-    <br><br>
-
 </div>
 {% endblock %}
