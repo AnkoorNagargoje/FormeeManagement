@@ -11,7 +11,7 @@ urlpatterns = [
     path('accounting/cr/sales/', views.credits_sales_view),
     path('accounting/cr/indirect/', views.credits_indirect_view),
     path('accounting/cr/miscellaneous/', views.credits_miscellaneous_view),
-    path('accounting/cr/add_credit/', views.add_credit),
+    path('accounting/cr/<str:credit_type>/add_credit/', views.add_credit),
     path('accounting/cr/credit/<int:credit_id>/edit/', views.edit_credit),
 
     path('accounting/de/', views.debits_view),

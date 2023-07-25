@@ -10,7 +10,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, date
 
-
 @login_required
 def accounting(request):
     return render(request, 'accounting.html')
@@ -29,31 +28,31 @@ def pnl(request):
     purchase_debits = Debit.objects.filter(debit_type__in=purchase_debit_types)
     purchase_subdebit_total = \
         SubDebit.objects.filter(debit__in=purchase_debits, date__range=[start_date, end_date]).aggregate(
-            total_sum=Sum('amount'))['total_sum']
+            total_sum=Sum('sub_amount'))['total_sum']
     purchase_subdebit_total = Decimal(purchase_subdebit_total or 0)
 
     direct_debit_types = DebitType.objects.filter(type='direct')
     direct_debits = Debit.objects.filter(debit_type__in=direct_debit_types)
     direct_subdebit_total = \
         SubDebit.objects.filter(debit__in=direct_debits, date__range=[start_date, end_date]).aggregate(
-            total_sum=Sum('amount'))['total_sum']
+            total_sum=Sum('sub_amount'))['total_sum']
     direct_subdebit_total = Decimal(direct_subdebit_total or 0)
 
     indirect_debit_types = DebitType.objects.filter(type='indirect')
     indirect_debits = Debit.objects.filter(debit_type__in=indirect_debit_types)
     indirect_subdebit_total = \
         SubDebit.objects.filter(debit__in=indirect_debits, date__range=[start_date, end_date]).aggregate(
-            total_sum=Sum('amount'))['total_sum']
+            total_sum=Sum('sub_amount'))['total_sum']
     indirect_subdebit_total = Decimal(indirect_subdebit_total or 0)
 
     miscellaneous_debit_types = DebitType.objects.filter(type='miscellaneous')
     miscellaneous_debits = Debit.objects.filter(debit_type__in=miscellaneous_debit_types)
     miscellaneous_subdebit_total = \
         SubDebit.objects.filter(debit__in=miscellaneous_debits, date__range=[start_date, end_date]).aggregate(
-            total_sum=Sum('amount'))['total_sum']
+            total_sum=Sum('sub_amount'))['total_sum']
     miscellaneous_subdebit_total = Decimal(miscellaneous_subdebit_total or 0)
 
-    total_sum_of_subdebits = direct_subdebit_total + indirect_subdebit_total + miscellaneous_subdebit_total
+    total_sum_of_subdebits = purchase_subdebit_total + direct_subdebit_total + indirect_subdebit_total + miscellaneous_subdebit_total
 
     pnl = total_sales - total_sum_of_subdebits
     x = 'Profit' if pnl > 0 else 'Loss'
@@ -141,6 +140,8 @@ def credits_sales_view(request):
     message = ""
 
     credits = Credit.objects.filter(credit_type='sales').order_by('-id')
+    credit_ids = credits.values_list('id', flat=True)  # Extract the 'id' values from the credits queryset
+    orders = Order.objects.filter(id__in=credit_ids)
 
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
@@ -173,6 +174,7 @@ def credits_sales_view(request):
         'total': total,
         'total_credits': total_credits,
         'message': message,
+        'orders':orders,
     }
 
     return render(request, 'sales_view.html', context=context)
@@ -180,7 +182,8 @@ def credits_sales_view(request):
 
 @login_required
 def credits_indirect_view(request):
-    credits = Credit.objects.filter(credit_type='indirect').order_by('-id')[:10]
+    credit_type = 'indirect'
+    credits = Credit.objects.filter(credit_type=credit_type)
     total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
 
     credit_search = request.GET.get('credit_search')
@@ -191,25 +194,21 @@ def credits_indirect_view(request):
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
 
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
-            message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
-        else:
-            message = f"Showing results of '{credit_search}'"
-        total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-    else:
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        credits = credits.filter(date__range=(start_datetime, end_datetime))
+        message = f"Showing results"
+        if credit_search and credit_search.strip():
+            message += f" of '{credit_search}'"
+        message += f" from {start_date} to {end_date}"
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
-            message = f"Showing results from {start_date} to {end_date}"
-            total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
+    credits = credits.order_by('-id')[:10]  # Apply the slicing at the end
 
-    total = Credit.objects.filter(credit_type='indirect').aggregate(TOTAL=Sum('amount'))['TOTAL']
+    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
+
+    total = Credit.objects.filter(credit_type=credit_type).aggregate(TOTAL=Sum('amount'))['TOTAL']
 
     context = {
         'credits': credits,
@@ -221,9 +220,11 @@ def credits_indirect_view(request):
     return render(request, 'indirect_view.html', context=context)
 
 
+
 @login_required
 def credits_miscellaneous_view(request):
-    credits = Credit.objects.filter(credit_type='miscellaneous').order_by('-id')[:10]
+    credit_type = 'miscellaneous'
+    credits = Credit.objects.filter(credit_type=credit_type)
     total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
 
     credit_search = request.GET.get('credit_search')
@@ -234,25 +235,21 @@ def credits_miscellaneous_view(request):
     if credit_search and credit_search.strip():
         credits = credits.filter(name__icontains=credit_search)
 
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
-            message = f"Showing results of '{credit_search}' from {start_date} to {end_date}"
-        else:
-            message = f"Showing results of '{credit_search}'"
-        total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
-    else:
-        if start_date and end_date:
-            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
-            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        credits = credits.filter(date__range=(start_datetime, end_datetime))
+        message = f"Showing results"
+        if credit_search and credit_search.strip():
+            message += f" of '{credit_search}'"
+        message += f" from {start_date} to {end_date}"
 
-            credits = credits.filter(date__range=(start_datetime, end_datetime))
-            message = f"Showing results from {start_date} to {end_date}"
-            total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
+    credits = credits.order_by('-id')[:10]  # Apply the slicing at the end
 
-    total = Credit.objects.filter(credit_type='miscellaneous').aggregate(TOTAL=Sum('amount'))['TOTAL']
+    total_credits = credits.aggregate(TOTAL=Sum('amount'))['TOTAL']
+
+    total = Credit.objects.filter(credit_type=credit_type).aggregate(TOTAL=Sum('amount'))['TOTAL']
 
     context = {
         'credits': credits,
@@ -262,6 +259,7 @@ def credits_miscellaneous_view(request):
     }
 
     return render(request, 'miscellaneous_view.html', context=context)
+
 
 
 @login_required
@@ -307,7 +305,6 @@ def debits_view(request):
     return render(request, 'debits_view.html', context)
 
 
-from django.db.models import F, Sum, DecimalField, ExpressionWrapper
 @login_required
 def debit_type_view(request, debit_type_param):
     debit_types = DebitType.objects.filter(type=debit_type_param)
@@ -385,7 +382,7 @@ def debits_by_type_view(request, debit_type, debit_type_id):
         debits = debits.filter(Q(name__icontains=debit_name) | Q(subdebit__name__icontains=debit_name))
 
     debits = debits.annotate(
-        sub_debit_sum=Sum('subdebit__amount', output_field=DecimalField())
+        sub_debit_sum=Sum('subdebit__sub_amount', output_field=DecimalField())
     )
     debits = debits.annotate(
         sub_debit_sub_amount_sum=Sum('subdebit__sub_amount', output_field=DecimalField())
@@ -582,12 +579,14 @@ def sales(request):
 
 
 @login_required
-def add_credit(request):
+def add_credit(request, credit_type):
     form = CreditForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        unsaved = form.save(commit=False)
+        unsaved.credit_type = credit_type
+        unsaved.save()
         messages.success(request, 'Credit has been Successfully Added!')
-        return redirect(credits_sales_view)
+        return redirect(credits_view)
     return render(request, 'add_credit.html', {'form': form})
 
 

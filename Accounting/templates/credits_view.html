@@ -45,7 +45,7 @@
                     Name
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Amount
+                    Amount(Paid Only)
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -65,7 +65,12 @@
                     {{ total_credit|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
+                    {% if request.GET.start_date and request.GET.end_date %}
+                    <a href="{{ credit_type }}/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                       class="font-medium text-blue-600 hover:underline">View</a>
+                    {% else %}
                     <a href="{{ credit_type }}/" class="font-medium text-blue-600 hover:underline">View</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

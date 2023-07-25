@@ -540,13 +540,23 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
         product = order_item.product
         if new_order_item.quantity > old_quantity:
             diff = new_order_item.quantity - old_quantity
-            product.stock -= diff
-            if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total + product.franchise_price * diff)
-            elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total + product.store_price * diff)
+            if diff <= product.stock:
+                product.stock -= diff
+                if customer.order_type == 'franchise':
+                    order.order_total = round(order.order_total + product.franchise_price * diff)
+                elif customer.order_type == 'super market':
+                    order.order_total = round(order.order_total + product.store_price * diff)
+                else:
+                    order.order_total = round(order.order_total + product.price * diff)
+                product.save()
+                new_order_item.save()
+                order.save()
+                messages.success(request,
+                                 f'There are {product.stock} units of {product.name} left in the inventory, Added {diff} unit/s in the order, The new order Total is {order.order_total}')
+
+                return redirect('order_detail', customer_id=customer.id, order_id=order.id)
             else:
-                order.order_total = round(order.order_total + product.price * diff)
+                messages.error(request, 'There is a shortage of stock of the product in the Inventory, Update Inventory!')
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
@@ -556,13 +566,15 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
                 order.order_total = round(order.order_total - product.store_price * diff)
             else:
                 order.order_total = round(order.order_total - product.price * diff)
-        product.save()
-        new_order_item.save()
-        order.save()
-        messages.success(request, f'{product.stock}, {diff}, {order.order_total}')
+            product.save()
+            new_order_item.save()
+            order.save()
+            messages.success(request, f'There are {product.stock} units of {product.name} left in the inventory, Removed {diff} unit/s in the order, The new order Total is {order.order_total}')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
+
     return render(request, 'order_item_edit.html',
                   {'form': form, 'customer': customer, 'order': order, 'order_item': order_item})
+
 
 
 def order_item_delete(request, customer_id, order_id, order_item_id):

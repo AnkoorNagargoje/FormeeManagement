@@ -13,7 +13,7 @@ class CreditForm(forms.ModelForm):
     cheque_no = forms.CharField(required=False)
     bank_name = forms.CharField(required=False)
     note = forms.CharField(required=False)
-    credit_type = forms.ChoiceField(choices=CREDIT_TYPE)
+    credit_type = forms.CharField(required=False)
 
     class Meta:
         model = Credit
