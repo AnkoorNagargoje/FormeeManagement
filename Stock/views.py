@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Quantity
 from .forms import ProductForm, QuantityForm
 from django.contrib import messages
@@ -40,7 +40,7 @@ def add_product_view(request):
 
 @login_required
 def edit_product_view(request, code):
-    product = Product.objects.get(code=code)
+    product = get_object_or_404(Product, code=code)
     stock = Quantity.objects.filter(product_code=product).order_by('-date')
 
     stock_search = request.GET.get('stock_search')
@@ -62,3 +62,13 @@ def edit_product_view(request, code):
         instance.save()
         return redirect(stock_view)
     return render(request, 'edit_product.html', {'form': form, 'product': product, 'stock': stock})
+
+
+@login_required
+def stock_report(request):
+    stock = Quantity.objects.all()
+
+    context = {
+        'stock': stock,
+    }
+    return render(request, 'stock_report.html', context=context)

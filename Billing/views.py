@@ -455,7 +455,7 @@ def order_paid_upi(request, customer_id, order_id):
                                                 date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
-        return redirect(edit_credit, credit_id=add_credit.id)
+        return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
         return redirect(order_list, customer_id=customer_id)
@@ -489,7 +489,7 @@ def order_paid_net(request, customer_id, order_id):
                                                 date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
-        return redirect(edit_credit, credit_id=add_credit.id)
+        return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
         return redirect(order_list, customer_id=customer_id)
@@ -523,7 +523,7 @@ def order_paid_cheque(request, customer_id, order_id):
                                                 date=datetime.now().date(),
                                                 debit=debit_instance)
             add_debit.save()
-        return redirect(edit_credit, credit_id=add_credit.id)
+        return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
     else:
         messages.error(request, 'The Order is Already Paid')
         return redirect(order_list, customer_id=customer_id)

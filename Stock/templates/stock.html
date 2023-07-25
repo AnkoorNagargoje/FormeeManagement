@@ -2,17 +2,25 @@
 
 {% block body %}
 
-<div class="m-auto w-11/12 mt-4 p-2 border rounded flex flex-row justify-between items-center shadow-md">
-    <div><a href="add_product/"><button type="button" class="m-2 px-4 py-2 bg-green-400 rounded">Add Product</button></a></div>
-    <div class="grow ml-8">
-        <form action="">
-            <input type="text" class="w-[100%] h-10 border indent-4 rounded" name="product_search" placeholder="Search Product">
+<div class="flex justify-between mx-auto w-11/12 mt-4 gap-4 p-4 border-2 rounded-lg shadow-md">
+    <div>
+        <a href="add_product/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Add Product</button>
+        </a>
     </div>
     <div>
-        <button type="submit" class="m-2 px-4 py-2 bg-green-400 rounded">Search</button>
+        <a href="stock_report/">
+            <button class="px-4 py-2 bg-green-400 rounded whitespace-nowrap">Stock Report</button>
+        </a>
+    </div>
+    <div class="flex-grow flex-0">
+        <form action="" class="flex">
+            <input type="text" class="w-full h-10 border rounded px-4" name="product_search"
+                   placeholder="Search Product">
+
+            <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
         </form>
     </div>
-
 </div>
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4">

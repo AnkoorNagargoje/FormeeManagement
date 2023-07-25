@@ -2,39 +2,46 @@
 {% load widget_tweaks %}
 {% block body %}
 
-<div class="m-auto my-8 p-8 border-2 rounded-xl w-2/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
+<div class="m-auto my-8 p-8 border-2 rounded-xl w-3/6" style="box-shadow: 0 25px 25px rgb(0 0 0 / 0.15);">
     <p class="text-center text-3xl font-bold">Add New Product</p>
     <br>
     <hr>
     <form method="post">
         {% csrf_token %}
         <div class="my-6">
-            <p class="text-xl my-2">Name of the Product</p>
+            <p class="text-xl my-2">Name of the Product <i class="optional">*</i></p>
             {% render_field form.name class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="Eg: Formee Bhakarwadi 0001" %}
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Code of the Product</p>
-            {% render_field form.code class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="0001" %}
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-1/2">
+                <p class="text-xl my-2">Code of the Product <i class="optional">*</i></p>
+                {% render_field form.code class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="0001" %}
+            </div>
+            <div class="w-1/2">
+                <p class="text-xl my-2">Barcode of the Product <i class="optional">*</i></p>
+                {% render_field form.barcode class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="0001" %}
+            </div>
         </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Code of the Product</p>
-            {% render_field form.barcode class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="0001" %}
-        </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Size of the Product</p>
-            {% render_field form.size class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="200gm" %}
-        </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Price</p>
-            {% render_field form.price class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="₹99" %}
-        </div>
-        <div class="my-6">
-            <p class="text-xl my-2">Quantity</p>
-            {% render_field form.stock class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="15" %}
+        <div class="flex gap-8 justify-between my-2">
+            <div class="w-1/3">
+                <p class="text-xl my-2">Size of the Product <i class="optional">*</i></p>
+                {% render_field form.size class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="200gm" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Price <i class="optional">*</i></p>
+                {% render_field form.price class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="₹99" %}
+            </div>
+            <div class="w-1/3">
+                <p class="text-xl my-2">Quantity <i class="optional">*</i></p>
+                {% render_field form.stock class="w-full h-10 indent-2 rounded bg-transparent border-2" placeholder="15" %}
+            </div>
         </div>
         {{ form.errors }}
         <br>
-        <button type="submit" class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add Product</button>
+        <button type="submit"
+                class="w-full bg-green-400 rounded h-12 text-xl hover:drop-shadow-2xl duration-300 ease-in-out">Add
+            Product
+        </button>
     </form>
 </div>
 
