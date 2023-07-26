@@ -49,18 +49,12 @@
         </thead>
         <tbody>
         {% for product in products %}
-        {% if product.stock < 200 %}
-        <style>
-            .red{
-                color:#ef4444;
-            }
-        </style>
-        {% endif %}
             <tr class="bg-white border-b">
                 <td class="px-6 py-4">
                     FM{{ product.code }}
                 </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap red">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap
+                {% if product.stock < 200 %} text-red-500 {% endif %}">
                     {{ product.name|slice:-5 }}
                 </th>
                 <td class="px-6 py-4">
