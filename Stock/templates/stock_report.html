@@ -2,6 +2,85 @@
 
 {% block body %}
 
-<div></div>
+<div class="flex justify-between mx-auto w-11/12 p-4 rounded-md shadow-md mt-4 border-2">
+    <div class="flex-grow flex-0">
+        <form action="" class="flex gap-2">
+            <input type="text" class="w-full h-10 border rounded px-4" name="stock_search"
+                   placeholder="Search Product">
+            <div class="w-1/6 ml-2">
+                <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+            </div>
 
+            <div class="w-1/6">
+                <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+            </div>
+
+            <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg w-11/12 m-auto mt-4">
+    <table class="w-full text-sm text-left border">
+        <thead class="text-xs uppercase">
+        <tr>
+            <th scope="col" class="px-6 py-3">
+                Product Code
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Product name
+            </th>
+            <th scope="col" class="px-6 py-3">
+                In Quantity
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Date
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Action
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in stock %}
+        <tr class="bg-white border-b">
+            <td class="px-6 py-4">
+                FM{{ product.product_code.code }}
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                {{ product.product_code.name|slice:-5 }}
+            </th>
+            <td class="px-6 py-4">
+                {% if product.in_quantity is None %}
+                -
+                {% else %}
+                {{ product.in_quantity }}
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {{ product.date|date:'M d, Y' }}
+            </td>
+            <td class="px-6 py-4">
+                <a href="product/{{ product.code }}/" class="font-medium text-blue-600 hover:underline">View</a>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr class="bg-blue-600">
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td class="px-6 py-4" colspan="1"></td>
+            <td class="px-6 py-4">Total Stock</td>
+            <td class="px-6 py-4">
+                {{ stock_sum }}
+            </td>
+            <td class="px-6 py-4" colspan="1"></td>
+        </tr>
+        <tr class="bg-blue-600">
+            <td colspan="5"></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
 {% endblock %}

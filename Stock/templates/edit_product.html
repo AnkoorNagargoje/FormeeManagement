@@ -1,6 +1,29 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block body %}
+<style>
+    .success{
+        background-color: #4ade80;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+    .error{
+        background-color: #f87171;
+        width:100%;
+        padding: 0.5rem;
+        text-align:center;
+    }
+
+
+</style>
+
+{% if error_message %}
+<ul class="messages">
+    <li class="error">{{ error_message }}</li>
+</ul>
+{% endif %}
+
 <div class="flex w-11/12 m-auto">
     <div class="m-auto p-6 border-2 rounded-xl w-2/6 mr-6 mt-6 shadow-md">
         <p class="mb-4 text-md font-bold uppercase">Edit Product</p>
@@ -33,18 +56,22 @@
 
     <div class="relative overflow-x-auto sm:rounded-lg w-5/6 m-auto mt-6 ml-6">
 
-        <div class="w-full rounded">
-            <form action="">
-                <div class="flex flex-row justify-between items-center mb-4">
-                    <div class="grow mr-2">
-                        <input type="text" class="w-full h-10 border indent-4 rounded" name="stock_search"
-                           placeholder="Date">
+        <div class="flex justify-between mx-auto w-full mb-4">
+            <div class="flex-grow flex-0">
+                <form action="" class="flex gap-2">
+                    <input type="text" class="w-full h-10 border rounded px-4" name="stock_search"
+                           placeholder="Search Invoice Number">
+                    <div class="w-1/6 ml-2">
+                        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
                     </div>
-                    <div class="ml-2">
-                        <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
+
+                    <div class="w-1/6">
+                        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
                     </div>
-                </div>
-            </form>
+
+                    <button type="submit" class="px-4 py-2 bg-green-400 rounded">Search</button>
+                </form>
+            </div>
         </div>
 
         <table class="w-full text-sm text-left border">
@@ -88,9 +115,9 @@
                 </td>
                 <td class="px-6 py-4">
                     {% if s.invoice_number is not None %}
-                        #{{ s.invoice_number }}
+                    #{{ s.invoice_number }}
                     {% else %}
-                        -
+                    -
                     {% endif %}
                 </td>
                 <td class="px-6 py-4">

@@ -287,6 +287,8 @@ def order_detail(request, customer_id, order_id):
     order = get_object_or_404(Order, id=order_id, customer=customer)
     order_items = order.orderitem_set.all()
 
+    total_quantity_sum = order_items.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+
     try:
         sales_return = SalesReturn.objects.get(order=order, customer=customer)
     except SalesReturn.DoesNotExist:
@@ -336,9 +338,17 @@ def order_detail(request, customer_id, order_id):
         order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
-    return render(request, 'order_detail.html',
-                  {'form': form, 'customer': customer, 'order': order, 'order_items': order_items,
-                   'delivery_form': delivery_form, 'sales_return': sales_return})
+    context = {
+        'form': form,
+        'customer': customer,
+        'order': order,
+        'order_items': order_items,
+        'delivery_form': delivery_form,
+        'sales_return': sales_return,
+        'quantity_sum': total_quantity_sum,
+    }
+
+    return render(request, 'order_detail.html', context=context)
 
 
 def register_sales_return(request, customer_id, order_id):

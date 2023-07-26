@@ -3,6 +3,8 @@ from .models import Product, Quantity
 from .forms import ProductForm, QuantityForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from datetime import datetime
 
 
 def home_view(request):
@@ -41,11 +43,28 @@ def add_product_view(request):
 @login_required
 def edit_product_view(request, code):
     product = get_object_or_404(Product, code=code)
+
+    # Initial stock queryset for the product
     stock = Quantity.objects.filter(product_code=product).order_by('-date')
 
+    # Date filtering
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        stock = stock.filter(date__range=(start_datetime, end_datetime))
+
     stock_search = request.GET.get('stock_search')
-    if stock_search != '' and stock_search is not None:
-        stock = Quantity.objects.filter(product_code=code, date__day=stock_search)
+    if stock_search:
+        try:
+            stock_search = int(stock_search)
+        except ValueError:
+            error_message = "Please enter a valid Invoice Number."
+            return render(request, 'edit_product.html',
+                          {'product': product, 'stock': stock, 'error_message': error_message})
+
+        stock = stock.filter(invoice_number=stock_search)
 
     form = QuantityForm(request.POST or None)
     if form.is_valid():
@@ -61,6 +80,7 @@ def edit_product_view(request, code):
         ipc.save()
         instance.save()
         return redirect(stock_view)
+
     return render(request, 'edit_product.html', {'form': form, 'product': product, 'stock': stock})
 
 
@@ -68,7 +88,18 @@ def edit_product_view(request, code):
 def stock_report(request):
     stock = Quantity.objects.all()
 
+    stock = stock.exclude(in_quantity__isnull=True).order_by('-date')
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        stock = stock.filter(date__range=(start_datetime, end_datetime))
+    total_in_quantity_sum = stock.aggregate(total_sum=Sum('in_quantity'))['total_sum'] or 0
+
     context = {
         'stock': stock,
+        'stock_sum': total_in_quantity_sum,
     }
     return render(request, 'stock_report.html', context=context)

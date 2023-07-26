@@ -17,6 +17,7 @@
     }
 
 
+
 </style>
 
 {% if messages %}
@@ -110,6 +111,14 @@
                 </td>
             </tr>
             {% endfor %}
+            <tr class="border-y-2 border-blue-600">
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4" colspan="1">Total Products</td>
+                <td class="px-6 py-4">
+                    {{ quantity_sum }}
+                </td>
+                <td class="px-6 py-4" colspan="3"></td>
+            </tr>
             </tbody>
         </table>
 
