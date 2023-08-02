@@ -66,3 +66,9 @@ class SubDebitForm(forms.ModelForm):
     class Meta:
         model = SubDebit
         fields = ['name', 'quantity', 'price', 'quantity_type', 'cgst', 'sgst', 'amount', 'reason', 'date', 'payment_type']
+
+
+class BalanceForm(forms.ModelForm):
+    class Meta:
+        model = Balance
+        fields = '__all__'

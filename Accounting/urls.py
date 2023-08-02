@@ -3,12 +3,15 @@ from . import views
 
 urlpatterns = [
     path('accounting/', views.accounting),
+
+    path('accounting/balance/', views.balance_sheet),
+    path('accounting/balance/add/', views.add_balance),
+
     path('accounting/pnl/', views.pnl),
     path('accounting/pnl/sales/', views.sales),
     path('accounting/pnl/debits/', views.total_expenses),
 
     path('accounting/cr/', views.credits_view),
-
     path('accounting/cr/<str:credit_type>/', views.credits_type_view),
     path('accounting/cr/<str:credit_type>/add_credit/', views.add_credit),
     path('accounting/cr/<str:credit_type>/<int:credit_id>/edit/', views.edit_credit),

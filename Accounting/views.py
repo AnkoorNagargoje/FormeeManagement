@@ -1,14 +1,18 @@
+import decimal
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, DecimalField, ExpressionWrapper, F, Q
+from django.db.models import Sum, Case, When, F, DecimalField, Value, ExpressionWrapper, Q
 from decimal import Decimal
 from django.core.paginator import Paginator
 import datetime
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, date
+from Stock.models import *
+
 
 @login_required
 def accounting(request):
@@ -74,7 +78,8 @@ def pnl(request):
         month_start = g_start_date + relativedelta(months=month)
         month_end = month_start + relativedelta(months=1) - relativedelta(days=1)
         month_total = \
-        Order.objects.filter(created_at__range=[month_start, month_end]).aggregate(total=Sum('order_total'))['total']
+            Order.objects.filter(created_at__range=[month_start, month_end]).aggregate(total=Sum('order_total'))[
+                'total']
         month_total = round(month_total or 0)
         order_totals.append(month_total or 0)
 
@@ -94,7 +99,6 @@ def pnl(request):
     }
 
     return render(request, 'pnl.html', context=context)
-
 
 
 @login_required
@@ -252,7 +256,6 @@ def debit_type_view(request, debit_type_param):
     return render(request, 'debit_type.html', context=context)
 
 
-
 @login_required
 def add_debit_type_form(request, debit_type):
     form = DebitTypeForm(request.POST or None)
@@ -263,6 +266,7 @@ def add_debit_type_form(request, debit_type):
         messages.success(request, 'Debit has been Successfully Added!')
         return redirect(debit_type_view, debit_type_param=debit_type)
     return render(request, 'debit_type_add.html', {'form': form})
+
 
 @login_required
 def edit_debit_type_form(request, debit_type, debit_type_id):
@@ -538,3 +542,155 @@ def edit_debit(request, debit_id):
         messages.error(request, f'Error while editing Debit! {form.errors}')
 
     return render(request, 'edit_debit.html', {'form': form, 'debit': debit})
+
+
+def calculate_product_amount(product, end_date):
+    # Get all stock transactions for the given product until the specified end date
+    stock_transactions = Quantity.objects.filter(
+        product_code=product, date__lte=end_date
+    ).order_by('date')
+
+    net_stock_quantity = 0
+
+    # Calculate the net stock quantity (in - out) based on chronological order
+    for transaction in stock_transactions:
+        net_stock_quantity += (transaction.in_quantity or 0) - (transaction.out_quantity or 0)
+
+    # Ensure the net stock quantity and product price are non-negative
+    if net_stock_quantity < 0 or product.price < 0:
+        return Decimal(0)
+
+    # Calculate the amount of the product's stock by multiplying with the price
+    product_amount = net_stock_quantity * Decimal(product.price)
+    return product_amount
+
+
+@login_required
+def balance_sheet(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Validate start_date and end_date are not None and in the correct format
+    if not start_date or not end_date:
+        # You can handle this situation based on your requirements,
+        # for example, you might want to return an error message or redirect the user to another page.
+        # For demonstration purposes, we will assume a default date range if start_date or end_date is missing.
+        start_date = datetime(2023, 4, 1)
+        end_date = datetime(2024, 3, 31)
+    else:
+        # Convert start_date and end_date to datetime objects
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    liabilities = Balance.objects.filter(balance_type='Liability')
+    assets = Balance.objects.filter(balance_type='Asset')
+
+    liabilities_data = []
+    assets_data = []
+
+    for liability in liabilities:
+        balance_objects = BalanceObject.objects.filter(balance=liability, date__range=[start_date, end_date])
+        total_amount = balance_objects.aggregate(Sum('amount', default=0))['amount__sum']
+        liabilities_data.append({'balance': liability, 'total_amount': total_amount or Decimal(0)})
+
+    for asset in assets:
+        balance_objects = BalanceObject.objects.filter(balance=asset, date__range=[start_date, end_date])
+        total_amount = balance_objects.aggregate(Sum('amount', default=0))['amount__sum']
+        assets_data.append({'balance': asset, 'total_amount': total_amount or Decimal(0)})
+
+    fixed_assets_debit_type = DebitType.objects.get(name='Fixed Assets')
+    fixed_assets_subdebits = SubDebit.objects.filter(debit__debit_type=fixed_assets_debit_type,
+                                                     date__range=[start_date, end_date])
+    total_fixed_assets_amount = fixed_assets_subdebits.aggregate(Sum('sub_amount', default=0))[
+                                    'sub_amount__sum'] or Decimal(0)
+
+    total_sales = Decimal(Order.objects.filter(created_at__range=[start_date, end_date]).aggregate(
+        TOTAL=Sum('order_total', default=0)
+    )['TOTAL'] or 0)
+
+    total_amount_of_subdebits = Decimal(SubDebit.objects.filter(date__range=[start_date, end_date]).aggregate(
+        Sum('sub_amount', default=0)
+    )['sub_amount__sum'] or 0)
+
+    pnl = decimal.Decimal(total_sales) - (
+            decimal.Decimal(total_amount_of_subdebits) - decimal.Decimal(total_fixed_assets_amount))
+
+    total_amount_of_products = Decimal(
+        sum(calculate_product_amount(product, end_date) for product in Product.objects.all())
+    )
+
+    outstanding_orders = Order.objects.filter(
+        payment_status__in=['Pending', 'Partially Paid'],
+        created_at__range=[start_date, end_date]
+    )
+
+    # Calculate the total outstanding amount owed by all customers using the method in the model
+    sundry_debtors = sum(order.order_total for order in outstanding_orders)
+
+    order_cash_sum = Order.objects.filter(
+        payment_type='Cash',
+        created_at__range=[start_date, end_date]
+    ).aggregate(total=Sum('order_total'))['total'] or Decimal(0)
+    order_cash_sum = Decimal(order_cash_sum)
+    subdebit_cash_sum = SubDebit.objects.filter(
+        payment_type='cash',
+        date__range=[start_date, end_date]
+    ).aggregate(total=Sum('sub_amount'))['total'] or Decimal(0)
+    subdebit_cash_sum = Decimal(subdebit_cash_sum)
+    cash_in_hand = order_cash_sum - subdebit_cash_sum
+
+    order_bank_sum = Order.objects.filter(
+        payment_type__in=['UPI', 'Cheque', 'Net Banking'],
+        created_at__range=[start_date, end_date]
+    ).aggregate(total=Sum('order_total'))['total'] or Decimal(0)
+    order_bank_sum = Decimal(order_bank_sum)
+    subdebit_bank_sum = SubDebit.objects.filter(
+        payment_type__in=['upi', 'cheque', 'net banking'],
+        date__range=[start_date, end_date]
+    ).aggregate(total=Sum('amount'))['total'] or Decimal(0)
+    subdebit_bank_sum = Decimal(subdebit_bank_sum)
+    money_in_bank = order_bank_sum - subdebit_bank_sum
+
+    total_liabilities_sum = sum(item['total_amount'] for item in liabilities_data)
+
+    # Here, we initialize total_assets_sum with Decimal(0)
+    total_assets_sum = Decimal(0)
+
+    total_assets_sum += sum(item['total_amount'] for item in assets_data) + decimal.Decimal(total_fixed_assets_amount) \
+                        + decimal.Decimal(total_amount_of_products) + decimal.Decimal(sundry_debtors) + \
+                        decimal.Decimal(cash_in_hand) + decimal.Decimal(money_in_bank)
+
+    if pnl > 0:
+        total_assets_sum += decimal.Decimal(pnl)
+    elif pnl < 0:
+        total_liabilities_sum -= decimal.Decimal(pnl)
+
+    context = {
+        'start_date': start_date,
+        'end_date': end_date,
+        'liabilities': liabilities_data,
+        'assets': assets_data,
+        'total_liabilities_sum': total_liabilities_sum,
+        'total_assets_sum': total_assets_sum,
+        'total_fixed_assets_amount': total_fixed_assets_amount,
+        'pnl': pnl,
+        'total_amount_of_products': total_amount_of_products,
+        'debtors': sundry_debtors,
+        'cash_in_hand': cash_in_hand,
+        'money_in_bank': money_in_bank,
+    }
+    return render(request, 'balance_sheet.html', context=context)
+
+
+@login_required
+def add_balance(request):
+    form = BalanceForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Balance Sheet Updated Successfully!')
+        return redirect(balance_sheet)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'balance_sheet_add.html', context=context)

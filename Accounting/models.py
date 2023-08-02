@@ -110,8 +110,8 @@ class SubDebit(models.Model):
     quantity = models.IntegerField(default=0, null=True, blank=True)
     quantity_type = models.CharField(max_length=20, choices=Quantity_Choice, default='kgs')
     price = models.FloatField(default=0.0, null=True, blank=True)
-    cgst = models.IntegerField(default=0, null=True, blank=True)
-    sgst = models.IntegerField(default=0, null=True, blank=True)
+    cgst = models.FloatField(default=0.0, null=True, blank=True)
+    sgst = models.FloatField(default=0.0, null=True, blank=True)
     sub_amount = models.FloatField(default=0)
     amount = models.FloatField()
     date = models.DateField()
@@ -144,3 +144,33 @@ class SubDebit(models.Model):
     @property
     def amount_without_gst(self):
         return self.amount - (self.sgst_amount + self.cgst_amount)
+
+
+class Balance(models.Model):
+    CHOICES = [
+        ('Liability', 'Liability'),
+        ('Asset', 'Asset'),
+    ]
+
+    name = models.CharField(max_length=100)
+    reason = models.TextField(blank=True, null=True)
+    balance_type = models.CharField(max_length=10, choices=CHOICES)
+
+    def __str__(self):
+        return self.name
+
+
+class BalanceObject(models.Model):
+    balance = models.ForeignKey(Balance, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    sub_amount = models.FloatField(default=0)
+    amount = models.FloatField()
+    cgst = models.FloatField(default=0.0, null=True, blank=True)
+    sgst = models.FloatField(default=0.0, null=True, blank=True)
+    date = models.DateField()
+    payment_mode = models.CharField(max_length=20, choices=Payment_Type)
+
+    def __str__(self):
+        return f"{self.name} - {self.amount}"
+
+

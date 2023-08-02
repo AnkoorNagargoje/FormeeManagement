@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="flex w-11/12 m-auto border-b-2 gap-8 mt-4 mb-4">
+    <div class=" text-2xl font-bold pb-2">
+        Balance Sheet <span class="text-xs">(All values exlcude GST)</span>
+        <span class="text-xs">from {{ start_date }} to {{ end_date }}</span>
+    </div>
+</div>
+
+<div class="w-11/12 m-auto flex justify-between gap-8 mb-16 mt-8">
+    <div class="w-full">
+        <div class="flex justify-start mb-6">
+            <div>
+                <form action="" class="flex">
+                    <a href="add/">
+                        <button type="button" class="mr-4 px-4 py-2 bg-green-400 rounded">Add Liability/Asset</button>
+                    </a>
+                    <div class="mr-2">
+                        <input type="date" id="start_date" name="start_date" class="h-10 border indent-1 rounded">
+                    </div>
+
+                    <div class="mx-2">
+                        <input type="date" id="end_date" name="end_date" class="h-10 border indent-1 rounded">
+                    </div>
+
+                    <button type="submit" class="ml-2 px-4 py-2 bg-green-400 rounded">Search</button>
+                </form>
+            </div>
+        </div>
+        <div class="flex justify-between gap-4">
+            <div class="grow">
+                <p class="text-xl font-bold mb-2">Liabilities</p>
+                <table class="w-full text-md text-left border">
+                    <tr>
+                        {% for liability in liabilities %}
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/balance/{{liability.balance.name}}/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">{{ liability.balance.name }}</a>
+                            {% else %}
+                            <a href="/accounting/balance/{{liability.balance.name}}/" class="text-blue-600">{{ liability.balance.name }}</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ liability.total_amount|floatformat:2 }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% if pnl < 0 %}
+                    <tr>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/pnl/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">PNL</a>
+                            {% else %}
+                            <a href="/accounting/pnl/" class="text-blue-600">PNL</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ pnl|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td>Total Liabilities</td>
+                        <td>{{ total_liabilities_sum|floatformat:2 }}</td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <div class="grow">
+                <p class="font-bold text-xl mb-2">Assets</p>
+                <table class="w-full text-md text-left border">
+                    <tr>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/de/purchase/13/debit/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">Fixed Assets</a>
+                            {% else %}
+                            <a href="/accounting/de/purchase/13/debit/" class="text-blue-600">Fixed Assets</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ total_fixed_assets_amount|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Closing Stock
+                        </td>
+                        <td>{{ total_amount_of_products|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Sundry Debtors
+                        </td>
+                        <td>{{ debtors|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Cash in Hand
+                        </td>
+                        <td>{{ cash_in_hand|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Bank Accounts
+                        </td>
+                        <td>{{ money_in_bank|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        {% for asset in assets %}
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/balance/{{asset.balance.name}}/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">{{ asset.balance.name }}</a>
+                            {% else %}
+                            <a href="/accounting/balance/{{asset.balance.name}}/" class="text-blue-600">{{ asset.balance.name }}</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ asset.total_amount|floatformat:2 }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% if pnl > 0 %}
+                    <tr>
+                        <td>
+                            {% if request.GET.start_date and request.GET.end_date %}
+                            <a href="/accounting/pnl/?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                               class="text-blue-600">PNL</a>
+                            {% else %}
+                            <a href="/accounting/pnl/" class="text-blue-600">PNL</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ pnl|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td>Total Assets</td>
+                        <td>{{ total_assets_sum|floatformat:2 }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

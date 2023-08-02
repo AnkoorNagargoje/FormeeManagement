@@ -11,12 +11,12 @@ from Accounting.views import edit_credit
 import csv
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-from django.utils import timezone
 from django.db.models import Sum, Value, CharField, F, ExpressionWrapper, FloatField, Case, When, Q
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.db.models.functions import Cast
 from django.db.models.functions import Round
+from django.utils import timezone
 
 
 @login_required
@@ -446,13 +446,15 @@ def order_paid_upi(request, customer_id, order_id):
         order.payment_type = 'UPI'
         order.save()
 
+        current_date = timezone.now()
+
         if customer.order_type != 'normal':
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), payment_type='UPI',
+                                               date=current_date, payment_type='UPI',
                                                amount=order.order_total_with_gst())
         else:
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), amount=order.order_total,
+                                               date=current_date, amount=order.order_total,
                                                payment_type='UPI')
 
         add_credit.save()
@@ -462,7 +464,7 @@ def order_paid_upi(request, customer_id, order_id):
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
                                                 sub_amount=order.delivery, amount=order.delivery,
-                                                date=datetime.now().date(),
+                                                date=current_date,
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
@@ -480,13 +482,15 @@ def order_paid_net(request, customer_id, order_id):
         order.payment_type = 'Bank Transfer'
         order.save()
 
+        current_date = timezone.now()
+
         if customer.order_type != 'normal':
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), payment_type='Net Banking',
+                                               date=current_date, payment_type='Net Banking',
                                                amount=order.order_total_with_gst())
         else:
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), amount=order.order_total,
+                                               date=current_date, amount=order.order_total,
                                                payment_type='Net Banking')
 
         add_credit.save()
@@ -496,7 +500,7 @@ def order_paid_net(request, customer_id, order_id):
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
                                                 sub_amount=order.delivery, amount=order.delivery,
-                                                date=datetime.now().date(),
+                                                date=current_date,
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
@@ -514,13 +518,15 @@ def order_paid_cheque(request, customer_id, order_id):
         order.payment_type = 'Cheque'
         order.save()
 
+        current_date = timezone.now()
+
         if customer.order_type != 'normal':
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), payment_type='Cheque',
+                                               date=current_date, payment_type='Cheque',
                                                amount=order.order_total_with_gst())
         else:
             add_credit = Credit.objects.create(name=customer.name, invoice_number=order_id,
-                                               date=datetime.now().date(), amount=order.order_total,
+                                               date=current_date, amount=order.order_total,
                                                payment_type='Cheque')
 
         add_credit.save()
@@ -530,7 +536,7 @@ def order_paid_cheque(request, customer_id, order_id):
             debit_instance = get_object_or_404(Debit, name='Delivery Charges')
             add_debit = SubDebit.objects.create(name=f'{customer.name} - {order.id} delivery Charges',
                                                 sub_amount=order.delivery, amount=order.delivery,
-                                                date=datetime.now().date(),
+                                                date=current_date,
                                                 debit=debit_instance)
             add_debit.save()
         return redirect(edit_credit, credit_type="sales", credit_id=add_credit.id)
@@ -561,6 +567,10 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
                 product.save()
                 new_order_item.save()
                 order.save()
+                quantity_object = Quantity.objects.create(product_code=product,
+                                                          out_quantity=diff,
+                                                          invoice_number=order_id)
+                quantity_object.save()
                 messages.success(request,
                                  f'There are {product.stock} units of {product.name} left in the inventory, Added {diff} unit/s in the order, The new order Total is {order.order_total}')
 
@@ -579,6 +589,10 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             product.save()
             new_order_item.save()
             order.save()
+            quantity_object = Quantity.objects.create(product_code=product,
+                                                      in_quantity=diff,
+                                                      invoice_number=order_id)
+            quantity_object.save()
             messages.success(request, f'There are {product.stock} units of {product.name} left in the inventory, Removed {diff} unit/s in the order, The new order Total is {order.order_total}')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 

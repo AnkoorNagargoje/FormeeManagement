@@ -78,6 +78,12 @@ class Order(models.Model):
     def discount_amount(self):
         return self.real_order_total() - self.order_total
 
+    def get_total_amount_based_on_type(self):
+        if self.customer.order_type == 'normal':
+            return self.order_total
+        else:
+            return self.order_total_with_gst()
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
