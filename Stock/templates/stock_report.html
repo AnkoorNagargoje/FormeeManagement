@@ -34,7 +34,10 @@
                 In Quantity
             </th>
             <th scope="col" class="px-6 py-3">
-                Date
+                Out Quantity
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Remaining Stock
             </th>
             <th scope="col" class="px-6 py-3">
                 Action
@@ -45,20 +48,31 @@
         {% for product in stock %}
         <tr class="bg-white border-b">
             <td class="px-6 py-4">
-                FM{{ product.product_code.code }}
+                FM{{ product.product_code__code }}
             </td>
             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                {{ product.product_code.name|slice:-5 }}
+                {{ product.product_code__name|slice:-5 }}
             </th>
             <td class="px-6 py-4">
-                {% if product.in_quantity is None %}
+                {% if product.total_in_quantity is None %}
                 -
                 {% else %}
-                {{ product.in_quantity }}
+                {{ product.total_in_quantity }}
                 {% endif %}
             </td>
             <td class="px-6 py-4">
-                {{ product.date|date:'M d, Y' }}
+                {% if product.total_out_quantity is None %}
+                -
+                {% else %}
+                {{ product.total_out_quantity }}
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if product.difference is None %}
+                -
+                {% else %}
+                {{ product.difference }}
+                {% endif %}
             </td>
             <td class="px-6 py-4">
                 <a href="product/{{ product.code }}/" class="font-medium text-blue-600 hover:underline">View</a>
@@ -72,7 +86,7 @@
             <td class="px-6 py-4" colspan="1"></td>
             <td class="px-6 py-4">Total Stock</td>
             <td class="px-6 py-4">
-                {{ stock_sum }}
+                {{ total_in_quantity }}
             </td>
             <td class="px-6 py-4" colspan="1"></td>
         </tr>

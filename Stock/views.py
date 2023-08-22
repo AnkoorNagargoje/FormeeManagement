@@ -3,8 +3,9 @@ from .models import Product, Quantity
 from .forms import ProductForm, QuantityForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
 from datetime import datetime
+from django.db.models import F, Sum, Value
+from django.db.models.functions import Coalesce
 
 
 def home_view(request):
@@ -86,20 +87,36 @@ def edit_product_view(request, code):
 
 @login_required
 def stock_report(request):
-    stock = Quantity.objects.all()
-
-    stock = stock.exclude(in_quantity__isnull=True).order_by('-date')
-
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
+
+    stock = Quantity.objects.all()
+
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
         end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
         stock = stock.filter(date__range=(start_datetime, end_datetime))
-    total_in_quantity_sum = stock.aggregate(total_sum=Sum('in_quantity'))['total_sum'] or 0
+
+    # Aggregate sums of in_quantity and out_quantity grouped by product
+    aggregated_stock = stock.values('product_code__id', 'product_code__name', 'product_code__code').annotate(
+        total_in_quantity=Coalesce(Sum('in_quantity'), Value(0)),
+        total_out_quantity=Coalesce(Sum('out_quantity'), Value(0))
+    )
+
+    # Calculate the difference between total in and total out quantities
+    for item in aggregated_stock:
+        item['difference'] = item['total_in_quantity'] - item['total_out_quantity']
+
+    total_in_quantity = Coalesce(Sum('in_quantity'), Value(0))
+    total_out_quantity = Coalesce(Sum('out_quantity'), Value(0))
+
+    # Calculate the difference between total in and total out quantities
+    total_difference = total_in_quantity - total_out_quantity
 
     context = {
-        'stock': stock,
-        'stock_sum': total_in_quantity_sum,
+        'stock': aggregated_stock,
+        'total_in_quantity': total_in_quantity,
+        'total_out_quantity': total_out_quantity,
+        'total_difference': total_difference,
     }
     return render(request, 'stock_report.html', context=context)
