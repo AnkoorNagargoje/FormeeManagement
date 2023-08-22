@@ -180,11 +180,7 @@
                     <span class="text-green-600" style="font-size:12px;">
                         {% for sales_return in sales_returns %}
                             {% if sales_return.order == order %}
-                                {% for return_item in return_items %}
-                                    {% if return_item.sales_return == sales_return %}
-                                        (exl. {{ return_item.return_total }} sales return)
-                                    {% endif %}
-                                {% endfor %}
+                                        (exl. {{ sales_return.sales_return_total }} sales return)
                             {% endif %}
                         {% endfor %}
 

@@ -24,6 +24,7 @@ class Quantity(models.Model):
     out_quantity = models.IntegerField(blank=True, null=True)
     invoice_number = models.PositiveIntegerField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
+    note = models.CharField(default='', max_length=100)
 
     def __str__(self):
         return str(self.product_code.code)

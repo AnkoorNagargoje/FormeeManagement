@@ -1,5 +1,6 @@
 from Stock.models import Product
 from django.db import models
+from django.db.models import Sum
 
 
 SALE_CHOICE = (
@@ -106,6 +107,12 @@ class OrderItem(models.Model):
 class SalesReturn(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    sales_return_total = models.FloatField(default=0.0)
+
+    def update_sales_return_total(self):
+        total_return = self.returnitem_set.aggregate(total=Sum('return_total'))['total']
+        self.sales_return_total = round(total_return, 2)
+        self.save()
 
     def __str__(self):
         return f"Return for Order {self.order.id} by {self.customer.name}"

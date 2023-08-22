@@ -17,6 +17,7 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.db.models.functions import Cast
 from django.db.models.functions import Round
 from django.utils import timezone
+from django.db import transaction
 
 
 @login_required
@@ -376,20 +377,32 @@ def returned_items(request, customer_id, order_id, sales_return_id):
             returned_item = returned_item_form.save(commit=False)
             returned_item.sales_return = sales_return
             if sales_return.customer.order_type == 'franchise':
-                returned_item.return_total = round(
-                    returned_item.return_total + returned_item.quantity * returned_item.product.product.franchise_price,
-                    2)
-                returned_item.save()
-            if sales_return.customer.order_type == 'super market':
-                returned_item.return_total = round(
-                    returned_item.return_total + returned_item.quantity * returned_item.product.product.store_price, 2)
-                returned_item.save()
-            if sales_return.customer.order_type == 'normal':
-                returned_item.return_total = round(
-                    returned_item.return_total + returned_item.quantity * returned_item.product.product.price, 2)
-                returned_item.save()
+                returned_item.return_total += returned_item.quantity * returned_item.product.product.franchise_price
+                returned_item.return_total += round((returned_item.return_total * 12) / 100, 2)
+            elif sales_return.customer.order_type == 'super market':
+                returned_item.return_total += returned_item.quantity * returned_item.product.product.store_price
+                returned_item.return_total += round((returned_item.return_total * 12) / 100, 2)
+            elif sales_return.customer.order_type == 'normal':
+                returned_item.return_total += round(returned_item.quantity * returned_item.product.product.price, 2)
 
+            returned_item.return_total = round(returned_item.return_total, 2)
             returned_item.save()
+
+            quantity_object = Quantity.objects.create(product_code=returned_item.product.product,
+                                                      in_quantity=returned_item.quantity,
+                                                      invoice_number=order_id,
+                                                      note='Sales Return')
+            quantity_object.save()
+
+            sales_return_total = sales_return.returnitem_set.aggregate(total=Sum('return_total'))['total']
+            sales_return_total = round(sales_return_total, 0)
+            sales_return.sales_return_total = sales_return_total
+            sales_return.save()
+
+            with transaction.atomic():
+                returned_item.product.product.stock += returned_item.quantity
+                returned_item.product.product.save()
+                returned_item.save()
 
             return redirect('returned_items', customer_id=customer_id, order_id=order_id,
                             sales_return_id=sales_return.id)
