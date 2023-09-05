@@ -146,8 +146,9 @@ def get_sales_report(request):
 
     if 'export_csv' in request.GET:
         # Export filtered data to CSV
+        filename = f"Sales_Report-{start_date}/{end_date}.csv"
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="sales_report.csv"'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         writer = csv.writer(response)
         writer.writerow(
