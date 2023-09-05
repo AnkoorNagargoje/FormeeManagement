@@ -144,6 +144,42 @@ def get_sales_report(request):
     total_sales = orders.aggregate(TOTAL=Sum('order_total'))['TOTAL']
     total_sales_with_gst = sum(order.order_total_with_gst() for order in orders)
 
+    if 'export_csv' in request.GET:
+        # Export filtered data to CSV
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="sales_report.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(
+            ['Order ID', 'Order Date', 'Customer Name', 'Order Type', 'GSTIN', 'Payment Status', 'Payment Type',
+             'Total(MRP)', 'CGST (6%)', 'SGST (6%)', 'Total Tax', 'Order Total with GST'])
+
+        for order in orders:  # Export filtered data
+            order_created_at_str = order.created_at.astimezone(timezone.get_current_timezone()).strftime('%d-%m-%Y')
+
+            total_mrp = order.order_total
+            cgst, sgst, total_gst = ('-', '-', '-') if order.customer.order_type == 'normal' else (
+                f'{order.cgst():.2f}', f'{order.sgst():.2f}', f'{order.total_gst():.2f}')
+
+            order_type = order.customer.order_type.capitalize()
+
+            writer.writerow([
+                order.id,
+                order_created_at_str,
+                order.customer.name,
+                order_type,
+                order.customer.gstin,
+                order.payment_status,
+                order.payment_type,
+                total_mrp,
+                cgst,
+                sgst,
+                total_gst,
+                order.get_total_amount_based_on_type(),
+            ])
+
+        return response
+
     return render(request, 'get_sales_report.html', {
         'orders': orders,
         'total_sales': total_sales,
@@ -305,8 +341,8 @@ def order_detail(request, customer_id, order_id):
             product.stock -= order_item.quantity
             product.save()
             quantity_object = Quantity.objects.create(product_code=order_item.product,
-                                                  out_quantity=order_item.quantity,
-                                                  invoice_number=order_id)
+                                                      out_quantity=order_item.quantity,
+                                                      invoice_number=order_id)
             quantity_object.save()
             if customer.order_type == 'franchise':
                 order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 2)
@@ -414,6 +450,7 @@ def returned_items(request, customer_id, order_id, sales_return_id):
         'order': sales_order,
         'order_items': order_items,
         'form': returned_item_form,
+        'customer': customer,
     }
 
     return render(request, 'returned_items.html', context)
@@ -589,7 +626,8 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
 
                 return redirect('order_detail', customer_id=customer.id, order_id=order.id)
             else:
-                messages.error(request, 'There is a shortage of stock of the product in the Inventory, Update Inventory!')
+                messages.error(request,
+                               'There is a shortage of stock of the product in the Inventory, Update Inventory!')
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
@@ -606,12 +644,12 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
                                                       in_quantity=diff,
                                                       invoice_number=order_id)
             quantity_object.save()
-            messages.success(request, f'There are {product.stock} units of {product.name} left in the inventory, Removed {diff} unit/s in the order, The new order Total is {order.order_total}')
+            messages.success(request,
+                             f'There are {product.stock} units of {product.name} left in the inventory, Removed {diff} unit/s in the order, The new order Total is {order.order_total}')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_item_edit.html',
                   {'form': form, 'customer': customer, 'order': order, 'order_item': order_item})
-
 
 
 def order_item_delete(request, customer_id, order_id, order_item_id):

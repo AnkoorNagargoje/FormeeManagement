@@ -95,6 +95,7 @@ def stock_report(request):
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
         end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        end_datetime = end_datetime.replace(hour=23, minute=59, second=59)  # Set end time to end of the day
         stock = stock.filter(date__range=(start_datetime, end_datetime))
 
     # Aggregate sums of in_quantity and out_quantity grouped by product
@@ -103,14 +104,13 @@ def stock_report(request):
         total_out_quantity=Coalesce(Sum('out_quantity'), Value(0))
     )
 
-    # Calculate the difference between total in and total out quantities
+    # Calculate the difference between total in and total out quantities for each product
     for item in aggregated_stock:
         item['difference'] = item['total_in_quantity'] - item['total_out_quantity']
 
-    total_in_quantity = Coalesce(Sum('in_quantity'), Value(0))
-    total_out_quantity = Coalesce(Sum('out_quantity'), Value(0))
-
-    # Calculate the difference between total in and total out quantities
+    # Calculate the total sums and difference for all products
+    total_in_quantity = aggregated_stock.aggregate(total_in_sum=Sum('total_in_quantity'))['total_in_sum']
+    total_out_quantity = aggregated_stock.aggregate(total_out_sum=Sum('total_out_quantity'))['total_out_sum']
     total_difference = total_in_quantity - total_out_quantity
 
     context = {

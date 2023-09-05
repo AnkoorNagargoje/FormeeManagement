@@ -282,7 +282,6 @@ def edit_debit_type_form(request, debit_type, debit_type_id):
 @login_required
 def debits_by_type_view(request, debit_type, debit_type_id):
     debit_type = DebitType.objects.get(type=debit_type, id=debit_type_id)
-
     debits = Debit.objects.filter(debit_type=debit_type)
 
     start_date = request.GET.get('start_date')

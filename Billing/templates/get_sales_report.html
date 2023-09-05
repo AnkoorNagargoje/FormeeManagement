@@ -12,9 +12,8 @@
     <form method="GET" action="{% url 'get_sales_report' %}" class="flex flex-row justify-between items-center">
 
         <div>
-            <label for="start_date">Start Date:</label>
             <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date }}" class="h-10 border indent-1 rounded">
-            <label for="end_date">End Date:</label>
+
             <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date }}" class="h-10 border indent-1 rounded">
         </div>
 
@@ -46,7 +45,8 @@
             </select>
         </div>
 
-        <button type="submit" class="px-4 py-2 bg-green-400 rounded m-2">Apply Filters</button>
+        <button type="submit" name="apply_filters" class="px-4 py-2 bg-green-400 rounded m-2">Apply Filters</button>
+        <button type="submit" name="export_csv" class="px-4 py-2 bg-green-400 rounded m-2">Export to CSV</button>
     </form>
 
 
