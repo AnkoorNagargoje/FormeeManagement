@@ -124,6 +124,7 @@ def get_sales_report(request):
     end_date = request.GET.get('end_date')
 
     orders = Order.objects.all()
+    orders = orders.order_by('id')
 
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
