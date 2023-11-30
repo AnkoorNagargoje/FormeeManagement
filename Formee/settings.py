@@ -28,7 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['formeemanagement-production.up.railway.app', 'https://formeemanagement-production.up.railway.app',
                  'stocksoftware.formeefoods.com',
-                 #"*",
+                 "*",
                  ]
 CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app', 'https://stocksoftware.formeefoods.com']
 

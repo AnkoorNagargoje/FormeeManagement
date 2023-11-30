@@ -1,17 +1,18 @@
 import decimal
-
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, Case, When, F, DecimalField, Value, ExpressionWrapper, Q
+from django.db.models import Sum, F, DecimalField, ExpressionWrapper, Q
 from decimal import Decimal
-from django.core.paginator import Paginator
 import datetime
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, date
 from Stock.models import *
+import csv
+from django.http import HttpResponse
+from django.db import models
 
 
 @login_required
@@ -693,3 +694,57 @@ def add_balance(request):
         'form': form,
     }
     return render(request, 'balance_sheet_add.html', context=context)
+
+
+def all_debits_csv(request):
+    # Specify the date range manually
+    start_date = date(2023, 4, 1)  # Replace with your desired start date
+    end_date = date(2023, 8, 31)  # Replace with your desired end date
+
+    # Query the database to get the data within the specified date range
+    debits = SubDebit.objects.filter(date__range=(start_date, end_date)).order_by('date')
+
+    # Create a CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="April 1 to August 31 SubDebit.csv"'
+
+    writer = csv.writer(response)
+
+    # Write the header row with field names from the model
+    header = [field.name for field in SubDebit._meta.get_fields()]
+    writer.writerow(header)
+
+    # Write the data rows
+    for debit in debits:
+        data = [getattr(debit, field.name) for field in SubDebit._meta.get_fields()]
+        writer.writerow(data)
+
+    return response
+
+
+def all_credits_csv(request):
+    # Specify the date range manually
+    start_date = date(2023, 4, 1)  # Replace with your desired start date
+    end_date = date(2023, 8, 31)  # Replace with your desired end date
+
+    # Query the database to get the credits with payment type "Cheque" within the specified date range, ordered by date
+    credits = Credit.objects.filter(payment_type='Cheque', date__range=(start_date, end_date)).order_by('date')
+
+    # Create a CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="April 1 to August 31 Credit.csv"'
+
+    writer = csv.writer(response)
+
+    # Write the header row with field names from the Credit model
+    header = [field.name for field in Credit._meta.get_fields()]
+    writer.writerow(header)
+
+    # Write the data rows
+    for credit in credits:
+        data = [getattr(credit, field.name) for field in Credit._meta.get_fields()]
+        writer.writerow(data)
+
+    return response
+
+

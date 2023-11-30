@@ -30,4 +30,7 @@ urlpatterns = [
 
     path('accounting/de/add_debit/', views.add_debit),
     path('accounting/de/debit/<int:debit_id>/edit/', views.edit_debit),
+
+    path('accounting/debits_csv/', views.all_debits_csv, name='all_debits_csv'),
+    path('accounting/credits_csv/', views.all_credits_csv, name='all_credits_csv'),
 ]

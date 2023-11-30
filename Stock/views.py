@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.db.models import F, Sum, Value
 from django.db.models.functions import Coalesce
+import csv
+from django.http import HttpResponse
+from django.db import models
 
 
 def home_view(request):
@@ -120,3 +123,45 @@ def stock_report(request):
         'total_difference': total_difference,
     }
     return render(request, 'stock_report.html', context=context)
+
+import csv
+from django.http import HttpResponse
+
+from datetime import date  # Import date module
+
+
+def generate_quantity_summary_csv(request):
+    # Specify the date range manually
+    start_date = date(2023, 4, 1)  # Replace with your desired start date
+    end_date = date(2023, 8, 31)  # Replace with your desired end date
+
+    # Query the database to get the sums of in_quantities and out_quantities for each product within the specified date range
+    product_quantities = (
+        Quantity.objects
+        .filter(
+            invoice_number__isnull=False,
+            date__range=(start_date, end_date)  # Apply the date range filter
+        )
+        .values('product_code__code', 'product_code__name')
+        .annotate(total_in_quantity=models.Sum('in_quantity'))
+        .annotate(total_out_quantity=models.Sum('out_quantity'))
+    )
+
+    # Create a CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="April 1 to August 31 Product Sale.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Product Code', 'Product Name', 'Units Sold', 'Units Returned', 'Total Units Sold'])
+
+    for quantity_info in product_quantities:
+        product_code = quantity_info['product_code__code']
+        product_name = quantity_info['product_code__name']
+        total_in_quantity = quantity_info['total_in_quantity'] or 0
+        total_out_quantity = quantity_info['total_out_quantity'] or 0
+        difference = total_out_quantity - total_in_quantity
+
+        writer.writerow([product_code, product_name, total_out_quantity, total_in_quantity, difference])
+
+    return response
+
