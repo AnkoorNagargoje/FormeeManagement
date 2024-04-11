@@ -97,9 +97,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
         'USER': 'postgres',
-        'PASSWORD': 'e3Gg6G4dfe6FB2bEcEbBG2FdBfdFdGGe',
+        'PASSWORD': 'xjpnguRnZsySliUUiSqeyrFlBRhqycDq',
         'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '40667',
+        'PORT': '47434',
     }
 }
 #"""
