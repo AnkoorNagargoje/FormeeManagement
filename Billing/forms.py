@@ -12,7 +12,7 @@ SALE_CHOICE = (
 
 class CustomerForm(forms.ModelForm):
     name = forms.CharField()
-    phone = forms.IntegerField()
+    phone = forms.IntegerField(required=False)
     birth_date = forms.CharField(required=False)
     no_of_order = forms.IntegerField(required=False)
     order_type = forms.ChoiceField(choices=SALE_CHOICE, required=False)
@@ -24,8 +24,8 @@ class CustomerForm(forms.ModelForm):
 
 class CustomerProfileForm(forms.ModelForm):
     address = forms.CharField(widget=forms.Textarea)
-    district = forms.CharField()
-    email = forms.EmailField(required=False)
+    district = forms.CharField(required=False)
+    email = forms.CharField(required=False)
     gstin = forms.CharField(required=False)
     fssai = forms.CharField(required=False)
     franchise_id = forms.CharField(required=False)
