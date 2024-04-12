@@ -137,10 +137,13 @@
             {{ customer.address }}, {{ customer.district }}<br>
             {% endif %}
 
-            {% if customer.email != '' %}
+            {% if customer.email != 'abc@gmail.com' %}
             Email: {{ customer.email }}<br>
             {% endif %}
+            {% if customer.phone == '0' %}
+            {% else %}
             Phone: {{ customer.phone }}<br>
+            {% endif %}
         </td>
         <td>
             {% if customer.fssai != '' %}
