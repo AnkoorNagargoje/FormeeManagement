@@ -134,9 +134,9 @@
             {% endif %}
 
             {% if customer.email != '' %}
-            Email: +91 {{ customer.email }}<br>
+            Email: {{ customer.email }}<br>
             {% endif %}
-            Phone: {{ customer.phone }}<br>
+            Phone: +91 {{ customer.phone }}<br>
         </td>
         <td>
             {% if customer.fssai != '' %}
