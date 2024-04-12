@@ -346,15 +346,8 @@ def order_detail(request, customer_id, order_id):
                                                       out_quantity=order_item.quantity,
                                                       invoice_number=order_id)
             quantity_object.save()
-            if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total + order_item.quantity * product.franchise_price, 2)
-                order.save()
-            elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total + order_item.quantity * product.store_price, 2)
-                order.save()
-            else:
-                order.order_total = round(order.order_total + order_item.quantity * product.price, 2)
-                order.save()
+            order.order_total = round(order.order_total + order_item.quantity * order_item.price, 2)
+            order.save()
         else:
             messages.error(request, "There not enough stock of the product in the inventory, Update Inventory!")
 
@@ -414,15 +407,8 @@ def returned_items(request, customer_id, order_id, sales_return_id):
         if returned_item_form.is_valid():
             returned_item = returned_item_form.save(commit=False)
             returned_item.sales_return = sales_return
-            if sales_return.customer.order_type == 'franchise':
-                returned_item.return_total += returned_item.quantity * returned_item.product.product.franchise_price
-                returned_item.return_total += round((returned_item.return_total * 12) / 100, 2)
-            elif sales_return.customer.order_type == 'super market':
-                returned_item.return_total += returned_item.quantity * returned_item.product.product.store_price
-                returned_item.return_total += round((returned_item.return_total * 12) / 100, 2)
-            elif sales_return.customer.order_type == 'normal':
-                returned_item.return_total += round(returned_item.quantity * returned_item.product.product.price, 2)
-
+            returned_item.return_total += returned_item.quantity * returned_item.price
+            returned_item.return_total += round((returned_item.return_total * 12) / 100, 2)
             returned_item.return_total = round(returned_item.return_total, 2)
             returned_item.save()
 

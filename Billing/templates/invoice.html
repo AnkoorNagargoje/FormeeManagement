@@ -79,7 +79,11 @@
     </style>
 </head>
 <body style="width:50%;margin:auto; margin-top:20px;">
-
+<a href="/billing/{{ order.id }}/invoice/" target="_blank">
+    <button style="cursor:pointer; padding:10px 20px;background-color:#49DE80;border-radius:10px; outline:none;border:none;">
+        Download
+    </button>
+</a>
 <div class="center">
     {% if customer.order_type == 'normal' %}
     <p>Cash Memo</p>
@@ -92,7 +96,7 @@
 <table class="customer-details">
     <tbody>
     <tr>
-        <td width="65%"><p class="logo">Shree Panchkrishna Foods PVT. LTD.</p></td>
+        <td width="65%"><p class="logo">Shetsari Farmer Producer Company Limited</p></td>
         <td><p class="logo">Formee Foods</p></td>
     </tr>
     </tbody>
@@ -161,12 +165,8 @@
         {% endif %}
         <th>Size</th>
         <th>Quantity</th>
-        <th>Price</th>
-        {% if customer.order_type == 'franchise' %}
-        <th>Franchise Price</th>
-        {% elif customer.order_type == 'super market' %}
-        <th>Store Price</th>
-        {% endif %}
+        <th>Price(MRP)</th>
+        <th>Discounted Price</th>
         <th>Total</th>
     </tr>
     </thead>
@@ -180,20 +180,8 @@
         <td>{{ item.product.size }}</td>
         <td>{{ item.quantity }}</td>
         <td>{{ item.product.price }}</td>
-
-        {% if customer.order_type == 'franchise' %}
-        <td>{{ item.product.franchise_price|floatformat:2 }}</td>
-        {% elif customer.order_type == 'super market' %}
-        <td>{{ item.product.store_price|floatformat:2 }}</td>
-        {% endif %}
-
-        {% if customer.order_type == 'franchise' %}
-        <td>{{ item.franchise_item_total|floatformat:2 }}</td>
-        {% elif customer.order_type == 'super market' %}
-        <td>{{ item.store_item_total|floatformat:2 }}</td>
-        {% else %}
-        <td>{{ item.customer_item_total|floatformat:2 }}</td>
-        {% endif %}
+        <td>{{ item.price|floatformat:2 }}</td>
+        <td>{{ item.item_total|floatformat:2 }}</td>
     </tr>
     {% endfor %}
     </tbody>

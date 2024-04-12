@@ -90,18 +90,13 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    price = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"
 
-    def franchise_item_total(self):
-        return self.product.franchise_price * self.quantity
-
-    def store_item_total(self):
-        return self.product.store_price * self.quantity
-
-    def customer_item_total(self):
-        return self.product.price * self.quantity
+    def item_total(self):
+        return self.price * self.quantity
 
 
 class SalesReturn(models.Model):
@@ -125,6 +120,7 @@ class ReturnItem(models.Model):
     return_total = models.FloatField(default=0)
     payment_status = models.CharField(max_length=30, default='')
     payment_type = models.CharField(max_length=20, default='')
+    price = models.FloatField(default=0)
 
     def __str__(self):
         return f"ReturnItem of {self.sales_return.id} - {self.id}"

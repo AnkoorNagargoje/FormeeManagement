@@ -68,7 +68,7 @@ class OrderItemForm(forms.ModelForm):
 
     class Meta:
         model = OrderItem
-        fields = ('product', 'quantity')
+        fields = ('product', 'quantity', 'price')
 
 
 class ReturnedItemForm(forms.ModelForm):

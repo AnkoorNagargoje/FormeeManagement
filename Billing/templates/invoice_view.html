@@ -165,12 +165,8 @@
         {% endif %}
         <th>Size</th>
         <th>Quantity</th>
-        <th>Price</th>
-        {% if customer.order_type == 'franchise' %}
-        <th>Franchise Price</th>
-        {% elif customer.order_type == 'super market' %}
-        <th>Store Price</th>
-        {% endif %}
+        <th>Price(MRP)</th>
+        <th>Discounted Price</th>
         <th>Total</th>
     </tr>
     </thead>
@@ -184,20 +180,8 @@
         <td>{{ item.product.size }}</td>
         <td>{{ item.quantity }}</td>
         <td>{{ item.product.price }}</td>
-
-        {% if customer.order_type == 'franchise' %}
-        <td>{{ item.product.franchise_price|floatformat:2 }}</td>
-        {% elif customer.order_type == 'super market' %}
-        <td>{{ item.product.store_price|floatformat:2 }}</td>
-        {% endif %}
-
-        {% if customer.order_type == 'franchise' %}
-        <td>{{ item.franchise_item_total|floatformat:2 }}</td>
-        {% elif customer.order_type == 'super market' %}
-        <td>{{ item.store_item_total|floatformat:2 }}</td>
-        {% else %}
-        <td>{{ item.customer_item_total|floatformat:2 }}</td>
-        {% endif %}
+        <td>{{ item.price|floatformat:2 }}</td>
+        <td>{{ item.item_total|floatformat:2 }}</td>
     </tr>
     {% endfor %}
     </tbody>

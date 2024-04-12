@@ -39,9 +39,16 @@
             <p class="text-lg mb-2">Product</p>
             {% render_field form.product label="Product" class='w-full h-10 indent-2 border-2 rounded' %}
 
-            <p class="text-lg mb-2">Quantity</p>
-            {% render_field form.quantity class='w-full h-10 indent-2 border-2 rounded' %}
-
+            <div class="flex justify-between gap-4">
+                <div>
+                    <p class="text-lg mb-2">Quantity</p>
+                    {% render_field form.quantity class='w-full h-10 indent-2 border-2 rounded' %}
+                </div>
+                <div>
+                    <p class="text-lg mb-2">Price</p>
+                    {% render_field form.price class='w-full h-10 indent-2 border-2 rounded' %}
+                </div>
+            </div>
             {{ form.errors }}
             <button type="submit"
                     class="w-full mt-4 bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
