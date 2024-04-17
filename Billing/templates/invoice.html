@@ -193,7 +193,7 @@
     <tbody>
     <tr>
         <td>
-            Bank: Bank of Maharashtra<br>
+            Bank: Bank of Maharashtra Current A/C<br>
             Branch: Dwarka Nashik<br>
             Account No: 60447850215<br>
             IFSC Code: MAHB0000590
@@ -208,13 +208,13 @@
                 </tr>
                 {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
                 <tr>
-                    <td>CGST <span style="font-size:8px;">(6%)</span></td>
+                    <td>Output CGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
                         {{ order.cgst|floatformat:2 }}
                     </td>
                 </tr>
                 <tr>
-                    <td>SGST <span style="font-size:8px;">(6%)</span></td>
+                    <td>Output SGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
                         {{ order.sgst|floatformat:2 }}
                     </td>
@@ -271,8 +271,9 @@
     </p>
 </div>
 <br>
-<div>
-    <p><u>Declaration</u><br>
+<div style="display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:justify-between; gap:5px;">
+    <div>
+        <p><u>Declaration</u><br>
         We declare that this Invoice shows the actual price of the goods described and that all particulars are true and
         correct.<br>
         I/We certify that food/foods mentioned in the invoice are/is warranted to be the nature and quality which it/these
@@ -280,7 +281,13 @@
         <br>
         SUBJECT TO NASHIK JURISDICTION<br>
         This is a computer generated invoice.
-    </p>
+        </p>
+    </div>
+    <div style="border:1px #000000 solid; width:100%; padding:10px 10px 0px 10px;">
+        <p>For Shetsari Farmer Producer Company Limited</p>
+        <br><br><br><br>
+        AUTHORISED SIGNATORY ONLY
+    </div>
 </div>
 </body>
 </html>
