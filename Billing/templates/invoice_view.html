@@ -115,7 +115,11 @@
         </td>
         <td>
             <p>
-                Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}<br>
+                {% if customer.order_type == 'normal' %}
+		    Cash Memo #
+		    {% else %}
+		    Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
+		    {% endif %}<br>
                 Date: {{ order.created_at|date:"d F, Y" }}<br>
                 FSSAI Number: 11523999000403<br>
                 GST Reg. Number: 27ABKCS8741G1ZW
@@ -169,7 +173,7 @@
         <th>Size</th>
         <th>Quantity</th>
         <th>Price(MRP)</th>
-        <th>Discounted Price</th>
+        <th>Sale Price</th>
         <th>Total</th>
     </tr>
     </thead>
@@ -199,12 +203,14 @@
     </thead>
     <tbody>
     <tr>
+	{% if customer.order_type != 'normal' %}
         <td>
             Bank: Bank of Maharashtra Current A/C<br>
             Branch: Dwarka Nashik<br>
             Account No: 60447850215<br>
             IFSC Code: MAHB0000590
-        </td>
+	</td>
+	{% endif %}
         <td style="padding:0;">
             <table>
                 <tr>
