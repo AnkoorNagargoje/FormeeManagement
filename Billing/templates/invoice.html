@@ -111,7 +111,11 @@
         </td>
         <td>
             <p>
-                Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}<br>
+                {% if customer.order_type == 'normal' %}
+		    Cash Memo #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
+		    {% else %}
+		    Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
+		    {% endif %}<br>
                 Date: {{ order.created_at|date:"d F, Y" }}<br>
                 FSSAI Number: 11523999000403<br>
                 GST Reg. Number: 27ABKCS8741G1ZW
@@ -133,10 +137,13 @@
             {{ customer.address }}, {{ customer.district }}<br>
             {% endif %}
 
-            {% if customer.email != '' %}
+            {% if customer.email != 'abc@gmail.com' %}
             Email: {{ customer.email }}<br>
             {% endif %}
+            {% if customer.phone == '0' %}
+            {% else %}
             Phone: +91 {{ customer.phone }}<br>
+            {% endif %}
         </td>
         <td>
             {% if customer.fssai != '' %}
@@ -162,7 +169,7 @@
         <th>Size</th>
         <th>Quantity</th>
         <th>Price(MRP)</th>
-        <th>Discounted Price</th>
+        <th>Sale Price</th>
         <th>Total</th>
     </tr>
     </thead>
@@ -186,18 +193,22 @@
 <table class="product-details">
     <thead>
     <tr>
-        <th style="width:50%;">Bank Details</th>
+        {% if customer.order_type != 'normal' %}
+	    <th style="width:50%;">Bank Details</th>
+	{% endif %}
         <th>Billing</th>
     </tr>
     </thead>
     <tbody>
     <tr>
+	{% if customer.order_type != 'normal' %}
         <td>
             Bank: Bank of Maharashtra Current A/C<br>
             Branch: Dwarka Nashik<br>
             Account No: 60447850215<br>
             IFSC Code: MAHB0000590
-        </td>
+	</td>
+	{% endif %}
         <td style="padding:0;">
             <table>
                 <tr>
@@ -286,7 +297,7 @@
     <div style="border:1px #000000 solid; width:100%; padding:10px 10px 0px 10px;">
         <p>For Shetsari Farmer Producer Company Limited</p>
         <br><br><br><br>
-        AUTHORISED SIGNATORY ONLY
+        AUTHORISED SIGNATORY
     </div>
 </div>
 </body>
