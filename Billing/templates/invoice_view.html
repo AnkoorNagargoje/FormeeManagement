@@ -116,7 +116,7 @@
         <td>
             <p>
                 {% if customer.order_type == 'normal' %}
-		    Cash Memo #
+		    Cash Memo #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
 		    {% else %}
 		    Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
 		    {% endif %}<br>
@@ -197,7 +197,9 @@
 <table class="product-details">
     <thead>
     <tr>
-        <th style="width:50%;">Bank Details</th>
+        {% if customer.order_type != 'normal' %}
+	    <th style="width:50%;">Bank Details</th>
+	{% endif %}
         <th>Billing</th>
     </tr>
     </thead>
@@ -299,7 +301,7 @@
     <div style="border:1px #000000 solid; width:100%; padding:10px 10px 0px 10px;">
         <p>For Shetsari Farmer Producer Company Limited</p>
         <br><br><br><br>
-        AUTHORISED SIGNATORY ONLY
+        AUTHORISED SIGNATORY
     </div>
 </div>
 </body>
