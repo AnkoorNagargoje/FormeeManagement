@@ -696,10 +696,17 @@ def invoice(request, order_id):
     customer = order.customer
     order_items = OrderItem.objects.filter(order=order)
     total_amount = order.order_total
+    total_amount_in_words_gst = num2words(order.order_total_with_gst())
+    total_amount_in_words_normal = num2words(order.normal_order_total())
+    total_amount_in_words_exhibition = num2words(order.normal_order_total())
 
     # Render the HTML template
     return render(request, 'invoice_view.html',
-                  {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount})
+                  {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount,
+                   'total_amount_in_words_gst': total_amount_in_words_gst,
+                   'total_amount_in_words_normal': total_amount_in_words_normal,
+                   'total_amount_in_words_exhibition': total_amount_in_words_exhibition,
+                   })
 
 
 def ledger_view(request, customer_id):
