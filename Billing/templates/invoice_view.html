@@ -141,8 +141,10 @@
             {{ customer.address }}, {{ customer.district }}<br>
             {% endif %}
 
+            {% if customer.order_type != 'normal' %}
             {% if customer.email != 'abc@gmail.com' %}
             Email: {{ customer.email }}<br>
+            {% endif %}
             {% endif %}
             {% if customer.phone == '0' %}
             {% else %}
@@ -286,23 +288,24 @@
     </p>
 </div>
 <br>
-<div style="display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:justify-between; gap:5px;">
-    <div>
+<div style="display:flex; flex-direction:row; justify-content:space-between; gap:5px;">
+    <div style="width:50%;">
         <p><u>Declaration</u><br>
         We declare that this Invoice shows the actual price of the goods described and that all particulars are true and
         correct.<br>
         I/We certify that food/foods mentioned in the invoice are/is warranted to be the nature and quality which it/these
         purport/purported to be.
         <br>
-        SUBJECT TO NASHIK JURISDICTION<br>
+        SUBJECT TO NASHIK JURISDICTION ONLY<br>
         This is a computer generated invoice.
         </p>
     </div>
-    <div style="border:1px #000000 solid; width:100%; padding:10px 10px 0px 10px;">
+    <div style="border:1px #000000 solid; width:50%; padding:10px 10px 0px 10px;">
         <p>For Shetsari Farmer Producer Company Limited</p>
         <br><br><br><br>
         AUTHORISED SIGNATORY
     </div>
 </div>
+
 </body>
 </html>
