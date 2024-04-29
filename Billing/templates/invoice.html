@@ -137,8 +137,10 @@
             {{ customer.address }}, {{ customer.district }}<br>
             {% endif %}
 
+            {% if customer.order_type != 'normal' %}
             {% if customer.email != 'abc@gmail.com' %}
             Email: {{ customer.email }}<br>
+            {% endif %}
             {% endif %}
             {% if customer.phone == '0' %}
             {% else %}
