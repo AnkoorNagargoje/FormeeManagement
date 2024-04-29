@@ -596,12 +596,7 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             diff = new_order_item.quantity - old_quantity
             if diff <= product.stock:
                 product.stock -= diff
-                if customer.order_type == 'franchise':
-                    order.order_total = round(order.order_total + product.franchise_price * diff)
-                elif customer.order_type == 'super market':
-                    order.order_total = round(order.order_total + product.store_price * diff)
-                else:
-                    order.order_total = round(order.order_total + product.price * diff)
+                order.order_total = round(order.order_total + order_item.price * diff)
                 product.save()
                 new_order_item.save()
                 order.save()
@@ -619,12 +614,7 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
         else:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
-            if customer.order_type == 'franchise':
-                order.order_total = round(order.order_total - product.franchise_price * diff)
-            elif customer.order_type == 'super market':
-                order.order_total = round(order.order_total - product.store_price * diff)
-            else:
-                order.order_total = round(order.order_total - product.price * diff)
+            order.order_total = round(order.order_total - order_item.price * diff)
             product.save()
             new_order_item.save()
             order.save()
