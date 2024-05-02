@@ -40,6 +40,7 @@ class Order(models.Model):
     payment_type = models.CharField(max_length=20, default='')
     discount = models.PositiveIntegerField(default=0, null=True, blank=True)
     delivery = models.FloatField(default=0, null=True, blank=True)
+    invoice_number = models.PositiveIntegerField(default=0, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.order_total = max(0, self.order_total)

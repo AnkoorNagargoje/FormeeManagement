@@ -116,10 +116,10 @@
         <td>
             <p>
                 {% if customer.order_type == 'normal' %}
-		    Cash Memo #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
-		    {% else %}
-		    Invoice #{{ order.created_at|date:"Y-25/" }}{{ order.id }}
-		    {% endif %}<br>
+                Cash Memo #{{ order.created_at|date:"Y-25/" }}{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
+                {% else %}
+                Invoice #{{ order.created_at|date:"Y-25/" }}{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
+                {% endif %}<br>
                 Date: {{ order.created_at|date:"d F, Y" }}<br>
                 FSSAI Number: 11523999000403<br>
                 GST Reg. Number: 27ABKCS8741G1ZW
@@ -200,21 +200,21 @@
     <thead>
     <tr>
         {% if customer.order_type != 'normal' %}
-	    <th style="width:50%;">Bank Details</th>
-	{% endif %}
+        <th style="width:50%;">Bank Details</th>
+        {% endif %}
         <th>Billing</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-	{% if customer.order_type != 'normal' %}
+        {% if customer.order_type != 'normal' %}
         <td>
             Bank: Bank of Maharashtra Current A/C<br>
             Branch: Dwarka Nashik<br>
             Account No: 60447850215<br>
             IFSC Code: MAHB0000590
-	</td>
-	{% endif %}
+        </td>
+        {% endif %}
         <td style="padding:0;">
             <table>
                 <tr>
@@ -242,7 +242,8 @@
                 <tr>
                     <td>Discount</td>
                     <td>
-                        {{ order.discount_amount|floatformat:2 }} <span style="font-size:8px;">({{ order.discount }}%)</span>
+                        {{ order.discount_amount|floatformat:2 }} <span
+                            style="font-size:8px;">({{ order.discount }}%)</span>
                     </td>
                 </tr>
                 {% endif %}
@@ -289,20 +290,22 @@
 </div>
 <br>
 <div style="display:flex; flex-direction:row; justify-content:space-between; gap:5px;">
-    <div style="width:50%;">
+    <div style="width:70%;">
         <p><u>Declaration</u><br>
-        We declare that this Invoice shows the actual price of the goods described and that all particulars are true and
-        correct.<br>
-        I/We certify that food/foods mentioned in the invoice are/is warranted to be the nature and quality which it/these
-        purport/purported to be.
-        <br>
-        SUBJECT TO NASHIK JURISDICTION ONLY<br>
-        This is a computer generated invoice.
+            We declare that this Invoice shows the actual price of the goods described and that all particulars are true
+            and
+            correct.<br>
+            I/We certify that food/foods mentioned in the invoice are/is warranted to be the nature and quality which
+            it/these
+            purport/purported to be.
+            <br>
+            SUBJECT TO NASHIK JURISDICTION ONLY<br>
+            This is a computer generated invoice.
         </p>
     </div>
-    <div style="border:1px #000000 solid; width:50%; padding:10px 10px 0px 10px;">
+    <div style="border:1px #000000 solid; width:30%; padding:10px 10px 0px 10px;">
         <p>For Shetsari Farmer Producer Company Limited</p>
-        <br><br><br><br>
+        <br><br><br>
         AUTHORISED SIGNATORY
     </div>
 </div>

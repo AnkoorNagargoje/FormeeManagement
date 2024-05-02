@@ -15,16 +15,6 @@
         padding: 0.5rem;
         text-align:center;
     }
-
-
-
-
-
-
-
-
-
-
 </style>
 
 {% if messages %}
@@ -85,7 +75,10 @@
         <form method="post" class="flex flex-wrap">
             {% csrf_token %}
             {{ form.errors }}
-            {% render_field form.created_at class="w-full h-10 indent-2 rounded bg-transparent border-2 mb-3" %}
+            <div class="flex justify-between gap-2 mb-3">
+                {% render_field form.created_at class="w-[60%] h-10 indent-2 rounded bg-transparent border-2" %}
+                {% render_field form.invoice_number class="w-[40%] h-10 indent-2 rounded bg-transparent border-2" placeholder="Invoice No." %}
+            </div>
             <button type="submit"
                     class="w-full bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
                 Create New Order
