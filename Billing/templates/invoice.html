@@ -16,7 +16,7 @@
         }
 
         .logo {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             margin-bottom:10px;
         }
@@ -25,15 +25,9 @@
             width:100%;
         }
 
-        .customer-details h2 {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
         .customer-details p {
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.2;
         }
 
         .product-details {
@@ -65,7 +59,7 @@
         }
         .center {
 			text-align: center;
-			font-size:20px;
+			font-size:16px;
 			font-weight:bold;
 		}
 		.right {
@@ -80,14 +74,14 @@
 </head>
 <body style="width:50%;margin:auto; margin-top:20px;">
 
-<div class="center">
+<div class="center" style="margin-bottom:-15px;">
     {% if customer.order_type == 'normal' %}
     <p>Cash Memo</p>
     {% else %}
     <p>Tax Invoice</p>
     {% endif %}
 </div>
-<hr>
+<hr style="margin-top:-10px;">
 
 <table class="customer-details">
     <tbody>
@@ -126,8 +120,8 @@
 </table>
 
 <hr>
-<h2 style="margin:0">Customer Details</h2>
-<table class="customer-details">
+<h2 style="margin-bottom:0px;">Customer Details</h2>
+<table class="customer-details" style="margin-top:-10px;">
     <tbody>
     <tr>
         <td width="65%">
@@ -283,7 +277,7 @@
 
     </p>
 </div>
-<table style="width: 100%;">
+<table style="width: 100%;margin-top:-5px;">
     <tr>
         <td style="width: 70%; vertical-align: top;">
             <p><u>Declaration</u><br>
