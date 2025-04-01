@@ -54,7 +54,7 @@
                     Name
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Invoice Number
+                    Receipt Number
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Amount
@@ -83,7 +83,7 @@
                     {{ credit.name }}
                 </th>
                 <td class="px-6 py-4">
-                    {{ credit.invoice_number }}
+                    {{ credit.pk }}
                 </td>
                 <td class="px-6 py-4">
                     {{ credit.amount|floatformat:2 }}

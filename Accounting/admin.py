@@ -3,7 +3,7 @@ from .models import *
 
 
 class CreditAdmin(admin.ModelAdmin):
-    list_display = ['name', 'invoice_number', 'amount']
+    list_display = ['name', 'receipt_number', 'amount']
 
 
 class DebitTypeAdmin(admin.ModelAdmin):

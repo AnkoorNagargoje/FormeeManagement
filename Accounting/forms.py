@@ -5,8 +5,7 @@ from .models import *
 class CreditForm(forms.ModelForm):
     name = forms.CharField()
     amount = forms.FloatField()
-    invoice_number = forms.IntegerField(required=False)
-    transaction_number = forms.IntegerField(required=False)
+    transaction_number = forms.CharField(required=False)
     payment_type = forms.CharField(required=False)
     date = forms.DateField(label='Created at', widget=forms.DateInput(attrs={'type': 'date'}),
                                  input_formats=['%Y-%m-%d'])
@@ -17,7 +16,7 @@ class CreditForm(forms.ModelForm):
 
     class Meta:
         model = Credit
-        fields = ['name', 'amount', 'invoice_number', 'payment_type', 'transaction_number', 'date', 'cheque_no',
+        fields = ['name', 'amount', 'payment_type', 'transaction_number', 'date', 'cheque_no',
                   'bank_name', 'note', 'credit_type']
 
 

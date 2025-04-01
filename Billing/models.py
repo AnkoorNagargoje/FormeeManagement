@@ -4,7 +4,7 @@ from django.db.models import Sum
 
 
 SALE_CHOICE = (
-    ('super market', 'Super Market'),
+    ('super market', 'Distributor'),
     ('franchise', 'Franchise'),
     ('normal', 'Normal Customer'),
     ('exhibition', 'Exhibition'),
@@ -15,6 +15,7 @@ class Customer(models.Model):
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
     district = models.CharField(max_length=100, default='')
+    state = models.CharField(max_length=20, default='Maharashtra')
     email = models.EmailField()
     gstin = models.CharField(max_length=100)
     fssai = models.CharField(max_length=100)
@@ -41,6 +42,8 @@ class Order(models.Model):
     discount = models.PositiveIntegerField(default=0, null=True, blank=True)
     delivery = models.FloatField(default=0, null=True, blank=True)
     invoice_number = models.PositiveIntegerField(default=0, blank=True, null=True)
+    payment_terms = models.CharField(max_length=100, default='', blank=True, null=True)
+    ref_number = models.CharField(default='', max_length=24, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.order_total = max(0, self.order_total)
@@ -55,8 +58,17 @@ class Order(models.Model):
     def sgst(self):
         return self.order_total * 6 / 100
 
+    def igst(self):
+        if self.customer.state != 'Maharashtra':
+            return self.order_total * 12 / 100
+        else:
+            return 0
+
     def total_gst(self):
-        return self.sgst() + self.cgst()
+        if self.customer.state != 'Maharashtra':
+            return self.igst()
+        else:
+            return self.sgst() + self.cgst()
 
     def order_total_with_gst(self):
         return round(self.order_total + self.total_gst(), 0)
@@ -92,6 +104,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.FloatField(default=0)
+    batchno = models.CharField(max_length=20, default='')
 
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"

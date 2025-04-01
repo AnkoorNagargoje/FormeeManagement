@@ -4,7 +4,7 @@ from Stock.models import Product
 
 SALE_CHOICE = (
     ('normal', 'Normal Customer'),
-    ('super market', 'Super Market'),
+    ('super market', 'Distributor'),
     ('franchise', 'Franchise'),
     ('exhibition', 'Exhibition'),
 )
@@ -25,6 +25,7 @@ class CustomerForm(forms.ModelForm):
 class CustomerProfileForm(forms.ModelForm):
     address = forms.CharField(widget=forms.Textarea)
     district = forms.CharField(required=False)
+    state = forms.CharField(required=False)
     email = forms.CharField(required=False)
     gstin = forms.CharField(required=False)
     fssai = forms.CharField(required=False)
@@ -32,7 +33,7 @@ class CustomerProfileForm(forms.ModelForm):
 
     class Meta:
         model = Customer
-        fields = ['address', 'district', 'email', 'gstin', 'fssai', 'franchise_id']
+        fields = ['address', 'district', 'state', 'email', 'gstin', 'fssai', 'franchise_id']
 
 
 class OrderForm(forms.ModelForm):
@@ -40,24 +41,31 @@ class OrderForm(forms.ModelForm):
                                  input_formats=['%Y-%m-%d'])
     payment_status = forms.CharField(required=False)
     invoice_number = forms.IntegerField(required=False)
+    ref_number = forms.CharField(required=False)
 
     class Meta:
         model = Order
-        fields = ('created_at', 'payment_status', 'invoice_number')
+        fields = ('created_at', 'payment_status', 'invoice_number', 'ref_number')
 
     def clean_created_at(self):
         created_at = self.cleaned_data['created_at']
-        # Add any additional validation or processing for the created_at field here
         return created_at
 
 
 class DeliveryForm(forms.ModelForm):
     delivery = forms.FloatField(required=False)
     discount = forms.IntegerField(required=False)
+    payment_terms = forms.CharField(required=False)
 
     class Meta:
         model = Order
-        fields = ['delivery', 'discount']
+        fields = ['delivery', 'discount', 'payment_terms']
+
+    def __init__(self, *args, **kwargs):
+        order = kwargs.pop('order', None)
+        super().__init__(*args, **kwargs)
+        if order:
+            self.fields['payment_terms'].widget.attrs.update({'placeholder': order.payment_terms})
 
 
 class OrderItemForm(forms.ModelForm):
@@ -69,7 +77,7 @@ class OrderItemForm(forms.ModelForm):
 
     class Meta:
         model = OrderItem
-        fields = ('product', 'quantity', 'price')
+        fields = ('product', 'quantity', 'price', 'batchno',)
 
 
 class ReturnedItemForm(forms.ModelForm):

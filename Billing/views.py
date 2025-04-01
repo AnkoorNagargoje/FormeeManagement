@@ -18,6 +18,13 @@ from django.db.models.functions import Cast
 from django.db.models.functions import Round
 from django.utils import timezone
 from django.db import transaction
+import pdfkit
+from django.http import HttpResponse
+from django.template.loader import get_template, render_to_string
+import os
+from num2words import num2words
+from django.conf import settings
+from django.db.models.functions import Coalesce
 
 
 @login_required
@@ -50,10 +57,10 @@ def get_gst_report(request):
     else:
         orders = Order.objects.filter().order_by('-created_at')[:100]
 
-    # Calculate the sum of desired values
     total_real_order_total = sum(order.order_total for order in orders)
     total_cgst = sum(order.cgst() for order in orders)
     total_sgst = sum(order.sgst() for order in orders)
+    total_igst = sum(order.igst() for order in orders)
     total_total_gst = sum(order.total_gst() for order in orders)
     total_order_total_with_gst = sum(order.order_total_with_gst() for order in orders)
 
@@ -62,6 +69,7 @@ def get_gst_report(request):
         'total_real_order_total': total_real_order_total,
         'total_cgst': total_cgst,
         'total_sgst': total_sgst,
+        'total_igst': total_igst,
         'total_total_gst': total_total_gst,
         'total_order_total_with_gst': total_order_total_with_gst
     })
@@ -76,40 +84,52 @@ def export_report_to_csv(request):
         end_datetime = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
         orders = Order.objects.filter(created_at__range=(start_datetime, end_datetime)).order_by('pk')
     else:
-        orders = Order.objects.all().order_by('pk')
+        orders = Order.objects.all().order_by('invoice_number')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="orders-{start_date_str}-{end_date_str}.csv"'
 
     writer = csv.writer(response)
     writer.writerow(['Invoice No.', 'Invoice Date', 'Party Name', 'GSTIN', 'Total(MRP)', 'CGST (6%)',
-                     'SGST (6%)', 'Total Tax', 'Order Total', 'Tax Type', 'Type'])
+                     'SGST (6%)', 'IGST (12%)', 'Total Tax', 'Order Total', 'Tax Type', 'Type', 'Total Quantity'])
 
     order_total_sum = 0
     cgst_sum = 0
     sgst_sum = 0
+    igst_sum = 0
     total_gst_sum = 0
     order_total_with_gst_sum = 0
+    total_quantity_sum = 0  # Initialize total quantity sum
 
     for order in orders:
         # Convert the order.created_at to a specific timezone if needed
         order_created_at_str = order.created_at.astimezone(timezone.get_current_timezone()).strftime('%d-%m-%Y')
 
+        # Calculate total quantity for the order
+        total_quantity = order.orderitem_set.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+
         if order.customer.order_type != 'normal':
             writer.writerow(
-                [order.id, order_created_at_str, order.customer, order.customer.gstin,
-                 f'{order.order_total}', f'{order.cgst():.2f}', f'{order.sgst():.2f}',
-                 f'{order.total_gst():.2f}', f'{order.order_total_with_gst():.2f}', 'CS GST', 'Taxable'])
+                [order.invoice_number, order_created_at_str, order.customer, order.customer.gstin,
+                 f'{order.order_total}', f'{order.cgst():.2f}', f'{order.sgst():.2f}', f'{order.igst():.2f}',
+                 f'{order.total_gst():.2f}', f'{order.order_total_with_gst():.2f}', 'CS GST', 'Taxable',
+                 total_quantity])
 
             order_total_sum += order.order_total
             cgst_sum += order.cgst()
             sgst_sum += order.sgst()
+            igst_sum += order.igst()
             total_gst_sum += order.total_gst()
             order_total_with_gst_sum += order.order_total_with_gst()
+            total_quantity_sum += total_quantity
 
-    writer.writerow(['', '', '', '', '', '', '', '', '', '', ''])
-    writer.writerow(['Total', '', '', '', f'{order_total_sum:.2f}', f'{cgst_sum:.2f}', f'{sgst_sum:.2f}',
-                     f'{total_gst_sum:.2f}', f'₹{order_total_with_gst_sum:.2f}', '', ''])
+    # Add an empty row for spacing
+    writer.writerow(['', '', '', '', '', '', '', '', '', '', '', '', ''])
+
+    # Add totals row
+    writer.writerow(
+        ['Total', '', '', '', f'{order_total_sum:.2f}', f'{cgst_sum:.2f}', f'{sgst_sum:.2f}', f'{igst_sum:.2f}',
+         f'{total_gst_sum:.2f}', f'₹{order_total_with_gst_sum:.2f}', '', '', total_quantity_sum])
 
     return response
 
@@ -124,7 +144,7 @@ def get_sales_report(request):
     end_date = request.GET.get('end_date')
 
     orders = Order.objects.all()
-    orders = orders.order_by('id')
+    orders = orders.order_by('invoice_number')
 
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
@@ -154,19 +174,21 @@ def get_sales_report(request):
         writer = csv.writer(response)
         writer.writerow(
             ['Order ID', 'Order Date', 'Customer Name', 'Order Type', 'GSTIN', 'Payment Status', 'Payment Type',
-             'Total(MRP)', 'CGST (6%)', 'SGST (6%)', 'Total Tax', 'Order Total with GST'])
+             'Total(MRP)', 'CGST (6%)', 'SGST (6%)', 'IGST (12%)', 'Total Tax', 'Order Total with GST',
+             'Total Quantity'])
 
         for order in orders:  # Export filtered data
             order_created_at_str = order.created_at.astimezone(timezone.get_current_timezone()).strftime('%d-%m-%Y')
+            total_quantity = order.orderitem_set.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
 
             total_mrp = order.order_total
-            cgst, sgst, total_gst = ('-', '-', '-') if order.customer.order_type == 'normal' else (
-                f'{order.cgst():.2f}', f'{order.sgst():.2f}', f'{order.total_gst():.2f}')
+            cgst, sgst, igst, total_gst = ('-', '-', '-', '-') if order.customer.order_type == 'normal' else (
+                f'{order.cgst():.2f}', f'{order.sgst():.2f}', f'{order.igst():.2f}', f'{order.total_gst():.2f}')
 
             order_type = order.customer.order_type.capitalize()
 
             writer.writerow([
-                order.id,
+                order.invoice_number,
                 order_created_at_str,
                 order.customer.name,
                 order_type,
@@ -176,8 +198,10 @@ def get_sales_report(request):
                 total_mrp,
                 cgst,
                 sgst,
+                igst,
                 total_gst,
                 order.get_total_amount_based_on_type(),
+                total_quantity,
             ])
 
         return response
@@ -367,6 +391,9 @@ def order_detail(request, customer_id, order_id):
                 messages.success(request, f'{order.discount}% Discount has been Applied')
             else:
                 messages.error(request, "You cannot apply discount because it's already applied or the order is Paid")
+        if delivery_form.cleaned_data['payment_terms']:
+            order.payment_terms = delivery_form.cleaned_data['payment_terms']
+            messages.success(request, f'{order.payment_terms} Payment Terms have been successfully added!')
         order.save()
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
@@ -611,7 +638,7 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             else:
                 messages.error(request,
                                'There is a shortage of stock of the product in the Inventory, Update Inventory!')
-        else:
+        elif new_order_item.quantity < old_quantity:
             diff = old_quantity - new_order_item.quantity
             product.stock += diff
             order.order_total = round(order.order_total - order_item.price * diff)
@@ -624,6 +651,18 @@ def order_item_edit(request, customer_id, order_id, order_item_id):
             quantity_object.save()
             messages.success(request,
                              f'There are {product.stock} units of {product.name} left in the inventory, Removed {diff} unit/s in the order, The new order Total is {order.order_total}')
+        else:
+            old_item_total = order_item.price * order_item.quantity
+            new_item_total = new_order_item.price * new_order_item.quantity
+            if old_item_total > new_item_total:
+                order.order_total = order.order_total - (old_item_total - new_item_total)
+            else:
+                order.order_total = order.order_total + (new_item_total - old_item_total)
+
+            order.save()
+            product.save()
+            messages.success(request,
+                             f'There are {product.stock} units of {product.name} left in the inventory, Removed 0 unit/s in the order, The new order Total is {order.order_total}, {new_item_total}, {old_item_total}')
         return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
     return render(request, 'order_item_edit.html',
@@ -654,6 +693,9 @@ def order_item_delete(request, customer_id, order_id, order_item_id):
     return redirect('order_detail', customer_id=customer.id, order_id=order.id)
 
 
+import base64
+
+
 def generate_invoice(request, order_id):
     # Fetch the order and related data
     order = Order.objects.get(id=order_id)
@@ -664,19 +706,38 @@ def generate_invoice(request, order_id):
     total_amount_in_words_normal = num2words(order.normal_order_total())
     total_amount_in_words_exhibition = num2words(order.normal_order_total())
 
-    # Render the HTML template
-    template = get_template('invoice.html')
-    context = {'order': order, 'customer': customer, 'order_items': order_items, 'total_amount': total_amount,
-               'total_amount_in_words_gst': total_amount_in_words_gst,
-               'total_amount_in_words_normal': total_amount_in_words_normal,
-               'total_amount_in_words_exhibition': total_amount_in_words_exhibition,
-               }
-    html = template.render(context)
+    # You can now directly use the image URL without base64 encoding since pdfkit supports rendering from URLs or paths
+    image_url = os.path.join(settings.STATIC_ROOT, 'images/mileto-logo.jpg')
 
-    # Create a PDF file using xhtml2pdf
-    response = HttpResponse(content_type='application/pdf')
+    # Prepare context data
+    context = {
+        'order': order,
+        'customer': customer,
+        'order_items': order_items,
+        'total_amount': total_amount,
+        'total_amount_in_words_gst': total_amount_in_words_gst,
+        'total_amount_in_words_normal': total_amount_in_words_normal,
+        'total_amount_in_words_exhibition': total_amount_in_words_exhibition,
+        'image_url': image_url,
+    }
+
+    # Render the HTML template with context
+    html_content = render_to_string('invoice.html', context)
+
+    # Set pdfkit options (like paths for wkhtmltopdf and additional settings)
+    options = {
+        'page-size': 'A4',
+        'encoding': 'UTF-8',
+        'dpi': '300',  # Improve resolution
+        'enable-local-file-access': '',  # Allows loading static files
+    }
+
+    # Generate PDF from HTML
+    pdf = pdfkit.from_string(html_content, False, options=options)
+
+    # Create response as PDF file
+    response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename=Invoice-{customer.name}-{order_id}.pdf'
-    pisa.CreatePDF(html, dest=response, encoding='utf-8')
 
     return response
 
@@ -703,7 +764,13 @@ def ledger_view(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    orders = Order.objects.filter(customer=customer)
+    image_url = os.path.join(settings.STATIC_ROOT, 'images/mileto-logo.jpg')
+
+    # Fetch all orders for the customer
+    orders = Order.objects.filter(customer__name__iexact=customer.name)
+
+    # Fetch all credits for the customer
+    credits = Credit.objects.filter(name__iexact=customer.name)
 
     if start_date and end_date:
         start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
@@ -711,76 +778,71 @@ def ledger_view(request, customer_id):
         orders = orders.filter(created_at__range=(start_datetime, end_datetime))
         return redirect('generate_ledger', customer_id=customer_id, start_date=start_date, end_date=end_date)
 
-    orders_and_credit = (
-        orders.annotate(
-            item_type=Value('order', output_field=CharField()),
-            item_invoice_number=Cast('id', output_field=CharField()),
-            item_created_at=F('created_at'),
-            item_total=Case(
-                When(customer__order_type='normal', then=Round(F('order_total'), 0)),
-                default=Round(F('order_total') + F('order_total') * 0.12, 0),
-                # Calculate order total with GST and round off
-                output_field=FloatField()
-            ),
-            item_payment_status=F('payment_status'),
-            item_payment_type=F('payment_type'),
-            item_primary_key=F('pk')  # Add primary key field
-        )
-        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type', 'item_primary_key')  # Include primary key field
-    )
-
-    credits = (
-        Credit.objects.filter(invoice_number__in=orders.values_list('id', flat=True))
-        .annotate(
-            item_type=Value('credit', output_field=CharField()),
-            item_invoice_number=Cast('invoice_number', output_field=CharField()),
-            item_created_at=F('date'),
-            item_total=F('amount'),
-            item_payment_status=Value('Paid', output_field=CharField()),
-            item_payment_type=F('payment_type'),
-            item_primary_key=F('pk')  # Add primary key field
-        )
-        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type', 'item_primary_key')  # Include primary key field
-    )
-
-    orders_and_credit = orders_and_credit.union(credits).order_by('item_created_at')
-
-    sum_orders = orders.aggregate(total_pending=Sum(
-        Case(
+    # Annotate and prepare order data
+    orders_annotated = orders.annotate(
+        item_type=Value('order', output_field=CharField()),
+        item_invoice_number=Cast('invoice_number', output_field=CharField()),
+        item_created_at=F('created_at'),
+        item_total=Case(
             When(customer__order_type='normal', then=F('order_total')),
             default=ExpressionWrapper(
-                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                F('order_total') + F('order_total') * 0.12,  # GST Calculation
                 output_field=FloatField()
-            ),
-            output_field=FloatField()
-        )
-    ))['total_pending'] or 0.0
+            )
+        ),
+        item_payment_status=F('payment_status'),
+        item_payment_type=F('payment_type')
+    ).values(
+        'item_type', 'item_invoice_number', 'item_created_at', 'item_total',
+        'item_payment_status', 'item_payment_type'
+    )
 
-    paid_total = orders.filter(payment_status='Paid').aggregate(total_paid=Sum(
-        Case(
-            When(customer__order_type='normal', then=F('order_total')),
-            default=ExpressionWrapper(
-                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
-                output_field=FloatField()
-            ),
-            output_field=FloatField()
-        )
-    ))['total_paid'] or 0.0
+    # Annotate and prepare credit data
+    credits_annotated = credits.annotate(
+        item_type=Value('credit', output_field=CharField()),
+        item_invoice_number=Cast('receipt_number', output_field=CharField()),
+        item_created_at=F('date'),
+        item_total=F('amount'),
+        item_payment_status=Value('Paid', output_field=CharField()),
+        item_payment_type=F('payment_type')
+    ).values(
+        'item_type', 'item_invoice_number', 'item_created_at', 'item_total',
+        'item_payment_status', 'item_payment_type'
+    )
 
-    diff = round(sum_orders - paid_total, 0)
-    diff_words = num2words(diff)
+    # Combine orders and credits into one queryset
+    orders_and_credit = orders_annotated.union(credits_annotated).order_by('item_created_at')
+
+    # Calculate the sum of all orders (with GST applied where necessary)
+    sum_orders = orders.aggregate(
+        total_pending=Sum(
+            Case(
+                When(customer__order_type='normal', then=F('order_total')),
+                default=ExpressionWrapper(
+                    F('order_total') + F('order_total') * 0.12,
+                    output_field=FloatField()
+                )
+            )
+        )
+    )['total_pending'] or 0.0
+
+    # Calculate the sum of all credits
+    sum_credits = credits.aggregate(
+        total_credits=Coalesce(Sum('amount'), 0.0)  # Handle null sums
+    )['total_credits']
+
+    # Calculate the net balance: (Total Orders - Total Credits) - Total Paid
+    net_balance = round((sum_orders - sum_credits), 2)
+    net_balance_words = num2words(net_balance)
 
     context = {
         'customer': customer,
         'orders': orders_and_credit,
         'sum_orders': sum_orders,
-        'paid_total': paid_total,
-        'diff': diff,
-        'diff_words': diff_words,
-        'start_date': start_date,
-        'end_date': end_date,
+        'sum_credits': sum_credits,
+        'diff': net_balance,
+        'diff_words': net_balance_words,
+        'image_url': image_url,
     }
     return render(request, 'ledger_view.html', context=context)
 
@@ -789,85 +851,105 @@ def generate_ledger(request, customer_id, start_date, end_date):
     customer = get_object_or_404(Customer, id=customer_id)
     start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
     end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
-    orders = Order.objects.filter(customer=customer, created_at__range=(start_datetime, end_datetime))
+    image_url = os.path.join(settings.STATIC_ROOT, 'images/mileto-logo.jpg')
 
+    # Filter orders by customer name (case-insensitive)
+    orders = Order.objects.filter(
+        customer__name__iexact=customer.name,
+        created_at__range=(start_datetime, end_datetime)
+    )
+
+    # Filter credits by matching customer name and date range
+    credits = Credit.objects.filter(
+        name__iexact=customer.name,
+        date__range=(start_datetime, end_datetime)
+    )
+
+    # Combine Orders and Credits in a single queryset
     orders_and_credit = (
         orders.annotate(
             item_type=Value('order', output_field=CharField()),
-            item_invoice_number=Cast('id', output_field=CharField()),
+            item_invoice_number=Cast('invoice_number', output_field=CharField()),
             item_created_at=F('created_at'),
             item_total=Case(
                 When(customer__order_type='normal', then=F('order_total')),
                 default=ExpressionWrapper(
-                    F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
+                    F('order_total') + F('order_total') * 0.12,  # GST Calculation
                     output_field=FloatField()
-                ),
-                output_field=FloatField()
+                )
             ),
             item_payment_status=F('payment_status'),
             item_payment_type=F('payment_type')
-        )
-        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type')
+        ).values('item_type', 'item_invoice_number', 'item_created_at',
+                 'item_total', 'item_payment_status', 'item_payment_type')
     )
 
-    credits = (
-        Credit.objects.filter(invoice_number__in=orders.values_list('id', flat=True))
-        .annotate(
+    credits_annotated = (
+        credits.annotate(
             item_type=Value('credit', output_field=CharField()),
-            item_invoice_number=Cast('invoice_number', output_field=CharField()),
+            item_invoice_number=Cast('receipt_number', output_field=CharField()),
             item_created_at=F('date'),
             item_total=F('amount'),
             item_payment_status=Value('Paid', output_field=CharField()),
             item_payment_type=F('payment_type')
-        )
-        .values('item_type', 'item_invoice_number', 'item_created_at', 'item_total', 'item_payment_status',
-                'item_payment_type')
+        ).values('item_type', 'item_invoice_number', 'item_created_at',
+                 'item_total', 'item_payment_status', 'item_payment_type')
     )
 
-    orders_and_credit = orders_and_credit.union(credits).order_by('item_created_at')
+    # Union of orders and credits
+    orders_and_credit = orders_and_credit.union(credits_annotated).order_by('item_created_at')
 
-    sum_orders = orders.aggregate(total_pending=Sum(
-        Case(
-            When(customer__order_type='normal', then=F('order_total')),
-            default=ExpressionWrapper(
-                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
-                output_field=FloatField()
-            ),
-            output_field=FloatField()
+    # Sum of all orders (including GST where applicable)
+    sum_orders = orders.aggregate(
+        total_pending=Sum(
+            Case(
+                When(customer__order_type='normal', then=F('order_total')),
+                default=ExpressionWrapper(
+                    F('order_total') + F('order_total') * 0.12,  # GST Calculation
+                    output_field=FloatField()
+                )
+            )
         )
-    ))['total_pending'] or 0.0
+    )['total_pending'] or 0.0
 
-    paid_total = orders.filter(payment_status='Paid').aggregate(total_paid=Sum(
-        Case(
-            When(customer__order_type='normal', then=F('order_total')),
-            default=ExpressionWrapper(
-                F('order_total') + F('order_total') * 0.12,  # Calculate order total with GST
-                output_field=FloatField()
-            ),
-            output_field=FloatField()
-        )
-    ))['total_paid'] or 0.0
+    # Sum of all credits (reduce total by this amount)
+    sum_credits = credits.aggregate(
+        total_credits=Coalesce(Sum('amount'), 0.0)  # Handle null sums
+    )['total_credits']
 
-    diff = round(sum_orders - paid_total, 0)
-    diff_words = num2words(diff)
+    # Calculate net balance: (Total Orders - Total Credits) - Total Paid
+    net_balance = round((sum_orders - sum_credits), 0)
+    net_balance_words = num2words(net_balance)
 
-    template = get_template('ledger.html')
+    # Prepare context for rendering HTML
     context = {
         'customer': customer,
         'orders': orders_and_credit,
         'sum_orders': sum_orders,
-        'paid_total': paid_total,
-        'diff': diff,
-        'diff_words': diff_words,
+        'sum_credits': sum_credits,
+        'diff': net_balance,
+        'diff_words': net_balance_words,
         'start_date': start_date,
         'end_date': end_date,
+        'image_url': image_url,
     }
-    html = template.render(context)
 
-    # Create a PDF file using xhtml2pdf
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=Ledger-{customer.name}-{start_date}.pdf'
-    pisa.CreatePDF(html, dest=response, encoding='utf-8')
+    # Render HTML content
+    html_content = render_to_string('ledger.html', context)
+
+    # PDF options
+    options = {
+        'page-size': 'A4',
+        'encoding': 'UTF-8',
+        'dpi': '300',
+        'enable-local-file-access': '',  # Allows loading static files
+    }
+
+    # Generate PDF
+    pdf = pdfkit.from_string(html_content, False, options=options)
+
+    # Create HTTP response with PDF
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=Ledger-{customer.name}.pdf'
 
     return response

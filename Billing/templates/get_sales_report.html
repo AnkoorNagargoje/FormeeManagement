@@ -88,10 +88,10 @@
                 {{ forloop.counter }}
             </td>
             <td class="px-6 py-4">
-                2022-23/{{ order.id }}
+                2024-25/{{ order.invoice_number }}
             </td>
             <th scope="row" class="px-6 py-4 font-medium text-gray-900">
-                {{ order.created_at }}
+                {{ order.created_at|date:"d F, Y" }}
             </th>
             <td class="px-6 py-4 font-bold">
                 {{ order.customer.name }}<span class="text-xs">({{ order.customer.get_order_type_display }})</span>

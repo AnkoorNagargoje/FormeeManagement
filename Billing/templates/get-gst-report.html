@@ -48,15 +48,19 @@
             </th>
             <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
                 Order Total<br>
-                <span class="text-blue-600">({{ total_real_order_total|floatformat:2 }})</span>
+                <span class="text-blue-600">{{ total_real_order_total|floatformat:2 }}</span>
             </th>
             <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
                 CGST<br>
-                <span class="text-blue-600">({{ total_cgst|floatformat:2 }})</span>
+                <span class="text-blue-600">{{ total_cgst|floatformat:2 }}</span>
             </th>
             <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
                 SGST<br>
                 <span class="text-blue-600">{{ total_sgst|floatformat:2 }}</span>
+            </th>
+            <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
+                IGST<br>
+                <span class="text-blue-600">{{ total_igst|floatformat:2 }}</span>
             </th>
             <th scope="col" class="sticky top-0 px-6 py-3 bg-gray-100">
                 Total GST<br>
@@ -78,7 +82,7 @@
                 {{ forloop.counter }}
             </td>
             <td class="px-6 py-4">
-                2022-23/{{ order.id }}
+                2024-25/{{ order.invoice_number }}
             </td>
             <th scope="row" class="px-6 py-4 font-medium text-gray-900">
                 {{ order.created_at|date:"F d, Y" }}
@@ -108,6 +112,13 @@
             <td class="px-6 py-4">
                 {% if order.customer.order_type != 'normal' %}
                 {{ order.sgst|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td class="px-6 py-4">
+                {% if order.customer.state != 'Maharashtra' %}
+                {{ order.igst|floatformat:2 }}
                 {% else %}
                 -
                 {% endif %}

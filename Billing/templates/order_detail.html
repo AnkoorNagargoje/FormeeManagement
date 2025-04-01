@@ -16,8 +16,6 @@
         text-align:center;
     }
 
-
-
 </style>
 
 {% if messages %}
@@ -41,7 +39,7 @@
             <p class="text-lg mb-2">Product</p>
             {% render_field form.product label="Product" class='w-full h-10 indent-2 border-2 rounded' %}
 
-            <div class="flex justify-between gap-4">
+            <div class="flex justify-between gap-4 mt-4">
                 <div>
                     <p class="text-lg mb-2">Quantity</p>
                     {% render_field form.quantity class='w-full h-10 indent-2 border-2 rounded' %}
@@ -49,6 +47,10 @@
                 <div>
                     <p class="text-lg mb-2">Price</p>
                     {% render_field form.price class='w-full h-10 indent-2 border-2 rounded' %}
+                </div>
+                <div>
+                    <p class="text-lg mb-2">Batch No.</p>
+                    {% render_field form.batchno class='w-full h-10 indent-2 border-2 rounded' %}
                 </div>
             </div>
             {{ form.errors }}
@@ -88,7 +90,10 @@
                     Product
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Stock Ordered
+                    Quantity
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Price/Unit
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Action
@@ -109,6 +114,9 @@
                 </td>
                 <td class="px-6 py-4">
                     {{ item.quantity }}
+                </td>
+                <td class="px-6 py-4">
+                    {{ item.price|floatformat:2 }}
                 </td>
                 <td class="px-6 py-4">
                     <a href="{{ item.id }}/edit/" class="font-medium text-blue-600 hover:underline">Edit</a>
@@ -138,6 +146,9 @@
                     {% csrf_token %}
                     {% render_field delivery_form.discount class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Discount %' %}
                     {% render_field delivery_form.delivery class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Delivery Charges' %}
+                    {% if delivery_form.payment_terms != '' %}
+                        {% render_field delivery_form.payment_terms class='indent-2 rounded-xl h-12 border-2 border-green-400' placeholder='Enter Payment Terms' %}
+                    {% endif %}
                     <button type="submit"
                             class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
                         Add
@@ -149,12 +160,10 @@
                 <a href="/billing/{{ customer.pk }}/orders/" class="mb-16">
                     <button type="submit"
                             class="px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out">
-                        Continue to Billing
+                        Proceed
                     </button>
                 </a>
 
-                <!-- component -->
-                <!-- This is an example component -->
                 <div class="max-w-lg mx-auto inline">
 
                     <button class="text-center inline-flex items-center px-4 mb-8 mt-4 bg-green-400 rounded-xl h-12 text-md hover:drop-shadow-lg duration-300 ease-in-out"

@@ -75,9 +75,14 @@
         <form method="post" class="flex flex-wrap">
             {% csrf_token %}
             {{ form.errors }}
-            <div class="flex justify-between gap-2 mb-3">
-                {% render_field form.created_at class="w-[60%] h-10 indent-2 rounded bg-transparent border-2" %}
-                {% render_field form.invoice_number class="w-[40%] h-10 indent-2 rounded bg-transparent border-2" placeholder="Invoice No." %}
+            <div class="flex justify-between gap-2 flex-col mb-3">
+                <div>
+                    {% render_field form.created_at class="w-[100%] h-10 indent-2 rounded bg-transparent border-2" %}
+                </div>
+                <div class="flex justify-between gap-2 mb-3">
+                    {% render_field form.invoice_number class="w-[50%] h-10 indent-2 rounded bg-transparent border-2" placeholder="Invoice No." %}
+                    {% render_field form.ref_number class="w-[50%] h-10 indent-2 rounded bg-transparent border-2" placeholder="Reference No." %}
+                </div>
             </div>
             <button type="submit"
                     class="w-full bg-green-400 rounded h-12 text-lg hover:drop-shadow-2xl duration-300 ease-in-out">
@@ -145,7 +150,7 @@
             <tr class="bg-white border-b">
 
                 <td class="px-6 py-4">
-                    2023-24/{{ order.pk }}
+                    {{ order.invoice_number }}
                 </td>
                 <td class="px-6 py-4">
                     {{ order.created_at|date:"F d, Y" }}

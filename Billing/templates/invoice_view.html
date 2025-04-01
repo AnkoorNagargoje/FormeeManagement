@@ -1,3 +1,6 @@
+{% load static %}
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,6 +26,10 @@
 
         .customer-details {
             width:100%;
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            align-items: center;
         }
 
         .customer-details h2 {
@@ -44,7 +51,7 @@
 
         .product-details th, .product-details td {
             border: 1px solid #ddd;
-            padding: 4px;
+            padding: 2px;
             text-align: left;
         }
 
@@ -84,97 +91,96 @@
         Download
     </button>
 </a>
-<div class="center">
+<div class="center" style="margin-bottom:-15px;">
     {% if customer.order_type == 'normal' %}
     <p>Delivery Challan</p>
     {% else %}
     <p>Tax Invoice</p>
     {% endif %}
 </div>
-<hr>
+<br><br><br>
+<hr style="margin-top:-10px; opacity:50%;">
 
-<table class="customer-details">
-    <tbody>
-    <tr>
-        <td width="65%"><p class="logo">Shetsari Farmer Producer Company Limited</p></td>
-        <td><p class="logo">Formee Foods</p></td>
-    </tr>
-    </tbody>
-</table>
+<div class="customer-details">
+    <div>
+        <p class="logo">Amey Vintages</p>
+        <p> 3, Amey House, Kathe Lane, Dwarka,<br> Nashik. 422011. MH. India.<br>
+            Factory : Plot No. 25/2/6, NICE Area,<br> MIDC Satpur, Nashik. 422007.
+            MH, India<br>
+            Phone: +91 8530555300<br>
+            Email: ameyvintages@gmail.com<br>
+            Website: www.milletsformee.com<br>
+        </p>
+    </div>
 
-<table class="customer-details" style="margin-top:0px;">
-    <tbody>
-    <tr>
-        <td width="65%">
-            <p> GAT NO-303-304,Opposite Sitai Lawns, Nashik Road,<br>
-                Palse, Nashik. 422102. Maharashtra. India.<br>
-                Phone: +91 9096267452<br>
-                Email: shetsarifpo@gmail.com<br>
-                www.formeefoods.com<br>
-            </p>
-        </td>
-        <td>
-            <p>
-                {% if customer.order_type == 'normal' %}
-                Cash Memo #{{ order.created_at|date:"Y-25/" }}{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
-                {% else %}
-                Invoice #{{ order.created_at|date:"Y-25/" }}{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
-                {% endif %}<br>
-                Date: {{ order.created_at|date:"d F, Y" }}<br>
-                FSSAI Number: 11523999000403<br>
-                GST Reg. Number: 27ABKCS8741G1ZW
-            </p>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<hr>
-<h2 style="margin:0">Customer Details</h2>
-<table class="customer-details">
-    <tbody>
-    <tr>
-        <td width="65%">
-            {{ customer.name }}<br>
-
-            {% if customer.address != '' %}
-            {{ customer.address }}, {{ customer.district }}<br>
-            {% endif %}
-
-            {% if customer.order_type != 'normal' %}
-            {% if customer.email != 'abc@gmail.com' %}
-            Email: {{ customer.email }}<br>
-            {% endif %}
-            {% endif %}
-            {% if customer.phone == '0' %}
+    <div>
+        <p>
+            {% if customer.order_type == 'normal' %}
+            Cash Memo : {{ order.created_at|financial_year }}/{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
             {% else %}
-            Phone: +91 {{ customer.phone }}<br>
-            {% endif %}
-        </td>
-        <td>
-            {% if customer.fssai != '' %}
-            FSSAI Reg. Number: {{ customer.fssai }}
+            Invoice Number : {{ order.created_at|financial_year }}/{% if order.invoice_number != 0 %}{{ order.invoice_number }}{% else %}{{ order.id }}{% endif %}
             {% endif %}<br>
+            Date: {{ order.created_at|date:"d F, Y" }}<br>
+            FSSAI Number: 11524999000321<br>
+            GST Reg. Number: 27ARFPN6437L1ZA
+        </p>
+    </div>
 
-            {% if customer.gstin != '' %}
-            GST Reg. Number: {{ customer.gstin }}
-            {% endif %}
-        </td>
-    </tr>
-    </tbody>
-</table>
-<hr>
+    <div>
+        <img width="150px" src="{% static '/images/mileto-logo.jpg' %}" alt="">
+    </div>
+</div>
+
+<hr style="opacity:50%;">
+<h2 style="margin-bottom:0px;">Buyer</h2>
+<div class="customer-details">
+    <div width="50%">
+        {{ customer.name }}<br>
+
+        {% if customer.address != '' %}
+        {{ customer.address }}, {{ customer.district }}<br>
+        {% endif %}
+
+        {% if customer.order_type != 'normal' %}
+        {% if customer.email != 'abc@gmail.com' %}
+        Email: {{ customer.email }}<br>
+        {% endif %}
+        {% endif %}
+        {% if customer.phone == '0' %}
+        {% else %}
+        Phone: +91 {{ customer.phone }}<br>
+        {% endif %}
+    </div>
+    <div>
+        {% if customer.fssai != '' %}
+        FSSAI: {{ customer.fssai }}
+        {% endif %}<br>
+
+        {% if customer.gstin != '' %}
+        GSTIN/UIN: {{ customer.gstin }}
+        {% endif %}<br>
+
+        {% if order.payment_terms != '' %}
+            Payment Terms: {{ order.payment_terms }}<br>
+        {% endif %}
+        {% if order.ref_number != '' %}
+            Reference No: {{ order.ref_number }}
+        {% endif %}
+    </div>
+
+</div>
+<hr style="opacity:50%;">
 
 <table class="product-details">
     <thead>
     <tr>
         <th width="30%">Product Name</th>
+        <th>Batch No.</th>
         {% if customer.order_type != 'normal' %}
         <th>HSN Code</th>
         {% endif %}
         <th>Size</th>
         <th>Quantity</th>
-        <th>Price(MRP)</th>
         <th>Sale Price</th>
         <th>Total</th>
     </tr>
@@ -183,12 +189,12 @@
     {% for item in order_items %}
     <tr>
         <td>{{ item.product.name|slice:-5 }}</td>
+        <td>{{ item.batchno }}</td>
         {% if customer.order_type != 'normal' %}
         <td>{{ item.product.hsn_code }}</td>
         {% endif %}
         <td>{{ item.product.size }}</td>
         <td>{{ item.quantity }}</td>
-        <td>{{ item.product.price }}</td>
         <td>{{ item.price|floatformat:2 }}</td>
         <td>{{ item.item_total|floatformat:2 }}</td>
     </tr>
@@ -211,7 +217,7 @@
         <td>
             Bank: Bank of Maharashtra Current A/C<br>
             Branch: Dwarka Nashik<br>
-            Account No: 60447850215<br>
+            Account No: 60489503034<br>
             IFSC Code: MAHB0000590
         </td>
         {% endif %}
@@ -224,6 +230,14 @@
                     </td>
                 </tr>
                 {% if customer.order_type != 'normal' and customer.order_type != 'exhibition' %}
+                {% if customer.state != 'Maharashtra' %}
+                <tr>
+                    <td>Output IGST <span style="font-size:8px;">(12%)</span></td>
+                    <td>
+                        {{ order.igst|floatformat:2 }}
+                    </td>
+                </tr>
+                {% else %}
                 <tr>
                     <td>Output CGST <span style="font-size:8px;">(6%)</span></td>
                     <td>
@@ -236,6 +250,7 @@
                         {{ order.sgst|floatformat:2 }}
                     </td>
                 </tr>
+                {% endif %}
                 {% endif %}
 
                 {% if order.discount %}
@@ -289,24 +304,25 @@
     </p>
 </div>
 <br>
-<div style="display:flex; flex-direction:row; justify-content:space-between; gap:5px;">
-    <div style="width:70%;">
+<div style="display:flex; flex-direction:row; justify-content:space-between; gap:20px;">
+    <div style="width:50%;">
         <p><u>Declaration</u><br>
             We declare that this Invoice shows the actual price of the goods described and that all particulars are true
             and
             correct.<br>
+            FORM E - Form of Guarantee(Refer FSSAI Regulation 2.1.14(2))<br>
             I/We certify that food/foods mentioned in the invoice are/is warranted to be the nature and quality which
             it/these
             purport/purported to be.
             <br>
-            SUBJECT TO NASHIK JURISDICTION ONLY<br>
+            Subject to Nashik Jurisdiction Only<br>
             This is a computer generated invoice.
         </p>
     </div>
-    <div style="border:1px #000000 solid; width:30%; padding:10px 10px 0px 10px;">
-        <p>For Shetsari Farmer Producer Company Limited</p>
+    <div style="width:50%; padding:10px 10px 0px 100px;">
+        <p>for Amey Vintages</p>
         <br><br><br>
-        AUTHORISED SIGNATORY
+        Authorised Signatory
     </div>
 </div>
 

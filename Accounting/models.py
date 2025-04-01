@@ -14,9 +14,9 @@ CREDIT_TYPE = (
 class Credit(models.Model):
     name = models.CharField(max_length=200)
     amount = models.FloatField()
-    invoice_number = models.PositiveIntegerField(blank=True, null=True)
+    receipt_number = models.PositiveIntegerField(blank=True, null=True)
     payment_type = models.CharField(max_length=20, default='Cash')
-    transaction_number = models.PositiveBigIntegerField(default=0, null=True, blank=True)
+    transaction_number = models.CharField(max_length=25, default=0, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=False, editable=True, null=True)
     cheque_no = models.CharField(max_length=100, default="")
     bank_name = models.CharField(max_length=100, default="")
@@ -25,12 +25,9 @@ class Credit(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        try:
-            order = Order.objects.get(id=self.invoice_number)
-            order.payment_status = 'Paid'
-            order.save()
-        except Order.DoesNotExist:
-            pass
+        if self.receipt_number is None:
+            self.receipt_number = self.id
+            super().save(update_fields=['receipt_number'])
 
 
 HOW_CHOICES = (
