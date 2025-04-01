@@ -93,7 +93,7 @@ DATABASES = {
     }
 }
 """
-"""24-25
+#"""24-25
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -104,8 +104,8 @@ DATABASES = {
         'PORT': '23334',
     }
 }
-"""
-#""" 25-26
+#"""
+""" 25-26
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -116,7 +116,7 @@ DATABASES = {
         'PORT': '54674',
     }
 }
-#"""
+"""
 
 
 # Password validation
