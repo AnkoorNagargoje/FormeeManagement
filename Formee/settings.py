@@ -27,10 +27,10 @@ SECRET_KEY = 'django-insecure-n5eaj9s8au2fax5#i#*-w3%_2r3++zfe$i(5twkw^ri(2bhs0@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://formeemanagement-production.up.railway.app/', 'formeemanagement-production.up.railway.app/',
+ALLOWED_HOSTS = ['https://formeemanagement-production.up.railway.app', 'formeemanagement-production.up.railway.app',
                  "*",
                  ]
-CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app/', 'formeemanagement-production.up.railway.app/']
+CSRF_TRUSTED_ORIGINS = ['https://formeemanagement-production.up.railway.app', 'formeemanagement-production.up.railway.app']
 
 # Application definition
 
